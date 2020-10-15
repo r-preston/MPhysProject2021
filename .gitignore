@@ -1,12 +1,5 @@
 plot.pdf
-<<<<<<< Updated upstream
 *.sublime-*
 *.exe
 *.o
 data
-=======
-data/*
-*.sublime-*
-*.exe
-*.o
->>>>>>> Stashed changes
