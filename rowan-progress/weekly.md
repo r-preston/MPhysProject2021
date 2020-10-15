@@ -8,15 +8,15 @@
  - Becoming familar with ROOT and the LHCb dataset
  - Worked on using ROOT to find Z boson mass peak as practice for W boson
 
-   ![vars](./src/wk2-vars.jpg)
+   <img src="./src/wk2-vars.jpg" height="250" />
 
    *Understanding form of the LHCb momenta data*
 
-   ![zboson](./src/wk2-zboson.jpg)
+   <img src="./src/wk2-zboson.jpg" height="250" />
 
    *Workings for Z boson mass formula*
 
-   ![zfit](./src/wk2-zfit.jpg)
+   <img src="./src/wk2-zfit.jpg" height="250" />
 
    *Results using derived Z mass formula with LHCb data*
 
