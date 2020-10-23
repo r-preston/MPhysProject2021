@@ -6,7 +6,9 @@
 
 ## Week 2
  - Becoming familar with ROOT and the LHCb dataset
- - Worked on using ROOT to find Z boson mass peak as practice for W boson
+ - Worked on using ROOT to find Z boson mass peak as practice for W boson (C++)
+
+    See `examples/findZpeak.cpp`
 
    <img src="./src/wk2-vars.jpg" height="250" />
 
@@ -19,6 +21,12 @@
    <img src="./src/wk2-zfit.jpg" height="250" />
 
    *Results using derived Z mass formula with LHCb data*
+
+- Found Z mass peak again using Python and TTree/TChain instead
+
+    See `examples/zmass.py`
+
+   <img src="./src/wk2-zfit2.jpg" height="250" />
 
 #### Sources used
  - [W and Z boson](https://indico.cern.ch/event/703646/contributions/2898022/attachments/1600968/2539871/W__Z_bosons.pdf)
