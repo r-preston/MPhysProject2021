@@ -1,5 +1,22 @@
-plot.pdf
+# environment files
 *.sublime-*
+
+# output files
+*.pdf
 *.exe
 *.o
+
+# data folder
 data
+
+# misc LaTeX output files
+*.out
+*.bbl
+*.aux
+*.nav
+*.log
+*.bcf
+*.toc
+*.snm
+*.run.xml
+*.blg
