@@ -6,8 +6,9 @@
 *.exe
 *.o
 
-# data folder
+# data
 data
+*.root
 
 # misc LaTeX output files
 *.out

@@ -28,6 +28,10 @@
 
    <img src="./src/wk2-zfit2.jpg" height="250" />
 
+## Week 3
+ - Installed Pythia
+ - Reading through Pythia and ROOT documentation
+
 #### Sources used
  - [W and Z boson](https://indico.cern.ch/event/703646/contributions/2898022/attachments/1600968/2539871/W__Z_bosons.pdf)
  - [TASI Lectures on Collider Physics](https://arxiv.org/pdf/1709.04533.pdf)
