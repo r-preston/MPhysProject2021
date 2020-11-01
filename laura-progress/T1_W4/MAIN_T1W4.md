@@ -12,9 +12,10 @@ Work done this week relates to Issue [#5](https://github.com/r-preston/MPhysProj
 * Monitoring Interview
 
 ## 27/10/2020
-* [ZMass_Final.py](ZMass_Final.py) - More correct and efficient calculation of Z invariant mass using TLorentzVector.
-- Improved version of [Week 2 attempt](https://github.com/r-preston/MPhysProject2021/blob/master/laura-progress/T1_W2/ZMassAttempt_ROOT.py).
+* [ZMass_Final.py](ZMass_Final.py) - More correct and efficient calculation of Z invariant mass using TLorentzVector. 
 * [measurement_plot_setup_label.py](measurement_plot_setup_label.py) - Histogram plotting for mup_PT for measurement and simulation data
+
+ZMass_Final is improved version of [Week 2 attempt](https://github.com/r-preston/MPhysProject2021/blob/master/laura-progress/T1_W2/ZMassAttempt_ROOT.py), using TLorentzVector to find invariant mass.
 
 ## 29/10/2020
 * [mnt_setup_fnc.cpp](mnt_setup_fnc.cpp) - Histogram plotting for mup_PT for measurement and simulation data in C++
