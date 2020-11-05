@@ -48,22 +48,23 @@ TH1F* make_TH1F(struct path_data path_in, struct plot_config hist_input, std::st
 	TH1F *hist = new TH1F(hist_name.c_str(), hist_text.c_str(), hist_input.nbins, hist_input.xmin, hist_input.xmax);
 	std::string expression = hist_input.expression +">>"+ hist->GetName();
 	ch.Draw(expression.c_str());
-	hist->SetTitle("");
+	//hist->SetTitle("");
 	return hist;
 }
 
 void plot_data_sim(struct path_data mnt_in, struct path_data sim_in, struct plot_config hist_input) {
 
         std::string x_axis = hist_input.label + " " + hist_input.unit,
-	  sim_text = hist_input.label + " Simulation Data;" + x_axis,
-	  mnt_text = hist_input.label + " Experimental Data;" + x_axis;
+	  sim_name = hist_input.label + " Simulation Data",
+	  hist_text = ";" + x_axis,
+	  mnt_name = hist_input.label + " Experimental Data";
 	//std::string hist_title = "Measurement vs Simulation for " + hist_input.label;
 
-	TH1F *hist_mnt = make_TH1F(mnt_in, hist_input, "measurement", mnt_text);
-	TH1F *hist_sim = make_TH1F(sim_in, hist_input, "simulation", sim_text);
+	TH1F *hist_mnt = make_TH1F(mnt_in, hist_input, "measurement", hist_text);
+	TH1F *hist_sim = make_TH1F(sim_in, hist_input, "simulation", hist_text);
 	
-	hist_mnt->SetName("Experimental Data");
-	hist_sim->SetName("Simulation Data");
+	hist_mnt->SetName(mnt_name.c_str());
+	hist_sim->SetName(sim_name.c_str());
 
 	hist_sim->Scale(hist_mnt->Integral()/hist_sim->Integral());
 	
