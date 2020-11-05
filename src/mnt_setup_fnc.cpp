@@ -1,4 +1,3 @@
-
 #include <TChain.h>
 #include <TCanvas.h>
 #include <TH1F.h>
@@ -49,25 +48,41 @@ TH1F* make_TH1F(struct path_data path_in, struct plot_config hist_input, std::st
 	TH1F *hist = new TH1F(hist_name.c_str(), hist_text.c_str(), hist_input.nbins, hist_input.xmin, hist_input.xmax);
 	std::string expression = hist_input.expression +">>"+ hist->GetName();
 	ch.Draw(expression.c_str());
+	hist->SetTitle("");
 	return hist;
 }
 
 void plot_data_sim(struct path_data mnt_in, struct path_data sim_in, struct plot_config hist_input) {
-	std::string hist_title = "Measurement vs Simulation for " + hist_input.label,
-	  x_axis = hist_input.label + " " + hist_input.unit,
+
+        std::string x_axis = hist_input.label + " " + hist_input.unit,
 	  sim_text = hist_input.label + " Simulation Data;" + x_axis,
 	  mnt_text = hist_input.label + " Experimental Data;" + x_axis;
+	//std::string hist_title = "Measurement vs Simulation for " + hist_input.label;
 
 	TH1F *hist_mnt = make_TH1F(mnt_in, hist_input, "measurement", mnt_text);
 	TH1F *hist_sim = make_TH1F(sim_in, hist_input, "simulation", sim_text);
 	
+	hist_mnt->SetName("Experimental Data");
+	hist_sim->SetName("Simulation Data");
+
 	hist_sim->Scale(hist_mnt->Integral()/hist_sim->Integral());
 	
+	float ymax,
+	  ymax_mnt = hist_mnt->GetMaximum(),
+	  ymax_sim = hist_sim->GetMaximum();
+	if (ymax_mnt > ymax_sim) {
+	  ymax = 1.15*ymax_mnt;
+	}
+	else {
+	  ymax = 1.15*ymax_sim;
+	}
+
 	TCanvas canv;
-	hist_sim->SetStats(false);
-	hist_sim->Draw("HIST");
-	hist_mnt->Draw("SAME E");
-	hist_mnt->SetLineColor(2);
+	hist_mnt->SetStats(false);
+	hist_mnt->Draw("E");
+	hist_sim->Draw("SAME HIST");
+     	hist_mnt->GetYaxis()->SetRangeUser(0,ymax);
+	hist_sim->SetLineColor(kAzure);
 	canv.BuildLegend();
 	std::string const filename = "Measurement_" + hist_input.label + ".pdf";
 	canv.SaveAs(filename.c_str());
