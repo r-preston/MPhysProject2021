@@ -1,61 +1,28 @@
-// main92.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
-// PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
-// Please respect the MCnet Guidelines, see GUIDELINES for details.
-
-// Keywords: analysis; root;
-
-// This is a simple test program.
-// Modified by Rene Brun and Axel Naumann to put the Pythia::event
-// into a TTree.
-
-// Header file to access Pythia 8 program elements.
 #include "Pythia8/Pythia.h"
-
-// ROOT, for saving Pythia events as trees in a file.
-#include "TTree.h"
-#include "TFile.h"
 
 using namespace Pythia8;
 
-int main() {
-
-  // Create Pythia instance and set it up to generate hard QCD processes
-  // above pTHat = 20 GeV for pp collisions at 14 TeV.
+int main()
+{
   Pythia pythia;
-  pythia.readString("HardQCD:all = on");
+  pythia.readString("WeakSingleBoson:all = on");
   pythia.readString("PhaseSpace:pTHatMin = 20.");
-  pythia.readString("Beams:eCM = 14000.");
+  pythia.readString("Beams:eCM = 7000.");
   pythia.init();
 
-  // Set up the ROOT TFile and TTree.
-  TFile *file = TFile::Open("pytree.root","recreate");
-  Event *event = &pythia.event;
-  TTree *T = new TTree("T","ev1 Tree");
-  T->Branch("event",&event);
+  ParticleData particle_data;
 
- // Begin event loop. Generate event; skip if generation aborted.
-  for (int iEvent = 0; iEvent < 100; ++iEvent) {
+  // Begin event loop. Generate event. Skip if error. List first one.
+  for (int iEvent = 0; iEvent < 15; ++iEvent)
+  {
     if (!pythia.next()) continue;
 
-    // Fill the pythia event into the TTree.
-    // Warning: the files will rapidly become large if all events
-    // are saved. In some cases it may be convenient to do some
-    // processing of events and only save those that appear
-    // interesting for future analyses.
-    T->Fill();
-
-  // End event loop.
+    if(event[iEvent].isFinal() and event[iEvent].isCharged())
+    {
+    std::cout << event[iEvent].name() << std::endl;
+    }
   }
-
-  // Statistics on event generation.
-  pythia.stat();
-
-  //  Write tree.
-  T->Print();
-  T->Write();
-  delete file;
-
-  // Done.
+  //pythia.stat();
   return 0;
 }
+
