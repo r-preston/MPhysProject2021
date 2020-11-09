@@ -1,15 +1,9 @@
 # Term 1, Week 4
 Upload of work done during week 4, 26/10/2020 to 01/11/2020.
 
-* [Main Record of Work (Week 4)](T1_W4_Doc.pdf)
-* [Photos of written notes (Week 4)](T1_W4_Written_Notes.pdf)
-
-Main Record contains lists of activities attempted each day, a reference table to the relevant page in the written notes, and a reference table for the uploaded documents. Contains notes about other files uploaded, which have been listed under the relevant date in the main record document.
+See Issue [#12](https://github.com/r-preston/MPhysProject2021/issues/12) for summary document of work done (pdf). Contains pdfs of plots created and notes on the codes uploaded here. Notes on the codes have been included below.
 
 Work done this week relates to Issue [#5](https://github.com/r-preston/MPhysProject2021/issues/5).
-
-## 26/10/2020
-* Monitoring Interview
 
 ## 27/10/2020
 * [ZMass_Final.py](ZMass_Final.py) - More correct and efficient calculation of Z invariant mass using TLorentzVector. 
