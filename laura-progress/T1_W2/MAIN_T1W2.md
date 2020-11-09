@@ -1,7 +1,7 @@
 # Term 1, Week 2
 Upload of work done during week 2, 12/10/2020 to 18/10/2020.
 
-See Issue #12 for summary document of work done (pdf). Contains pdfs of plots created, risk assessment, and notes on the codes uploaded here. Notes on the codes have been included below.
+See Issue [#12](https://github.com/r-preston/MPhysProject2021/issues/12) for summary document of work done (pdf). Contains pdfs of plots created, risk assessment, and notes on the codes uploaded here. Notes on the codes have been included below.
 
 Work done this week relates to Issues 1 to 4.
 [#1](https://github.com/r-preston/MPhysProject2021/issues/1) [#2](https://github.com/r-preston/MPhysProject2021/issues/2) [#3](https://github.com/r-preston/MPhysProject2021/issues/3) [#4](https://github.com/r-preston/MPhysProject2021/issues/4)
