@@ -27,7 +27,7 @@ int main()
   Event& event = pythia.event;
 
   // Begin event loop. Generate event. Skip if error.
-  for (int i_event = 0; i_event < 1000; ++i_event)
+  for (int i_event = 0; i_event < 10000; ++i_event)
   {
     if (!pythia.next()) continue;
 
@@ -65,6 +65,8 @@ int main()
       mum_PT  = event[max_mum_id].pT();
       mum_ETA = event[max_mum_id].eta();
       mum_PHI = event[max_mum_id].phi();
+
+      //std::cout << "mup_PT=" << mup_PT << ", mum_PT=" << mum_PT << std::endl;
 
       T->Fill();
     }
