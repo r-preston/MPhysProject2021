@@ -1,0 +1,44 @@
+%bib=bibtex
+\documentclass[a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{ifthen,etoolbox}
+\usepackage[british]{babel} %languages nicely, with proper date format courtesy of [british]
+\usepackage{csquotes} %helps to quotes nicely
+\usepackage[hidelinks]{hyperref} %hyperlinks contents and references
+\usepackage{graphicx} %required for image manipulation
+\usepackage[a4paper, top=25mm,bottom=25mm,left=25mm,right=25mm]{geometry} %allows manipulation of page structure
+\usepackage{cite} %BibTeX bibliography manager
+\usepackage{amsmath, amssymb} %adds many fancy maths symbols and things
+%\usepackage{tikz, pgfplots} %for drawing diagrams and charts
+\usepackage{float} %for control over figure positioning
+%\usepackage[final]{microtype} %sorts out all typography, line wrapping and spacing for maximum loveliness
+
+\usepackage{ifthen}
+\newboolean{uprightparticles}
+\setboolean{uprightparticles}{false} %Set true for upright particle symbols
+\usepackage{xspace}
+\usepackage{upgreek}
+\include{lhcb-symbols-def}
+
+\title{Monte Carlo Comparison for 5TeV Measurement}
+\author{Rowan Preston, Laura Cairns}
+\date{\today}
+
+\graphicspath{ {../../plots/} }
+
+\begin{document}
+\maketitle
+
+\includegraphics[width=\textwidth]{Measurement_mup_PT.pdf}
+\includegraphics[width=\textwidth]{Measurement_mum_PT.pdf}
+\includegraphics[width=\textwidth]{Measurement_mup_ETA.pdf}
+\includegraphics[width=\textwidth]{Measurement_mum_ETA.pdf}
+\includegraphics[width=\textwidth]{Measurement_mup_PHI.pdf}
+\includegraphics[width=\textwidth]{Measurement_mum_PHI.pdf}
+\includegraphics[width=\textwidth]{Measurement_Z_M.pdf}
+
+\bibliography{refs}{}
+\bibliographystyle{plain}
+
+\end{document}
