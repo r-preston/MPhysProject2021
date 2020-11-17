@@ -8,6 +8,7 @@
 
 
 std::string const DATADIR = "/storage/epp2/phshgg/DVTuples__v23/";
+std::string const plots_dir = "plots/";
 
 struct path_data {
 	std::string const DATADIR,
@@ -84,8 +85,9 @@ void plot_data_sim(struct path_data mnt_in, struct path_data sim_in, struct plot
 	hist_sim->Draw("SAME HIST");
      	hist_mnt->GetYaxis()->SetRangeUser(0,ymax);
 	hist_sim->SetLineColor(kAzure);
+
 	canv.BuildLegend();
-	std::string const filename = "Measurement_" + hist_input.label + ".pdf";
+	std::string const filename = plots_dir + "Measurement_" + hist_input.label + ".pdf";
 	canv.SaveAs(filename.c_str());
 }
 
@@ -96,7 +98,6 @@ int main() {
 
 	/*Simulation Chain*/
 	path_data const simulation_in = {DATADIR, "13", "28r1", "2016", "Down", "Z_Sim09h"};
-
 	
 	//mup
 	plot_configurations.emplace_back("1.e-3*mup_PT", 100, 15., 60., "mup_PT", "(GeV)");

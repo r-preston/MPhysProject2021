@@ -1,7 +1,7 @@
 
-all: mnt_setup_fnc.exe
+all: plot_MC_comparison.exe
 
-%.exe: src/%.cpp
+%.exe: scripts/%.cpp
 	g++ -std=c++17 -Wall -ldl `root-config --cflags` `root-config --libs --glibs` $^ -o $@
 
 clean:
