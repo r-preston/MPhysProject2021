@@ -25,5 +25,5 @@ print("Trigger Efficiency = {}".format(mup_mum_eff))
 
 data ={"mup":mup_eff, "mum":mum_eff, "trigger_efficiency":mup_mum_eff}
 
-with open('efficiencies.txt', 'w') as outfile:
+with open('efficiencies.json', 'w') as outfile:
     json.dump(data,outfile)
