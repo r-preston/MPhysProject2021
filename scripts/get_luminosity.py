@@ -22,6 +22,6 @@ print('IL 5% error (pb-1) = {}'.format(total_lumi_err))
 
 data = {'luminosity':total_lumi, 'luminosity_err':total_lumi_err}
 
-with open('luminosity.txt', 'w') as outfile:
+with open('luminosity.json', 'w') as outfile:
     json.dump(data,outfile)
 
