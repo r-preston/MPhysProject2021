@@ -11,12 +11,16 @@ ch.Add(file_path)
 
 count = ch.GetEntries("Z_M > 60.e3 && Z_M < 120.e3 && mup_PT > 20.e3 && mum_PT > 20.e3 && mup_ETA > 2 && mup_ETA < 4.5 && mum_ETA > 2 && mum_ETA < 4.5")
 
-with open('data.txt') as json_file:
-    data = json.load(json_file)
+with open('luminosity.txt') as json_file:
+    luminosity = json.load(json_file)
 
-lumi = data["luminosity"]
-lumi_err = data["luminosity_err"]
-trig_eff = data["trigger_efficiency"]
+lumi = luminosity["luminosity"]
+lumi_err = luminosity["luminosity_err"]
+
+with open('efficiencies.txt') as json_file:
+    efficiencies = json.load(json_file)
+
+trig_eff = efficiencies["trigger_efficiency"]
 
 xsec = count/(lumi*trig_eff)
 xsec_err = xsec - count/((lumi+lumi_err)*trig_eff)
