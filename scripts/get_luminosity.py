@@ -4,8 +4,6 @@ gROOT.SetBatch(True)
 import ROOT
 import json
 
-data = {}
-
 file_path = "/storage/epp2/phshgg/DVTuples__v23/5TeV_2017_32_Down_EW.root"
 
 rfile = ROOT.TFile(file_path)
