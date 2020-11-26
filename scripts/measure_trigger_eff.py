@@ -23,8 +23,8 @@ mup_mum_eff = mup_eff + mum_eff - mup_eff * mum_eff
 mup_mum_eff_err = math.sqrt(mup_mum_eff*(1-mup_mum_eff)/N_total)
 
 
-print("Trigger Efficiency = {}".format(mup_mum_eff))
-print("Trigger Efficiency Relative Uncertainty = {}".format(mup_mum_eff_err))
+#print("Trigger Efficiency = {}".format(mup_mum_eff))
+#print("Trigger Efficiency Relative Uncertainty = {}".format(mup_mum_eff_err))
 
 data ={"mup":mup_eff, "mum":mum_eff, "trigger_efficiency":mup_mum_eff, "trigger_eff_error":mup_mum_eff_err}
 
