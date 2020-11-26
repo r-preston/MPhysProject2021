@@ -34,15 +34,15 @@ xsec_err_stat = xsec * count_err
 xsec_err_eff = xsec * trig_eff_err
 xsec_err_lumi = xsec * lumi_err/lumi
 
-print('Z Count = {}'.format(count))
-print('Z Count Relative Uncertainty = {}'.format(count_err))
+#print('Z Count = {}'.format(count))
+#print('Z Count Relative Uncertainty = {}'.format(count_err))
 
-print('Z Cross Section (pb) = {}'.format(xsec))
-print('XSec Error (pb) = {}'.format(xsec_err))
+#print('Z Cross Section (pb) = {}'.format(xsec))
+#print('XSec Error (pb) = {}'.format(xsec_err))
 
-print('Stat Error (pb) = {}'.format(xsec_err_stat))
-print('Efficiency Error (pb) = {}'.format(xsec_err_eff))
-print('Luminosity Error (pb) = {}'.format(xsec_err_lumi))
+#print('Stat Error (pb) = {}'.format(xsec_err_stat))
+#print('Efficiency Error (pb) = {}'.format(xsec_err_eff))
+#print('Luminosity Error (pb) = {}'.format(xsec_err_lumi))
 
 data_output = {"count":count, "count_rel_uncertainty":count_err, "xsec":xsec, "xsec_err":xsec_err, "xsec_err_stat":xsec_err_stat, "xsec_err_eff":xsec_err_eff, "xsec_err_lumi":xsec_err_lumi }
 
@@ -63,6 +63,6 @@ with open(save_path+'xsec_output.tex', 'w') as texfile:
     texfile.write("\\"+"end{equation}\n")
 
 with open(save_path+'counts_output.tex', 'w') as texfile:
-    texfile.write("Counts = ${} \pm {:.0f}$\\\\".format(count, count*count_err))
+    texfile.write("Counts in Fiducial Region = ${} \pm {:.0f} \; \\rm counts$\\\\".format(count, count*count_err))
     texfile.write("Counts Relative Uncertainty = ${:.4f}$\\\\".format(count_err))
 
