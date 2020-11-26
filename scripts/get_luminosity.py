@@ -15,8 +15,8 @@ total_lumi = sum([entry.IntegratedLuminosity for entry in lumi_tuple])
 percent_err = 0.05
 total_lumi_err = total_lumi*percent_err
 
-print('Integrated Luminosity (pb-1) = {}'.format(total_lumi))
-print('IL 5% error (pb-1) = {}'.format(total_lumi_err))
+#print('Integrated Luminosity (pb-1) = {}'.format(total_lumi))
+#print('IL 5% error (pb-1) = {}'.format(total_lumi_err))
 
 data = {'luminosity':total_lumi, 'luminosity_err':total_lumi_err}
 
