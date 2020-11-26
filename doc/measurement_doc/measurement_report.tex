@@ -20,20 +20,30 @@
 \usepackage{xspace}
 \usepackage{upgreek}
 \include{lhcb-symbols-def}
+\graphicspath{{../../plots/}}
 
 \title{Z Cross Section Analysis from 5TeV Measurement}
 \author{Rowan Preston, Laura Cairns}
 \date{\today}
 
-\graphicspath{ {../../plots/} }
-
 \begin{document}
 \maketitle
 
 \section{Z Cross Section from 5TeV Experimental Data}
-\begin{equation}
-\sigma = 58.26 \pm 0.95_{\rm stat} \pm 0.05_{\rm eff} \pm 2.91_{\rm lumi}
-\end{equation}
+
+\subsection{Integrated Luminosity}
+\input{results/lumi_output.tex}
+
+\subsection{Trigger Efficiency}
+\input{results/trig_eff_output.tex}
+
+\subsection{Z Counts}
+\input{results/counts_output.tex}
+
+\subsection{Z Cross Section}
+\input{results/xsec_output.tex}
+
+
 
 \section{Monte Carlo Comparison for 5TeV Measurement}
 
