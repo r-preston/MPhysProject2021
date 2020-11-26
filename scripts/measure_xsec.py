@@ -4,6 +4,7 @@ gROOT.SetBatch(True)
 import ROOT
 import json
 import math
+import os
 
 file_path = "/storage/epp2/phshgg/DVTuples__v23/5TeV_2017_32_Down_EW.root"
 
@@ -43,7 +44,25 @@ print('Stat Error (pb) = {}'.format(xsec_err_stat))
 print('Efficiency Error (pb) = {}'.format(xsec_err_eff))
 print('Luminosity Error (pb) = {}'.format(xsec_err_lumi))
 
-data_output = {"Z_count":count, "Z_count_rel_uncertainty":count_err, "Z_xsec":xsec, "Z_xsec_err":xsec_err}
+data_output = {"count":count, "count_rel_uncertainty":count_err, "xsec":xsec, "xsec_err":xsec_err, "xsec_err_stat":xsec_err_stat, "xsec_err_eff":xsec_err_eff, "xsec_err_lumi":xsec_err_lumi }
 
-with open('Z_xsec.json', 'w') as outfile:
+with open('xsec.json', 'w') as outfile:
     json.dump(data_output,outfile)
+
+stat_txt = "{"+"\\"+"rm stat}"
+eff_txt = "{"+"\\"+"rm eff}"
+lumi_txt = "{"+"\\"+"rm lumi}"
+xsec_unit = "\\"+"rm pb"
+
+current_dir = os.getcwd()
+save_path = os.path.join(current_dir, 'doc/measurement_doc/results/')
+
+with open(save_path+'xsec_output.tex', 'w') as texfile:
+    texfile.write("\\"+"begin{equation}\n")
+    texfile.write("\sigma = {:.{prec}f} \pm {:.{prec}f}_{stat_txt} \pm {:.{prec}f}_{eff_txt} \pm {:.{prec}f}_{lumi_txt} \; {xsec_unit}.\n".format(xsec, xsec_err_stat, xsec_err_eff, xsec_err_lumi, stat_txt=stat_txt,  eff_txt=eff_txt, lumi_txt=lumi_txt, xsec_unit=xsec_unit, prec=2))
+    texfile.write("\\"+"end{equation}\n")
+
+with open(save_path+'counts_output.tex', 'w') as texfile:
+    texfile.write("Counts = ${} \pm {:.0f}$\\\\".format(count, count*count_err))
+    texfile.write("Counts Relative Uncertainty = ${:.4f}$\\\\".format(count_err))
+
