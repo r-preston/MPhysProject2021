@@ -20,15 +20,32 @@
 \usepackage{xspace}
 \usepackage{upgreek}
 \include{lhcb-symbols-def}
+\graphicspath{{../../plots/}}
 
-\title{Monte Carlo Comparison for 5TeV Measurement}
+\title{Z Cross Section Analysis from 5TeV Measurement}
 \author{Rowan Preston, Laura Cairns}
 \date{\today}
 
-\graphicspath{ {../../plots/} }
-
 \begin{document}
 \maketitle
+
+\section{Z Cross Section from 5TeV Experimental Data}
+
+\subsection{Integrated Luminosity}
+\input{results/lumi_output.tex}
+
+\subsection{Trigger Efficiency}
+\input{results/trig_eff_output.tex}
+
+\subsection{Z Counts}
+\input{results/counts_output.tex}
+
+\subsection{Z Cross Section}
+\input{results/xsec_output.tex}
+
+
+
+\section{Monte Carlo Comparison for 5TeV Measurement}
 
 \includegraphics[width=\textwidth]{Measurement_mup_PT.pdf}
 \includegraphics[width=\textwidth]{Measurement_mum_PT.pdf}
@@ -37,6 +54,8 @@
 \includegraphics[width=\textwidth]{Measurement_mup_PHI.pdf}
 \includegraphics[width=\textwidth]{Measurement_mum_PHI.pdf}
 \includegraphics[width=\textwidth]{Measurement_Z_M.pdf}
+
+
 
 \bibliography{refs}{}
 \bibliographystyle{plain}
