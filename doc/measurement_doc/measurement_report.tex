@@ -29,23 +29,75 @@
 \begin{document}
 \maketitle
 
-\section{Z Cross Section from 5TeV Experimental Data}
 
-\subsection{Integrated Luminosity}
+\section{Z Cross Section from 5TeV Experimental Data} \label{results}
+
+The LHCb dataset used in this analysis has been taken at $\sqrt{s} = 5$ TeV. The dataset contains 5840 entries. The workflow of the code used to analyse this data is given in Section \ref{workflow}, with results given in Section \ref{results}, and plot given in Section \ref{histograms}.
+
+\subsection{Integrated Luminosity} \label{lumi_val}
 \input{results/lumi_output.tex}
 
-\subsection{Trigger Efficiency}
+\subsection{Trigger Efficiency} \label{trigger_val}
 \input{results/trig_eff_output.tex}
 
-\subsection{Z Counts}
+\subsection{Z Counts} \label{counts_val}
 \input{results/counts_output.tex}
 
-\subsection{Z Cross Section}
+\subsection{Z Cross Section} \label{xsec_val}
 \input{results/xsec_output.tex}
 
 
+\section{Workflow of Code} \label{workflow}
 
-\section{Monte Carlo Comparison for 5TeV Measurement}
+\subsection{Comparison of Experimental Data with Monte Carlo Simulation}
+In the code \texttt{plot$\_$MC$\_$comparison.cpp}, histograms are plotted using ROOT, comparing a number of variables from the 5 TeV LHCb dataset to a Monte Carlo simulation of the experiment. The Monte Carlo simulation was created in \textit{Pythia} and has 338926 entries, which have been passed through detector reconstruction. Simulation data has been scaled to the experimental data in the histogram plots, with each plotted using 100 bins.
+The variables compared are:
+\begin{itemize}
+  \item Transverse Momentum $p_T$, separately for both positive and negative muons
+  \item Pseudorapidity $\eta$, separately for both positive and negative muons
+  \item Azimuthal angle $\phi$, separately for both positive and negative muons
+  \item Mass of the Z boson $m_Z$
+\end{itemize}
+
+Differences can be seen between the experimental and simulated data due to background in the experimental data, and inaccuracies in the simulation. These inaccuracies arise due to the leading order precision of \textit{Pythia} and limits on the precision to which the detector can be described.
+
+See plots in Section \ref{histograms}.
+
+\subsection{Luminosity Calculation}
+The code \texttt{get$\_$luminosity.py} calculates the integrated luminosity $L$ as the sum of 38 entries, where each entry represents a fraction of the data collected in the 5 TeV run.
+The error on luminosity is assumed to be 5$\%$.
+Integrated luminosity and its error are output as a json file, with their values given in Section \ref{lumi_val}.
+ 
+\subsection{Trigger Efficiency Calculation}
+The code \texttt{measure$\_$trigger$\_$eff.py} calculates the trigger efficiency, which forms the dominatant systematic error in Z cross section calculation. 
+Events where the positive muon or negative muon trigger are counted, as well as the events where both muons trigger. 
+By requiring that one muon triggers (the tag muon), then there is no bias on the other muon (the probe muon). Hence, the efficiency of the probe muon trigger can be calculated as:
+\begin{equation}
+{\rm efficiency}_{{\rm probe \;  muon}} = \frac{{\rm number \; of \; events \; where \; both \; muons \; trigger}}{{\rm number \; of \; events \; where \; tag \; muon \; triggers}}.
+\end{equation}
+
+The trigger efficiency is then calculated as the efficiency of either muon causing a trigger to activate (TOS).
+Trigger efficiency and its relative uncertainty are output as a json file, with the trigger efficiency given in Section \ref{trigger_val}.
+
+\subsection{Cross Section Calculation}
+The code \texttt{measure$\_$xsec.py} calculates the integrated cross section of Z $\sigma_Z$.
+The number of events in the fiducial region are counted. The fiducial region is comprised of the kinematic cuts:
+
+\begin{itemize}
+  \item $60 < m_Z < 120 \; {\rm GeV}$ 
+  \item $p_T > 20 \; {\rm GeV}$ for both positive and negative muons
+  \item $2.0 < \eta < 4.5$ for both positive and negative muons
+\end{itemize}
+
+$\sigma_Z$ is then calculated as
+\begin{equation}
+\sigma_Z = \frac{{\rm counts}}{L \times {\rm \; trigger \; efficiency}},
+\end{equation}
+using the previously calculated values of integrated luminosity $L$ and trigger efficiency, read in from their respective codes.
+
+Error analysis on $\sigma_Z$ is carried out using the relative uncertainities on the number of counts, trigger efficiency, and luminosity. Each of these uncertainties is given separately in the result, with the uncertainty on the number of counts representing the statistical error. The cross section is output to a json file, and its value can be seen in Section \ref{xsec_val}, whilst the value of counts can be seen in Section \ref{counts_val}.
+
+\section{Monte Carlo Comparison for 5 TeV Measurement} \label{histograms}
 
 \includegraphics[width=\textwidth]{Measurement_mup_PT.pdf}
 \includegraphics[width=\textwidth]{Measurement_mum_PT.pdf}
@@ -54,6 +106,7 @@
 \includegraphics[width=\textwidth]{Measurement_mup_PHI.pdf}
 \includegraphics[width=\textwidth]{Measurement_mum_PHI.pdf}
 \includegraphics[width=\textwidth]{Measurement_Z_M.pdf}
+
 
 
 
