@@ -57,7 +57,7 @@ void plot_data_sim(struct path_data mnt_in, struct path_data sim_in, struct plot
 
         std::string x_axis = hist_input.label + " " + hist_input.unit,
 	  sim_name = hist_input.label + " Simulation Data",
-	  hist_text = ";" + x_axis,
+	  hist_text = ";" + x_axis + ";Events",
 	  mnt_name = hist_input.label + " Experimental Data";
 	//std::string hist_title = "Measurement vs Simulation for " + hist_input.label;
 
