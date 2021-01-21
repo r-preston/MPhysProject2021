@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-
+#include <TLegend.h>
 
 std::string const DATADIR = "/storage/epp2/phshgg/DVTuples__v23/";
 std::string const plots_dir = "plots/";
@@ -57,7 +57,7 @@ void plot_data_sim(struct path_data mnt_in, struct path_data sim_in, struct plot
 
         std::string x_axis = hist_input.label + " " + hist_input.unit,
 	  sim_name = hist_input.label + " Simulation Data",
-	  hist_text = ";" + x_axis,
+	  hist_text = ";" + x_axis + ";Events",
 	  mnt_name = hist_input.label + " Experimental Data";
 	//std::string hist_title = "Measurement vs Simulation for " + hist_input.label;
 
@@ -86,8 +86,25 @@ void plot_data_sim(struct path_data mnt_in, struct path_data sim_in, struct plot
      	hist_mnt->GetYaxis()->SetRangeUser(0,ymax);
 	hist_sim->SetLineColor(kAzure);
 
+	hist_mnt->GetXaxis()->CenterTitle(true);
+	hist_mnt->GetYaxis()->CenterTitle(true);
+
+	hist_mnt->GetXaxis()->SetTitleSize(0.04);
+	hist_mnt->GetXaxis()->SetLabelSize(0.04);
+	hist_mnt->GetYaxis()->SetTitleSize(0.04);
+	hist_mnt->GetYaxis()->SetLabelSize(0.04);
+	hist_mnt->GetYaxis()->SetTitleOffset(1);
+
+	//TLegend *legend = new TLegend(0.2,0.1,0.62,0.25); PHI
+	/*
+	TLegend *legend = new TLegend(0.48,0.75,0.9,0.9);
+	legend->AddEntry(hist_mnt, mnt_name.c_str(),"lep");
+	legend->AddEntry(hist_sim, sim_name.c_str(),"l");
+	legend->SetTextSize(0.04);
+	legend->Draw();
+	*/
 	canv.BuildLegend();
-	std::string const filename = plots_dir + "Measurement_" + hist_input.label + ".pdf";
+	std::string const filename = plots_dir + "Measurement_" + hist_input.expression + ".pdf";
 	canv.SaveAs(filename.c_str());
 }
 
@@ -100,15 +117,15 @@ int main() {
 	path_data const simulation_in = {DATADIR, "13", "28r1", "2016", "Down", "Z_Sim09h"};
 	
 	//mup
-	plot_configurations.emplace_back("1.e-3*mup_PT", 100, 15., 60., "mup_PT", "(GeV)");
-	plot_configurations.emplace_back("mup_ETA", 100, 1.5, 5., "mup_ETA", "");
-	plot_configurations.emplace_back("mup_PHI", 100, -4., 4., "mup_PHI", "");
+	plot_configurations.emplace_back("1.e-3*mup_PT", 100, 15., 60., "p_{T}(#mu^{+})", "(GeV)");
+	plot_configurations.emplace_back("mup_ETA", 100, 1.5, 5., "#eta^{}(#mu^{+})", "");
+	plot_configurations.emplace_back("mup_PHI", 100, -4., 4., "#phi^{}(#mu^{+})", "");
 	//mum
-	plot_configurations.emplace_back("1.e-3*mum_PT", 100, 15., 60., "mum_PT", "(GeV)");
-	plot_configurations.emplace_back("mum_ETA", 100, 1.5, 5., "mum_ETA", "");
-	plot_configurations.emplace_back("mum_PHI", 100, -4., 4., "mum_PHI", "");
+	plot_configurations.emplace_back("1.e-3*mum_PT", 100, 15., 60., "p_{T}(#mu^{-})", "(GeV)");
+	plot_configurations.emplace_back("mum_ETA", 100, 1.5, 5., "#eta^{}(#mu^{-})", "");
+	plot_configurations.emplace_back("mum_PHI", 100, -4., 4., "#phi^{}(#mu^{-})", "");
 	//dimuon
-	plot_configurations.emplace_back("1.e-3*Z_M", 100, 35, 120, "Z_M", "(GeV)");
+	plot_configurations.emplace_back("1.e-3*Z_M", 100, 35, 120, "m_Z", "(GeV)");
 
 	for (auto const & plot_configuration : plot_configurations) {
 	  plot_data_sim(measurement_in, simulation_in, plot_configuration);

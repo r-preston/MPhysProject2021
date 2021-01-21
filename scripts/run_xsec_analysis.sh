@@ -5,4 +5,5 @@ make
 ./scripts/measure_xsec.py
 cd doc/measurement_doc/
 pdflatex measurement_report.tex
+gio open measurement_report.pdf
 cd ../..
