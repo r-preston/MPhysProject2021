@@ -76,7 +76,7 @@ int main() {
   ch_signal.Draw(expression.c_str(), signal_cuts.c_str());
 
   // produce fit model
-  double fraction = 0.3;
+  double fraction = 0.5;
   double scale_factor = hist_signal->Integral()*fraction/background_template->Integral();
   hist_signal->Scale(scale_factor);
   background_template->Scale(scale_factor);
