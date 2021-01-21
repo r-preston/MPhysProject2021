@@ -76,7 +76,7 @@ int main() {
   ch_signal.Draw(expression.c_str(), signal_cuts.c_str());
 
   // produce fit model
-  double fraction = 0.5;
+  double fraction = 0.3;
   double scale_factor = hist_signal->Integral()*fraction/background_template->Integral();
   hist_signal->Scale(scale_factor);
   background_template->Scale(scale_factor);
@@ -86,14 +86,24 @@ int main() {
 
   // Plot fit model
   TCanvas fit_canv;
-  fit_model->Draw();
+  fit_model->Draw("HIST");
+  fit_model->SetFillColor(5);
+
+  background_template->Draw("SAME HIST");
+  background_template->SetFillColor(4);
+
+  hist_signal->Draw("SAME E");
+
   fit_model->SetStats(false);
   fit_model->GetXaxis()->CenterTitle(true);
-  fit_model->GetYaxis()->SetTitleOffset(1);
+  fit_model->GetXaxis()->SetTitleOffset(1.1);
   fit_model->GetYaxis()->CenterTitle(true);
-  fit_model->GetYaxis()->SetTitleOffset(1.4);
-  TLegend *fit_legend = new TLegend(0.3,0.78,0.9,0.9);
-  fit_legend->AddEntry(fit_model, "Fit model of W+ Signal with Exp Background", "l");
+  fit_model->GetYaxis()->SetTitleOffset(1.5);
+
+  TLegend *fit_legend = new TLegend(0.5,0.72,0.9,0.9);
+  fit_legend->AddEntry(fit_model, "Fit model", "f");
+  fit_legend->AddEntry(background_template, "K/#pi #rightarrow #mu#nu", "f");
+  fit_legend->AddEntry(fit_model, "Isolated W^{+} Signal", "lep");
   fit_legend->Draw();
 
   std::string const fit_filename = plots_dir + "W_fit_model.png";
