@@ -77,9 +77,8 @@ int main() {
 
   // produce fit model
   double fraction = 0.5;
-  double scale_factor = hist_signal->Integral()*fraction/background_template->Integral();
-  hist_signal->Scale(scale_factor);
-  background_template->Scale(scale_factor);
+  hist_signal->Scale(fraction*hist_signal->Integral()/background_template->Integral());
+  background_template->Scale((1-fraction)*hist_signal->Integral()/background_template->Integral());
 
   TH1F *fit_model = new TH1F("fit_model",";p_{T} (GeV); Events",100,20.,60.);
   fit_model->Add(hist_signal, background_template);
