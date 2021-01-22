@@ -1,4 +1,4 @@
- #include <TChain.h>
+#include <TChain.h>
 #include <TCanvas.h>
 #include <TH1F.h>
 #include <THStack.h>
@@ -8,13 +8,15 @@
 #include <TPaveStats.h>
 #include <TMath.h>
 
-std::string const file_path = "/storage/epp2/phshgg/DVTuples__v23/5TeV_2017_32_Down_EW.root";
+std::string const data_file_path = "/storage/epp2/phshgg/DVTuples__v23/5TeV_2017_32_Down_EW.root";
+std::string const sim_file_path = "/storage/epp2/phshgg/DVTuples__v23/5TeV_2015_24r1_Down_W_Sim09d.root";
 std::string const plots_dir = "plots/";
 
 int main() {
 
+  // CREATE BACKGROUND FIT //
   TChain ch("WpSingleTrackNoBias/DecayTree");
-  ch.Add(file_path.c_str());
+  ch.Add(data_file_path.c_str());
 
   TH1F *hist_back = new TH1F("hist_back",";p_{T} (GeV);Events",100,15.,60.);
   std::string expression = "mu_PT*1.e-3>>hist_back";
@@ -64,24 +66,32 @@ int main() {
   canv.SaveAs(filename.c_str());
   // finish output fit plot
 
-  // get signal data
-  TChain ch_signal("WpIso/DecayTree");
-  ch_signal.Add(file_path.c_str());
+  // END OF BACKGROUND FIT, BEGIN DATA COMPARISON
 
-  TH1F *hist_signal = new TH1F("hist_signal",";p_{T} (GeV);Events",100,20.,60.);
-  expression = "mu_PT*1.e-3>>hist_signal";
+  // get isolated data
+  TChain ch_iso("WpIso/DecayTree");
+  ch_iso.Add(data_file_path.c_str());
+  TH1F *hist_iso = new TH1F("hist_iso",";p_{T} (GeV);Events",100,20.,60.);
+  expression = "mu_PT*1.e-3>>hist_iso";
   std::string isolation_cut = "TMath::Log10(TMath::Max(0.1,1.e-3*mu_PTSUMCONE040)) < 3", 
     pT_cut = "mu_PT*1.e-3 > 20",
-    signal_cuts = isolation_cut + " && " + pT_cut;
-  ch_signal.Draw(expression.c_str(), signal_cuts.c_str());
+    iso_cuts = isolation_cut + " && " + pT_cut;
+  ch_iso.Draw(expression.c_str(), iso_cuts.c_str());
+
+  //get signal data (simulation)
+  TChain ch_sim("WpIso/DecayTree");
+  ch_sim.Add(sim_file_path.c_str());
+  TH1F *hist_sim = new TH1F("hist_sim",";p_{T} (GeV);Events",100,20.,60.);
+  expression = "mu_PT*1.e-3>>hist_sim";
+  ch_sim.Draw(expression.c_str(), iso_cuts.c_str());
 
   // produce fit model
-  double fraction = 0.5;
-  hist_signal->Scale(fraction*hist_signal->Integral()/background_template->Integral());
-  background_template->Scale((1-fraction)*hist_signal->Integral()/background_template->Integral());
+  double signal_fraction = 0.5;
+  hist_sim->Scale(signal_fraction*hist_iso->Integral()/hist_sim->Integral()); //data_integral/signal_integral
+  background_template->Scale((1-signal_fraction)*hist_iso->Integral()/background_template->Integral()); //data_integral/background_integral
 
   TH1F *fit_model = new TH1F("fit_model",";p_{T} (GeV); Events",100,20.,60.);
-  fit_model->Add(hist_signal, background_template);
+  fit_model->Add(hist_sim, background_template);
 
   // Plot fit model
   TCanvas fit_canv;
@@ -91,7 +101,7 @@ int main() {
   background_template->Draw("SAME HIST");
   background_template->SetFillColor(4);
 
-  hist_signal->Draw("SAME E");
+  hist_iso->Draw("SAME E");
 
   fit_model->SetStats(false);
   fit_model->GetXaxis()->CenterTitle(true);
@@ -102,7 +112,7 @@ int main() {
   TLegend *fit_legend = new TLegend(0.5,0.72,0.9,0.9);
   fit_legend->AddEntry(fit_model, "Fit model", "f");
   fit_legend->AddEntry(background_template, "K/#pi #rightarrow #mu#nu", "f");
-  fit_legend->AddEntry(fit_model, "Isolated W^{+} Signal", "lep");
+  fit_legend->AddEntry(hist_iso, "Isolated W^{+} Signal", "lep");
   fit_legend->Draw();
 
   std::string const fit_filename = plots_dir + "W_fit_model.png";
