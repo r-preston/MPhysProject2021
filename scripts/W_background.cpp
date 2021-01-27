@@ -7,6 +7,7 @@
 #include <TLegend.h>
 #include <TPaveStats.h>
 #include <TMath.h>
+#include <TFractionFitter.h>
 
 std::string const data_file_path = "/storage/epp2/phshgg/DVTuples__v23/5TeV_2017_32_Down_EW.root";
 std::string const sim_file_path = "/storage/epp2/phshgg/DVTuples__v23/5TeV_2015_24r1_Down_W_Sim09d.root";
@@ -24,18 +25,17 @@ int main() {
   
   TF1 *function = new TF1("expo_fit","[0]*TMath::Exp(-[1]*x)",15.,60.);
   function->SetParameter(0,1.);
-  function->SetParameter(1,1.);
+  function->SetParameter(1,2.5);
   hist_back->Fit(function->GetName());
   function->SetLineColor(2);
   
   // make histogram template from fit
   TH1F *background_template = new TH1F("Background Template from Exp Fit",";p_{T} (GeV);Events",100,20.,60.);
-  for (int i=0; i<10000; i++) {background_template->Fill(function->GetRandom());}
+  for (int i=0; i<100000; i++) {background_template->Fill(function->GetRandom());}
 
   // output plot with fit
   TCanvas canv;
   hist_back->Draw();
-
   hist_back->GetXaxis()->CenterTitle(true);
   hist_back->GetYaxis()->CenterTitle(true);
   hist_back->GetXaxis()->SetTitleSize(0.04);
@@ -97,11 +97,9 @@ int main() {
   TCanvas fit_canv;
   fit_model->Draw("HIST");
   fit_model->SetFillColor(5);
-
   background_template->Draw("SAME HIST");
   background_template->SetFillColor(4);
-
-  hist_iso->Draw("SAME E");
+  hist_iso->Draw("SAME Ep");
 
   fit_model->SetStats(false);
   fit_model->GetXaxis()->CenterTitle(true);
@@ -117,6 +115,24 @@ int main() {
 
   std::string const fit_filename = plots_dir + "W_fit_model.png";
   fit_canv.SaveAs(fit_filename.c_str());
+
+
+  // TFractionFitter
+  /*
+  TCanvas fraction_canv;
+  TObjArray *mc = new TObjArray(1);
+  mc->Add(background_template);
+  TFractionFitter *fit = new TFractionFitter(hist_iso, mc);
+  Int_t status = fit->Fit();
+  std::cout << "fit status: " << status;
+  if (status == 0) {
+    TH1F *result = (TH1F*) fit->GetPlot();
+    hist_iso->Draw("E");
+    result->Draw("SAME");
+  }
+  std::string const fraction_filename = plots_dir + "W_fraction_fit.png";
+  fit_canv.SaveAs(fraction_filename.c_str());
+  */
 
 
   /* PLOT BACKGROUND_TEMPLATE
