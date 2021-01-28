@@ -8,33 +8,57 @@
 #include <TPaveStats.h>
 #include <TMath.h>
 #include <TFractionFitter.h>
+#include <TLatex.h>
 
 std::string const data_file_path = "/storage/epp2/phshgg/DVTuples__v23/5TeV_2017_32_Down_EW.root";
 std::string const sim_file_path = "/storage/epp2/phshgg/DVTuples__v23/5TeV_2015_24r1_Down_W_Sim09d.root";
 std::string const plots_dir = "plots/";
 
-int main() {
+void output_histogram(TH1F* histogram, std::string name) {
+  TCanvas canv;
+  histogram->Draw("HIST");
+  histogram->SetStats(false);
+  histogram->GetXaxis()->CenterTitle(true);
+  histogram->GetYaxis()->CenterTitle(true);
+  canv.BuildLegend();
+  std::string filename = plots_dir + name + ".png";
+  canv.SaveAs(filename.c_str());
+  canv.Close();
+  return;
+}
 
-  // CREATE BACKGROUND FIT //
-  TChain ch("WpSingleTrackNoBias/DecayTree");
+
+TH1F* make_histogram(std::string input_path, std::string chain, std::string hist_name, std::string cuts) {
+  std::string full_chain = chain + "/DecayTree";
+  TChain ch(full_chain.c_str());
+  ch.Add(input_path.c_str());
+
+  TH1F *hist = new TH1F(hist_name.c_str(),";p_{T} (GeV);Events",100,20.,60.);
+  std::string expression = "mu_PT*1.e-3>>" + hist_name;
+  ch.Draw(expression.c_str(), cuts.c_str());
+  return hist;
+}
+
+
+TH1F* background_fit(std::string chain, std::string boson, double slope) {
+
+  std::string full_chain = chain + "/DecayTree";
+  TChain ch(full_chain.c_str());
   ch.Add(data_file_path.c_str());
-
-  TH1F *hist_back = new TH1F("hist_back",";p_{T} (GeV);Events",100,15.,60.);
-  std::string expression = "mu_PT*1.e-3>>hist_back";
+  
+  std::string hist_name = "W" + boson + "hist_back";
+  TH1F *hist_back = new TH1F(hist_name.c_str(),";p_{T} (GeV);Events",100,15.,60.);
+  std::string expression = "mu_PT*1.e-3>>" + hist_name;
   ch.Draw(expression.c_str());
   
   TF1 *function = new TF1("expo_fit","[0]*TMath::Exp(-[1]*x)",15.,60.);
   function->SetParameter(0,1.);
-  function->SetParameter(1,2.5);
+  function->SetParameter(1,1.);
   hist_back->Fit(function->GetName());
   function->SetLineColor(2);
   
-  // make histogram template from fit
-  TH1F *background_template = new TH1F("Background Template from Exp Fit",";p_{T} (GeV);Events",100,20.,60.);
-  for (int i=0; i<100000; i++) {background_template->Fill(function->GetRandom());}
-
   // output plot with fit
-  TCanvas canv;
+  TCanvas canv1;
   hist_back->Draw();
   hist_back->GetXaxis()->CenterTitle(true);
   hist_back->GetYaxis()->CenterTitle(true);
@@ -44,9 +68,8 @@ int main() {
   hist_back->GetYaxis()->SetTitleSize(0.04);
   hist_back->GetYaxis()->SetLabelSize(0.04);
 
-  canv.Update();
-  canv.Modified();
-  
+  canv1.Update();
+  canv1.Modified();
   TPaveStats *st = (TPaveStats*)hist_back->FindObject("stats");
   st->SetOptStat(0);
   st->SetOptFit(1111);
@@ -54,52 +77,44 @@ int main() {
   st->SetX2NDC(0.9);
   st->SetY1NDC(0.6);
   st->SetY2NDC(0.78);
-  st->Draw();
-  
+  st->Draw();  
   TLegend *legend = new TLegend(0.4,0.78,0.9,0.9);
-  legend->AddEntry(hist_back,"W^{+} Track Transverse Momentum","l");
+  std::string plot_label = "W^{" + boson + "} Track Transverse Momentum";
+  legend->AddEntry(hist_back,plot_label.c_str(),"l");
   legend->AddEntry(function, "Exponential Fit", "l");
   legend->SetTextSize(0.04);
   legend->Draw();
 
-  std::string const filename = plots_dir + "W_expo_back_plot.png";
-  canv.SaveAs(filename.c_str());
-  // finish output fit plot
+  std::string const filename = plots_dir + "W" + boson + "_expo_back_plot.png";
+  canv1.SaveAs(filename.c_str());
+  canv1.Close();
 
-  // END OF BACKGROUND FIT, BEGIN DATA COMPARISON
+  // make background template from fit
+  function->SetParameter(1,slope);
+  std::string template_name = "W^{" + boson + "} Background Template from Exp Fit"; 
+  TH1F *background_template = new TH1F(template_name.c_str(),";p_{T} (GeV);Events",100,20.,60.);
+  for (int i=0; i<100000; i++) {background_template->Fill(function->GetRandom());}
 
-  // get isolated data
-  TChain ch_iso("WpIso/DecayTree");
-  ch_iso.Add(data_file_path.c_str());
-  TH1F *hist_iso = new TH1F("hist_iso",";p_{T} (GeV);Events",100,20.,60.);
-  expression = "mu_PT*1.e-3>>hist_iso";
-  std::string isolation_cut = "TMath::Log10(TMath::Max(0.1,1.e-3*mu_PTSUMCONE040)) < 3", 
-    pT_cut = "mu_PT*1.e-3 > 20",
-    iso_cuts = isolation_cut + " && " + pT_cut;
-  ch_iso.Draw(expression.c_str(), iso_cuts.c_str());
+  return background_template;
+}
 
-  //get signal data (simulation)
-  TChain ch_sim("WpIso/DecayTree");
-  ch_sim.Add(sim_file_path.c_str());
-  TH1F *hist_sim = new TH1F("hist_sim",";p_{T} (GeV);Events",100,20.,60.);
-  expression = "mu_PT*1.e-3>>hist_sim";
-  ch_sim.Draw(expression.c_str(), iso_cuts.c_str());
 
-  // produce fit model
-  double signal_fraction = 0.5;
+void produce_fit_model(std::string boson, double signal_fraction, TH1F* hist_iso, TH1F* hist_sim, TH1F* background_template, std::string name) {
   hist_sim->Scale(signal_fraction*hist_iso->Integral()/hist_sim->Integral()); //data_integral/signal_integral
   background_template->Scale((1-signal_fraction)*hist_iso->Integral()/background_template->Integral()); //data_integral/background_integral
 
-  TH1F *fit_model = new TH1F("fit_model",";p_{T} (GeV); Events",100,20.,60.);
+  TH1F *fit_model = new TH1F(name.c_str(),";p_{T} (GeV); Events",100,20.,60.);
   fit_model->Add(hist_sim, background_template);
 
-  // Plot fit model
   TCanvas fit_canv;
   fit_model->Draw("HIST");
-  fit_model->SetFillColor(5);
+  //fit_model->SetFillColor(5);
   background_template->Draw("SAME HIST");
-  background_template->SetFillColor(4);
-  hist_iso->Draw("SAME Ep");
+  background_template->SetLineColor(4);
+  //background_template->SetFillColor(4);
+  hist_iso->Draw("SAME E");
+  hist_sim->Draw("SAME HIST");
+  hist_sim->SetLineColor(2);
 
   fit_model->SetStats(false);
   fit_model->GetXaxis()->CenterTitle(true);
@@ -107,21 +122,28 @@ int main() {
   fit_model->GetYaxis()->CenterTitle(true);
   fit_model->GetYaxis()->SetTitleOffset(1.5);
 
-  TLegend *fit_legend = new TLegend(0.5,0.72,0.9,0.9);
-  fit_legend->AddEntry(fit_model, "Fit model", "f");
-  fit_legend->AddEntry(background_template, "K/#pi #rightarrow #mu#nu", "f");
-  fit_legend->AddEntry(hist_iso, "Isolated W^{+} Signal", "lep");
+  TLegend *fit_legend = new TLegend(0.5,0.68,0.9,0.9);
+  std::string boson_label = "W^{" + boson + "} ",
+    fit_label = boson_label + "Fit Model",
+    signal_label = boson_label + "Signal Histogram",
+    data_label = boson_label + "Data Histogram";
+  fit_legend->AddEntry(fit_model, fit_label.c_str(), "l");
+  fit_legend->AddEntry(background_template, "K/#pi #rightarrow #mu#nu", "l");
+  fit_legend->AddEntry(hist_sim, signal_label.c_str(), "l");
+  fit_legend->AddEntry(hist_iso, data_label.c_str(), "lep"); //"Isolated W^{+} Signal", "lep");
   fit_legend->Draw();
 
-  std::string const fit_filename = plots_dir + "W_fit_model.png";
+  std::string const fit_filename = plots_dir + "W" + boson + "_fit_model.png";
   fit_canv.SaveAs(fit_filename.c_str());
+  fit_canv.Close();
+}
 
-
-  // TFractionFitter
-  /*
+void fraction_fitter(std::string boson, TH1F* hist_iso, TH1F* hist_sim, TH1F* background_template) {
+  //double back_frac, back_err, sim_frac, sim_err;
   TCanvas fraction_canv;
-  TObjArray *mc = new TObjArray(1);
+  TObjArray *mc = new TObjArray(2);
   mc->Add(background_template);
+  mc->Add(hist_sim);
   TFractionFitter *fit = new TFractionFitter(hist_iso, mc);
   Int_t status = fit->Fit();
   std::cout << "fit status: " << status;
@@ -129,23 +151,57 @@ int main() {
     TH1F *result = (TH1F*) fit->GetPlot();
     hist_iso->Draw("E");
     result->Draw("SAME");
+
+    hist_iso->SetStats(false);
+    hist_iso->GetXaxis()->CenterTitle(true);
+    hist_iso->GetYaxis()->CenterTitle(true);
+
+    /*
+    fit->GetResult(0, back_frac, back_err);
+    fit->GetResult(1, sim_frac, sim_err);
+    std::string back_result = "K/#pi #rightarrow #mu#nu: " + std::to_string(back_frac) + " #pm " + std::to_string(back_err);
+    std::string sim_result = "Signal Simulation: " + std::to_string(sim_frac) + " #pm " + std::to_string(sim_err);
+    */
+
+    TLegend *fraction_legend = new TLegend(0.5,0.72,0.9,0.9);
+    std::string data_label = "Isolated W^{" + boson + "} Data";
+    fraction_legend->AddEntry(hist_iso, data_label.c_str(), "lep");
+    fraction_legend->AddEntry(result, "Fit from TFractionFitter", "l");
+    //fraction_legend->AddEntry((TObject*)0, back_result.c_str(), "");
+    //fraction_legend->AddEntry((TObject*)0, sim_result.c_str(), "");
+    fraction_legend->Draw();
+    
   }
-  std::string const fraction_filename = plots_dir + "W_fraction_fit.png";
-  fit_canv.SaveAs(fraction_filename.c_str());
-  */
+  std::string const fraction_filename = plots_dir + "W" + boson + "_fraction_fit.png";
+  fraction_canv.SaveAs(fraction_filename.c_str());
+  fraction_canv.Close();
+}
 
 
-  /* PLOT BACKGROUND_TEMPLATE
-  TCanvas back_canv;
-  background_template->Draw();
-  background_template->SetStats(false);
-  TLegend *back_legend = new TLegend(0.4,0.78,0.9,0.9);
-  back_legend->AddEntry(background_template,"Background Template from Exponential Fit","l");
-  back_legend->Draw();
+int main() {
 
-  std::string const back_filename = plots_dir + "W_background_template.png";
-  back_canv.SaveAs(back_filename.c_str());
-  */
+  // make background template
+  TH1F *Wp_background_template = background_fit("WpSingleTrackNoBias","+",0.2);
+  TH1F *Wm_background_template = background_fit("WmSingleTrackNoBias","-",0.2);
 
+  // get isolated data
+  std::string isolation_cut = "TMath::Log10(TMath::Max(0.1,1.e-3*mu_PTSUMCONE040)) < 3", 
+    pT_cut = "mu_PT*1.e-3 > 20",
+    iso_cuts = isolation_cut + " && " + pT_cut;
+  TH1F *Wp_hist_iso = make_histogram(data_file_path, "WpIso", "Wp_hist_iso", iso_cuts);
+  TH1F *Wm_hist_iso = make_histogram(data_file_path, "WmIso", "Wm_hist_iso", iso_cuts);
+  
+  // get signal data (simulation)
+  TH1F *Wp_hist_sim = make_histogram(sim_file_path, "WpIso", "Wp_hist_sim", iso_cuts);
+  TH1F *Wm_hist_sim = make_histogram(sim_file_path, "WmIso", "Wm_hist_sim", iso_cuts);
+
+  // produce fit model and output data comparison
+  produce_fit_model("+",0.5,Wp_hist_iso,Wp_hist_sim,Wp_background_template, "Wp_fit_model");
+  produce_fit_model("-",0.5,Wm_hist_iso,Wm_hist_sim,Wm_background_template, "Wm_fit_model");
+ 
+  // TFractionFitter
+  fraction_fitter("+",Wp_hist_iso,Wp_hist_sim,Wp_background_template);
+  fraction_fitter("-",Wm_hist_iso,Wm_hist_sim,Wm_background_template);
+ 
   return 0;
 }
