@@ -8,13 +8,13 @@
 #include <TPaveStats.h>
 #include <TMath.h>
 #include <TFractionFitter.h>
-#include <TLatex.h>
 
 std::string const data_file_path = "/storage/epp2/phshgg/DVTuples__v23/5TeV_2017_32_Down_EW.root";
 std::string const sim_file_path = "/storage/epp2/phshgg/DVTuples__v23/5TeV_2015_24r1_Down_W_Sim09d.root";
 std::string const plots_dir = "plots/";
 
 void output_histogram(TH1F* histogram, std::string name) {
+  // prints histogram for testing purposes
   TCanvas canv;
   histogram->Draw("HIST");
   histogram->SetStats(false);
@@ -138,8 +138,9 @@ void produce_fit_model(std::string boson, double signal_fraction, TH1F* hist_iso
   fit_canv.Close();
 }
 
+
 void fraction_fitter(std::string boson, TH1F* hist_iso, TH1F* hist_sim, TH1F* background_template) {
-  //double back_frac, back_err, sim_frac, sim_err;
+  double back_frac, back_err, sim_frac, sim_err;
   TCanvas fraction_canv;
   TObjArray *mc = new TObjArray(2);
   mc->Add(background_template);
@@ -156,21 +157,29 @@ void fraction_fitter(std::string boson, TH1F* hist_iso, TH1F* hist_sim, TH1F* ba
     hist_iso->GetXaxis()->CenterTitle(true);
     hist_iso->GetYaxis()->CenterTitle(true);
 
-    /*
     fit->GetResult(0, back_frac, back_err);
     fit->GetResult(1, sim_frac, sim_err);
-    std::string back_result = "K/#pi #rightarrow #mu#nu: " + std::to_string(back_frac) + " #pm " + std::to_string(back_err);
-    std::string sim_result = "Signal Simulation: " + std::to_string(sim_frac) + " #pm " + std::to_string(sim_err);
-    */
+    std::string back_frac_s = std::to_string(round(back_frac*1000)/1000); back_frac_s.resize(5);
+    std::string back_err_s = std::to_string(round(back_err*1000)/1000); back_err_s.resize(5);
+    std::string sim_frac_s = std::to_string(round(sim_frac*1000)/1000); sim_frac_s.resize(5);
+    std::string sim_err_s = std::to_string(round(sim_err*1000)/1000); sim_err_s.resize(5);
+    std::string back_result = "K/#pi #rightarrow #mu#nu: " + back_frac_s + " #pm " + back_err_s,
+      sim_result = "Signal Simulation: " + sim_frac_s + " #pm " + sim_err_s;
 
-    TLegend *fraction_legend = new TLegend(0.5,0.72,0.9,0.9);
+    TLegend *fraction_legend = new TLegend(0.5,0.76,0.9,0.9);
     std::string data_label = "Isolated W^{" + boson + "} Data";
     fraction_legend->AddEntry(hist_iso, data_label.c_str(), "lep");
     fraction_legend->AddEntry(result, "Fit from TFractionFitter", "l");
-    //fraction_legend->AddEntry((TObject*)0, back_result.c_str(), "");
-    //fraction_legend->AddEntry((TObject*)0, sim_result.c_str(), "");
     fraction_legend->Draw();
-    
+
+    TPaveText *statBox = new TPaveText(0.55,0.62,0.9,0.76, "NDC");
+    statBox->SetFillStyle(0);
+    statBox->SetTextAlign(12);
+    statBox->AddText(back_result.c_str());
+    statBox->AddText(sim_result.c_str());
+    statBox->SetBorderSize(1); //removes shadow
+    statBox->SetTextFont(fraction_legend->GetTextFont());
+    statBox->Draw();    
   }
   std::string const fraction_filename = plots_dir + "W" + boson + "_fraction_fit.png";
   fraction_canv.SaveAs(fraction_filename.c_str());
