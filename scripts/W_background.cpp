@@ -24,13 +24,10 @@ struct fit_fractions {
     Z_err;
   std::string K_label,
     sim_label,
-    Z_label;
+    Z_label,
+    chi_squared_ndf;
 };
 
-struct events {
-  double value,
-    rel_err;
-};
 
 void output_histogram(TH1F* histogram, std::string name) {
   // prints histogram for testing purposes
@@ -47,13 +44,13 @@ void output_histogram(TH1F* histogram, std::string name) {
 }
 
 
-TH1F* make_histogram(std::string input_path, std::string chain, std::string hist_name, std::string cuts) {
+TH1F* make_histogram(std::string input_path, std::string chain, std::string hist_name, double x_low, double x_high, std::string in_expression, std::string cuts) {
   std::string full_chain = chain + "/DecayTree";
   TChain ch(full_chain.c_str());
   ch.Add(input_path.c_str());
 
-  TH1F *hist = new TH1F(hist_name.c_str(),";p_{T} (GeV);Events",100,20.,60.);
-  std::string expression = "mu_PT*1.e-3>>" + hist_name;
+  TH1F *hist = new TH1F(hist_name.c_str(),";p_{T} (GeV);Events",100,x_low,x_high);
+  std::string expression = in_expression + ">>" + hist_name;
   ch.Draw(expression.c_str(), cuts.c_str());
   return hist;
 }
@@ -157,12 +154,13 @@ void produce_fit_model(std::string boson, fit_fractions fractions, TH1F* hist_is
   fit_legend->AddEntry(hist_iso, data_label.c_str(), "lep"); //"Isolated W^{+} Signal", "lep");
   fit_legend->Draw();
     
-  TPaveText *statBox = new TPaveText(0.55,0.54,0.9,0.68, "NDC");
+  TPaveText *statBox = new TPaveText(0.55,0.46,0.9,0.68, "NDC");
   statBox->SetFillStyle(0);
   statBox->SetTextAlign(12);
   statBox->AddText(fractions.K_label.c_str());
   statBox->AddText(fractions.sim_label.c_str());
   statBox->AddText(fractions.Z_label.c_str());
+  statBox->AddText(fractions.chi_squared_ndf.c_str());
   statBox->SetBorderSize(1); //removes shadow
   statBox->SetTextFont(fit_legend->GetTextFont());
   statBox->Draw();    
@@ -182,9 +180,10 @@ fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_err
   mc->Add(hist_sim);
   mc->Add(Z_background);
   TFractionFitter *fit = new TFractionFitter(hist_iso, mc);
-  fit->Constrain(2,Z_fraction-Z_error,Z_fraction+Z_error);
+  fit->Constrain(2,Z_fraction*0.99,Z_fraction*1.01);
   //ROOT::Fit::Fitter *fitter = fit->GetFitter();
-  //fitter->SetParameter(2,"Z_background",0.2,0.,0.,0.);
+  //fitter->SetParameter(2, "Z_background", 0.2, 0., 0.2, 0.2);
+  //fitter->Config().ParSettings(2).Set("Z_background",0.2,0.,0.2,0.2); //name,value,step,lower bound,upper bound
   Int_t status = fit->Fit();
   std::cout << "fit status: " << status;
   if (status == 0) {
@@ -199,15 +198,18 @@ fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_err
     fit->GetResult(0, output.K_frac, output.K_err);
     fit->GetResult(1, output.sim_frac, output.sim_err);
     fit->GetResult(2, output.Z_frac, output.Z_err);
-    std::string K_frac_s = std::to_string(round(output.K_frac*1000)/1000); K_frac_s.resize(5);
-    std::string K_err_s = std::to_string(round(output.K_err*1000)/1000); K_err_s.resize(5);
-    std::string sim_frac_s = std::to_string(round(output.sim_frac*1000)/1000); sim_frac_s.resize(5);
-    std::string sim_err_s = std::to_string(round(output.sim_err*1000)/1000); sim_err_s.resize(5);
-    std::string Z_frac_s = std::to_string(round(output.Z_frac*10000)/10000); Z_frac_s.resize(6);
-    std::string Z_err_s = std::to_string(round(output.Z_err*10000)/10000); Z_err_s.resize(6);
-    output.K_label = "K/#pi #rightarrow #mu#nu: " + K_frac_s + " #pm " + K_err_s;
-    output.sim_label = "Signal Simulation: " + sim_frac_s + " #pm " + sim_err_s;
-    output.Z_label = "Z background: " + Z_frac_s + " #pm " + Z_err_s;
+    std::string K_frac_str = std::to_string(round(output.K_frac*1000)/1000); K_frac_str.resize(5);
+    std::string K_err_str = std::to_string(round(output.K_err*1000)/1000); K_err_str.resize(5);
+    std::string sim_frac_str = std::to_string(round(output.sim_frac*1000)/1000); sim_frac_str.resize(5);
+    std::string sim_err_str = std::to_string(round(output.sim_err*1000)/1000); sim_err_str.resize(5);
+    std::string Z_frac_str = std::to_string(round(output.Z_frac*10000)/10000); Z_frac_str.resize(6);
+    std::string Z_err_str = std::to_string(round(output.Z_err*10000)/10000); Z_err_str.resize(6);
+    output.K_label = "K/#pi #rightarrow #mu#nu: " + K_frac_str + " #pm " + K_err_str;
+    output.sim_label = "Signal Simulation: " + sim_frac_str + " #pm " + sim_err_str;
+    output.Z_label = "Z background: " + Z_frac_str + " #pm " + Z_err_str;
+
+    std::string chi_squared_str = std::to_string(round(fit->GetChisquare()*10)/10); chi_squared_str.resize(5);
+    output.chi_squared_ndf = "#chi^{2}/ndf: " + chi_squared_str + "/" + std::to_string(fit->GetNDF()); 
     
     TLegend *fraction_legend = new TLegend(0.5,0.76,0.9,0.9);
     std::string data_label = "Isolated W^{" + boson + "} Data";
@@ -215,12 +217,13 @@ fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_err
     fraction_legend->AddEntry(result, "Fit from TFractionFitter", "l");
     fraction_legend->Draw();
 
-    TPaveText *statBox = new TPaveText(0.55,0.62,0.9,0.76, "NDC");
+    TPaveText *statBox = new TPaveText(0.55,0.56,0.9,0.76, "NDC");
     statBox->SetFillStyle(0);
     statBox->SetTextAlign(12);
     statBox->AddText(output.K_label.c_str());
     statBox->AddText(output.sim_label.c_str());
     statBox->AddText(output.Z_label.c_str());
+    statBox->AddText(output.chi_squared_ndf.c_str());
     statBox->SetBorderSize(1); //removes shadow
     statBox->SetTextFont(fraction_legend->GetTextFont());
     statBox->Draw();    
@@ -232,64 +235,58 @@ fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_err
 }
 
 
-events count_events(std::string chain, std::string file, std::string cuts) {
-  events output;
-  std::string full_chain = chain + "/DecayTree";
-  TChain ch(full_chain.c_str());
-  ch.Add(file.c_str());
-  output.value = ch.GetEntries(cuts.c_str());
-  output.rel_err = sqrt(output.value)/output.value;
-  return output;
-}
-
-
 int main() {
 
   // make background template
   TH1F *Wp_background_template = background_fit("WpSingleTrackNoBias","+",0.2);
   TH1F *Wm_background_template = background_fit("WmSingleTrackNoBias","-",0.2);
 
-  // get isolated data
+  // initialise W cuts
   std::string isolation_cut = "TMath::Log10(TMath::Max(0.1,1.e-3*mu_PTSUMCONE040)) < 3", 
     pT_cut = "mu_PT*1.e-3 > 20",
-    iso_cuts = isolation_cut + " && " + pT_cut;
-  TH1F *Wp_hist_iso = make_histogram(data_file_path, "WpIso", "Wp_hist_iso", iso_cuts);
-  TH1F *Wm_hist_iso = make_histogram(data_file_path, "WmIso", "Wm_hist_iso", iso_cuts);
+    eta_cut = "mu_ETA > 2 && mu_ETA < 4.5",
+    W_cuts = isolation_cut + " && " + pT_cut + " && " + eta_cut;
+  std::string W_expression = "mu_PT*1e-3";
+  // get isolated data
+  TH1F *Wp_hist_iso = make_histogram(data_file_path, "WpIso", "Wp_hist_iso", 20., 60., W_expression, W_cuts);
+  TH1F *Wm_hist_iso = make_histogram(data_file_path, "WmIso", "Wm_hist_iso", 20., 60., W_expression, W_cuts);
+  double Wp_events_data = Wp_hist_iso->Integral();
+  double Wm_events_data = Wm_hist_iso->Integral();
   
   // get signal data (simulation)
-  TH1F *Wp_hist_sim = make_histogram(W_sim_file_path, "WpIso", "Wp_hist_sim", iso_cuts);
-  TH1F *Wm_hist_sim = make_histogram(W_sim_file_path, "WmIso", "Wm_hist_sim", iso_cuts);
+  TH1F *Wp_hist_sim = make_histogram(W_sim_file_path, "WpIso", "Wp_hist_sim", 20., 60., W_expression, W_cuts);
+  TH1F *Wm_hist_sim = make_histogram(W_sim_file_path, "WmIso", "Wm_hist_sim", 20., 60., W_expression, W_cuts);
 
   // get Z background
-  TH1F *Wp_Z_background = make_histogram(Z_sim_file_path, "WpIso", "Wp_Z_background", iso_cuts);
-  TH1F *Wm_Z_background = make_histogram(Z_sim_file_path, "WmIso", "Wm_Z_background", iso_cuts);
+  TH1F *Wp_Z_background = make_histogram(Z_sim_file_path, "WpIso", "Wp_Z_background", 20., 60., W_expression, W_cuts);
+  double Wp_events_Z_sim = Wp_Z_background->Integral();
+  TH1F *Wm_Z_background = make_histogram(Z_sim_file_path, "WmIso", "Wm_Z_background", 20., 60., W_expression, W_cuts);
+  double Wm_events_Z_sim = Wm_Z_background->Integral();
   // get Z fraction
-  std::string Z_cuts = "Z_M > 60.e3 && Z_M < 120.e3 && mup_PT > 20.e3 && mum_PT > 20.e3 && mup_ETA > 2 && mup_ETA < 4.5 && mum_ETA > 2 && mum_ETA < 4.5",
-    W_cuts = "mu_PT > 20.e3 && mu_ETA > 2 && mu_ETA < 4.5";
-  events Z_in_Z_data = count_events("Z",data_file_path,Z_cuts);
-  events Z_in_Z_sim = count_events("Z",Z_sim_file_path,Z_cuts);
+  std::string Z_cuts = "Z_M*1e-3 > 60 && Z_M*1e-3 < 120 && mup_PT > 20.e3 && mum_PT > 20.e3 && mup_ETA > 2 && mup_ETA < 4.5 && mum_ETA > 2 && mum_ETA < 4.5";
+  std::string Z_expression = "Z_M*1e-3";
+  TH1F *hist_Z_events_data = make_histogram(data_file_path, "Z", "hist_Z_events_data", 60., 120., Z_expression, Z_cuts);
+  double Z_events_data = hist_Z_events_data->Integral();
+  TH1F *hist_Z_events_Z_sim = make_histogram(Z_sim_file_path, "Z", "hist_Z_events_Z_sim", 60., 120., Z_expression, Z_cuts);
+  double Z_events_Z_sim = hist_Z_events_Z_sim->Integral();
 
-  events Wp_events = count_events("WpIso",data_file_path,W_cuts);
-  events Wm_events = count_events("WmIso",data_file_path,W_cuts);
-
-  double Wp_Z_frac = (Z_in_Z_data.value + Z_in_Z_sim.value)/Wp_events.value;
-  double Wp_Z_frac_err = Wp_Z_frac * (Z_in_Z_data.rel_err + Z_in_Z_sim.rel_err + Wp_events.rel_err);
-  double Wm_Z_frac = (Z_in_Z_data.value + Z_in_Z_sim.value)/Wm_events.value;
-  double Wm_Z_frac_err = Wm_Z_frac * (Z_in_Z_data.rel_err + Z_in_Z_sim.rel_err + Wm_events.rel_err);
+  double Z_sim_scaling = Z_events_data/Z_events_Z_sim;
+  double Wp_Z_frac = (Wp_events_Z_sim*Z_sim_scaling)/Wp_events_data;
+  double Wp_Z_frac_err = Wp_Z_frac * (pow(Z_events_data,-0.5) + pow(Z_events_Z_sim,-0.5) + pow(Wp_events_data,-0.5) + pow(Wp_events_Z_sim,-0.5));
+  double Wm_Z_frac = (Wm_events_Z_sim*Z_sim_scaling)/Wm_events_data;
+  double Wm_Z_frac_err = Wm_Z_frac * (pow(Z_events_data,-0.5) + pow(Z_events_Z_sim,-0.5) + pow(Wm_events_data,-0.5) + pow(Wm_events_Z_sim,-0.5));
   
   // TFractionFitter
   fit_fractions Wp_fractions = fraction_fitter("+",Wp_Z_frac,Wp_Z_frac_err,Wp_hist_iso,Wp_hist_sim,Wp_background_template,Wp_Z_background);
   fit_fractions Wm_fractions = fraction_fitter("-",Wm_Z_frac,Wm_Z_frac_err,Wm_hist_iso,Wm_hist_sim,Wm_background_template,Wm_Z_background);
-  //printf("Wp fractions = K: %lf + %lf, sim: %lf + %lf, Z: %lf + %lf\n",Wp_fractions.K_frac,Wp_fractions.K_err,Wp_fractions.sim_frac,Wp_fractions.sim_err,Wp_fractions.Z_frac,Wp_fractions.Z_err);
-  //printf("Wm fractions = K: %lf + %lf, sim: %lf + %lf, Z: %lf + %lf\n",Wm_fractions.K_frac,Wm_fractions.K_err,Wm_fractions.sim_frac,Wm_fractions.sim_err,Wm_fractions.Z_frac,Wm_fractions.Z_err);
 
   // produce fit model and output data comparison
   produce_fit_model("+",Wp_fractions,Wp_hist_iso,Wp_hist_sim,Wp_background_template,Wp_Z_background, "Wp_fit_model");
   produce_fit_model("-",Wm_fractions,Wm_hist_iso,Wm_hist_sim,Wm_background_template,Wm_Z_background, "Wm_fit_model");
- 
-  //printf("Entries: Z in Z data = %lf, Z in Z sim = %lf, Wp total = %lf, Wm total = %lf\n", Z_in_Z_data, Z_in_Z_sim, Wp_events, Wm_events);
-  //printf("Wm err - %lf, Wp err - %lf\n",Wp_Z_frac_err,Wm_Z_frac_err);
+   
   printf("Wp Fraction = %lf + %lf\n",Wp_Z_frac,Wp_Z_frac_err);
   printf("Wm Fraction = %lf + %lf\n",Wm_Z_frac,Wm_Z_frac_err);
+  printf("Z events in Wp = %lf, in Wm = %lf\n", Wp_events_Z_sim*Z_sim_scaling,Wm_events_Z_sim*Z_sim_scaling);
+  printf("Entries: Z in Z data = %lf, Z in Z sim = %lf, Wp in Z sim = %lf, Wp total = %lf, Wm in Z sim = %lf, Wm total = %lf\n", Z_events_data, Z_events_Z_sim, Wp_events_Z_sim, Wp_events_data, Wm_events_Z_sim, Wm_events_data);
   return 0;
 }
