@@ -180,7 +180,7 @@ fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_err
   mc->Add(hist_sim);
   mc->Add(Z_background);
   TFractionFitter *fit = new TFractionFitter(hist_iso, mc);
-  fit->Constrain(2,Z_fraction*0.99,Z_fraction*1.01);
+  fit->Constrain(2,Z_fraction-Z_error,Z_fraction+Z_error);
   //ROOT::Fit::Fitter *fitter = fit->GetFitter();
   //fitter->SetParameter(2, "Z_background", 0.2, 0., 0.2, 0.2);
   //fitter->Config().ParSettings(2).Set("Z_background",0.2,0.,0.2,0.2); //name,value,step,lower bound,upper bound
@@ -202,8 +202,8 @@ fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_err
     std::string K_err_str = std::to_string(round(output.K_err*1000)/1000); K_err_str.resize(5);
     std::string sim_frac_str = std::to_string(round(output.sim_frac*1000)/1000); sim_frac_str.resize(5);
     std::string sim_err_str = std::to_string(round(output.sim_err*1000)/1000); sim_err_str.resize(5);
-    std::string Z_frac_str = std::to_string(round(output.Z_frac*10000)/10000); Z_frac_str.resize(6);
-    std::string Z_err_str = std::to_string(round(output.Z_err*10000)/10000); Z_err_str.resize(6);
+    std::string Z_frac_str = std::to_string(round(output.Z_frac*1000)/1000); Z_frac_str.resize(5);
+    std::string Z_err_str = std::to_string(round(output.Z_err*1000)/1000); Z_err_str.resize(5);
     output.K_label = "K/#pi #rightarrow #mu#nu: " + K_frac_str + " #pm " + K_err_str;
     output.sim_label = "Signal Simulation: " + sim_frac_str + " #pm " + sim_err_str;
     output.Z_label = "Z background: " + Z_frac_str + " #pm " + Z_err_str;
