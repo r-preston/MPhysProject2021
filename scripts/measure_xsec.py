@@ -44,7 +44,7 @@ xsec_err_lumi = xsec * lumi_err/lumi
 #print('Efficiency Error (pb) = {}'.format(xsec_err_eff))
 #print('Luminosity Error (pb) = {}'.format(xsec_err_lumi))
 
-data_output = {"count":count, "count_rel_uncertainty":count_err, "xsec":xsec, "xsec_err":xsec_err, "xsec_err_stat":xsec_err_stat, "xsec_err_eff":xsec_err_eff, "xsec_err_lumi":xsec_err_lumi }
+data_output = {"count":count, "count_rel_uncertainty":count_err, "xsec":xsec, "xsec_err":xsec_err, "xsec_err_stat":xsec_err_stat, "xsec_err_eff":xsec_err_eff, "xsec_err_lumi":xsec_err_lumi}
 
 with open('xsec.json', 'w') as outfile:
     json.dump(data_output,outfile)
@@ -57,9 +57,9 @@ xsec_unit = "\\"+"rm pb"
 current_dir = os.getcwd()
 save_path = os.path.join(current_dir, 'doc/measurement_doc/results/')
 
-with open(save_path+'xsec_output.tex', 'w') as texfile:
+with open(save_path+'Z_xsec_output.tex', 'w') as texfile:
     texfile.write("\\"+"begin{equation}\n")
-    texfile.write("\sigma = {:.{prec}f} \pm {:.{prec}f}_{stat_txt} \pm {:.{prec}f}_{eff_txt} \pm {:.{prec}f}_{lumi_txt} \; {xsec_unit}.\n".format(xsec, xsec_err_stat, xsec_err_eff, xsec_err_lumi, stat_txt=stat_txt,  eff_txt=eff_txt, lumi_txt=lumi_txt, xsec_unit=xsec_unit, prec=2))
+    texfile.write("\sigma_{{Z\\xrightarrow{{}}\mu^+\mu^-}} = {:.{prec}f} \pm {:.{prec}f}_{stat_txt} \pm {:.{prec}f}_{eff_txt} \pm {:.{prec}f}_{lumi_txt} \; {xsec_unit}.\n".format(xsec, xsec_err_stat, xsec_err_eff, xsec_err_lumi, stat_txt=stat_txt,  eff_txt=eff_txt, lumi_txt=lumi_txt, xsec_unit=xsec_unit, prec=2))
     texfile.write("\\"+"end{equation}\n")
 
 with open(save_path+'counts_output.tex', 'w') as texfile:
