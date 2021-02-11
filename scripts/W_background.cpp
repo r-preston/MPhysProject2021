@@ -9,6 +9,8 @@
 #include <TMath.h>
 #include <TFractionFitter.h>
 #include <math.h>
+#include <iostream>
+#include <fstream>
 
 std::string const data_file_path = "/storage/epp2/phshgg/DVTuples__v23/5TeV_2017_32_Down_EW.root";
 std::string const W_sim_file_path = "/storage/epp2/phshgg/DVTuples__v23/5TeV_2015_24r1_Down_W_Sim09d.root";
@@ -21,7 +23,9 @@ struct fit_fractions {
     sim_frac, 
     sim_err, 
     Z_frac, 
-    Z_err;
+    Z_err,
+    chi_squared;
+  int ndf;
   std::string K_label,
     sim_label,
     Z_label,
@@ -208,8 +212,10 @@ fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_err
     output.sim_label = "Signal Simulation: " + sim_frac_str + " #pm " + sim_err_str;
     output.Z_label = "Z background: " + Z_frac_str + " #pm " + Z_err_str;
 
-    std::string chi_squared_str = std::to_string(round(fit->GetChisquare()*10)/10); chi_squared_str.resize(5);
-    output.chi_squared_ndf = "#chi^{2}/ndf: " + chi_squared_str + "/" + std::to_string(fit->GetNDF()); 
+    output.chi_squared = fit->GetChisquare();
+    output.ndf = fit->GetNDF();
+    std::string chi_squared_str = std::to_string(round(output.chi_squared*10)/10); chi_squared_str.resize(5);
+    output.chi_squared_ndf = "#chi^{2}/ndf: " + chi_squared_str + "/" + std::to_string(output.ndf); 
     
     TLegend *fraction_legend = new TLegend(0.5,0.76,0.9,0.9);
     std::string data_label = "Isolated W^{" + boson + "} Data";
@@ -235,6 +241,34 @@ fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_err
 }
 
 
+void output_values(std::string boson, double Z_frac, double Z_err, fit_fractions fractions, double signal_events, double W_in_Z_sim_events, double W_data_events, double Z_data_events, double Z_in_Z_sim_events) {
+  std::string file_name = boson + "_output.json";
+  std::ofstream output_file;
+  output_file.open(file_name.c_str());
+  if (output_file.is_open()) {
+    // output calculated Z fraction
+    output_file << "{\"Z_frac_calc\": " + std::to_string(Z_frac) + ", \"Z_frac_err_calc\": " + std::to_string(Z_err);
+    // output fit fractions and fit statistics
+    output_file << ", \"K_frac\": " + std::to_string(fractions.K_frac) + ", \"K_frac_err\": " + std::to_string(fractions.K_err);
+    output_file << ", \"signal_frac\": " + std::to_string(fractions.sim_frac) + ", \"signal_frac_err\": " + std::to_string(fractions.sim_err);
+    output_file << ", \"Z_frac\": " + std::to_string(fractions.Z_frac) + ", \"Z_frac_err\": " + std::to_string(fractions.Z_err);
+    output_file << ", \"chi_squared\": " + std::to_string(fractions.chi_squared) + ", \"ndf\": " + std::to_string(fractions.ndf);
+    // output numbers of events
+    output_file << ", \"pi_K_events\": 10000";
+    output_file << ", \"signal_events\": " + std::to_string(signal_events);
+    output_file << ", \"W_in_Z_sim_events\": " + std::to_string(W_in_Z_sim_events);
+    output_file << ", \"W_data_events\": " + std::to_string(W_data_events);
+    output_file << ", \"Z_data_events\": " + std::to_string(Z_data_events);
+    output_file << ", \"Z_in_Z_sim_events\": " + std::to_string(Z_in_Z_sim_events);
+    // end file
+    output_file << "}";
+    output_file.close();
+  }
+  else {printf("Error opening file %s\n", file_name.c_str());}
+  return;
+}
+
+
 int main() {
 
   // make background template
@@ -256,6 +290,8 @@ int main() {
   // get signal data (simulation)
   TH1F *Wp_hist_sim = make_histogram(W_sim_file_path, "WpIso", "Wp_hist_sim", 20., 60., W_expression, W_cuts);
   TH1F *Wm_hist_sim = make_histogram(W_sim_file_path, "WmIso", "Wm_hist_sim", 20., 60., W_expression, W_cuts);
+  double Wp_sim_events = Wp_hist_sim->Integral();
+  double Wm_sim_events = Wm_hist_sim->Integral();
 
   // get Z background
   TH1F *Wp_Z_background = make_histogram(Z_sim_file_path, "WpIso", "Wp_Z_background", 20., 60., W_expression, W_cuts);
@@ -288,5 +324,11 @@ int main() {
   printf("Wm Fraction = %lf + %lf\n",Wm_Z_frac,Wm_Z_frac_err);
   printf("Z events in Wp = %lf, in Wm = %lf\n", Wp_events_Z_sim*Z_sim_scaling,Wm_events_Z_sim*Z_sim_scaling);
   printf("Entries: Z in Z data = %lf, Z in Z sim = %lf, Wp in Z sim = %lf, Wp total = %lf, Wm in Z sim = %lf, Wm total = %lf\n", Z_events_data, Z_events_Z_sim, Wp_events_Z_sim, Wp_events_data, Wm_events_Z_sim, Wm_events_data);
+  printf("Signal entries: Wp = %lf, Wm = %lf\n", Wp_sim_events, Wm_sim_events);
+
+  // Output values
+  output_values("Wp",Wp_Z_frac,Wp_Z_frac_err,Wp_fractions,Wp_sim_events,Wp_events_Z_sim,Wp_events_data,Z_events_data,Z_events_Z_sim);
+  output_values("Wm",Wm_Z_frac,Wm_Z_frac_err,Wm_fractions,Wm_sim_events,Wm_events_Z_sim,Wm_events_data,Z_events_data,Z_events_Z_sim);
+
   return 0;
 }
