@@ -242,7 +242,7 @@ fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_err
 
 
 void output_values(std::string boson, double Z_frac, double Z_err, fit_fractions fractions, double signal_events, double W_in_Z_sim_events, double W_data_events, double Z_data_events, double Z_in_Z_sim_events) {
-  std::string file_name = boson + "_output.json";
+  std::string file_name = boson + "_back_output.json";
   std::ofstream output_file;
   output_file.open(file_name.c_str());
   if (output_file.is_open()) {
