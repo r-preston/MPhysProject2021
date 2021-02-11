@@ -41,20 +41,66 @@ def event_table_output(save_path, Wp, Wm):
         texfile.write("\\label{tab: W events}\n")
         texfile.write("\\end{table}\n")
 
+def xsec_output (save_path, boson, label, json_in):
+    xsec = json_in["xsec"]
+    xsec_err_stat = json_in["xsec_err_stat"]
+    xsec_err_lumi = json_in["xsec_err_lumi"]
 
-with open('Wp_output.json') as json_file:
-    Wp_output = json.load(json_file)
+    with open(save_path+boson+'_xsec_output.tex', 'w') as texfile:
+        texfile.write("\\"+"begin{equation}\n")
+        texfile.write("\sigma_{} = {:.{prec}f} \pm {:.{prec}f}_{{\\rm stat}} \pm {:.{prec}f}_{{\\rm lumi}} \; {{\\rm pb}}.\n".format(label, xsec, xsec_err_stat, xsec_err_lumi, prec=0))
+        texfile.write("\\"+"end{equation}\n")
 
-with open('Wm_output.json') as json_file:
-    Wm_output = json.load(json_file)
+
+with open('Wp_back_output.json') as json_file:
+    Wp_background = json.load(json_file)
+
+with open('Wm_back_output.json') as json_file:
+    Wm_background = json.load(json_file)
+
+with open('Wp_xsec.json') as json_file:
+    Wp_xsec_input = json.load(json_file)
+
+with open('Wm_xsec.json') as json_file:
+    Wm_xsec_input = json.load(json_file)
+
+with open('Ratios.json') as json_file:
+    Ratios = json.load(json_file)
+
 
 current_dir = os.getcwd()
 save_path = os.path.join(current_dir, 'doc/measurement_doc/results/')
 
-Z_fraction_output(save_path, "Wp", Wp_output)
-Z_fraction_output(save_path, "Wm", Wm_output)
+Z_fraction_output(save_path, "Wp", Wp_background)
+Z_fraction_output(save_path, "Wm", Wm_background)
 
-fit_fraction_output(save_path, "Wp", Wp_output)
-fit_fraction_output(save_path, "Wm", Wm_output)
+fit_fraction_output(save_path, "Wp", Wp_background)
+fit_fraction_output(save_path, "Wm", Wm_background)
 
-event_table_output(save_path, Wp_output, Wm_output)
+event_table_output(save_path, Wp_background, Wm_background)
+
+Wp_decay = "{W^+\\xrightarrow{}\mu^+\\nu}"
+Wm_decay = "{W^-\\xrightarrow{}\mu^-\\bar{\\nu}}"
+Z_decay = "{Z\\xrightarrow{}\mu^+\mu^-}"
+
+xsec_output(save_path, "Wp", Wp_decay, Wp_xsec_input)
+xsec_output(save_path, "Wm", Wm_decay, Wm_xsec_input)
+
+# ratios
+WW_ratio = Ratios["WW_ratio"]
+WW_ratio_err = Ratios["WW_error"]
+WW_ratio_err_stat = Ratios["WW_error_stat"]
+with open(save_path+'WW_ratio_output.tex','w') as texfile:
+    texfile.write("\\"+"begin{equation}\n")
+    texfile.write("\\frac{{\sigma_{}}}{{\sigma_{}}} = {:.{prec}f} \pm {:.{prec}f} \; ({{\\rm or}} \pm {:.{prec}f}_{{\\rm stat}}).\n".format(Wp_decay, Wm_decay, WW_ratio, WW_ratio_err, WW_ratio_err_stat, prec=2))
+    texfile.write("\\"+"end{equation}\n")
+
+
+
+WZ_ratio = Ratios["WZ_ratio"]
+WZ_ratio_err = Ratios["WZ_error"]
+WZ_ratio_err_stat = Ratios["WZ_error_stat"]
+with open(save_path+'WZ_ratio_output.tex','w') as texfile:
+    texfile.write("\\"+"begin{equation}\n")
+    texfile.write("\\frac{{\sigma_{}+\sigma_{}}}{{\sigma_{}}} = {:.{prec}f} \pm {:.{prec}f} \; ({{\\rm or}} \pm {:.{prec}f}_{{\\rm stat}}).\n".format(Wp_decay, Wm_decay, Z_decay, WZ_ratio, WZ_ratio_err, WZ_ratio_err_stat, prec=1))
+    texfile.write("\\"+"end{equation}\n")
