@@ -48,25 +48,20 @@ with open('Wm_xsec.json', 'w') as outfile:
     json.dump(Wm_xsec_output,outfile)
 
 
-print('Wp events = {} + {}'.format(Wp_events, Wp_events_err))
-print('Wp xsec = {} + {}'.format(Wp_xsec, Wp_xsec_err))
-print('Wp xsec = {} + {} + {}'.format(Wp_xsec, Wp_xsec_err_stat, Wp_xsec_err_lumi))
+#print('Wp events = {} + {}'.format(Wp_events, Wp_events_err))
+#print('Wp xsec = {} + {}'.format(Wp_xsec, Wp_xsec_err))
+#print('Wp xsec = {} + {} + {}'.format(Wp_xsec, Wp_xsec_err_stat, Wp_xsec_err_lumi))
 
-print('Wm events = {} + {}'.format(Wm_events, Wm_events_err))
-print('Wm xsec = {} + {}'.format(Wm_xsec, Wm_xsec_err))
-print('Wm xsec = {} + {} + {}'.format(Wm_xsec, Wm_xsec_err_stat, Wm_xsec_err_lumi))
+#print('Wm events = {} + {}'.format(Wm_events, Wm_events_err))
+#print('Wm xsec = {} + {}'.format(Wm_xsec, Wm_xsec_err))
+#print('Wm xsec = {} + {} + {}'.format(Wm_xsec, Wm_xsec_err_stat, Wm_xsec_err_lumi))
 
 
 # calculate Wp/Wm ratio
 Wp_Wm_ratio = Wp_xsec/Wm_xsec
-Wp_Wm_ratio_err = Wp_Wm_ratio * math.sqrt((Wp_xsec_err/Wp_xsec)**2+(Wm_xsec_err/Wm_xsec)**2)
+Wp_Wm_ratio_err = Wp_Wm_ratio * math.sqrt((Wp_xsec_err_stat/Wp_xsec)**2+(Wm_xsec_err_stat/Wm_xsec)**2)
 
-Wp_Wm_ratio_stat = Wp_Wm_ratio * math.sqrt((Wp_xsec_err_stat/Wp_xsec)**2+(Wm_xsec_err_stat/Wm_xsec)**2)
-Wp_Wm_ratio_lumi = Wp_Wm_ratio * math.sqrt((Wp_xsec_err_lumi/Wp_xsec)**2+(Wm_xsec_err_lumi/Wm_xsec)**2)
-combo_test = Wp_Wm_ratio * math.sqrt((Wp_xsec_err_lumi/Wp_xsec)**2+(Wm_xsec_err_lumi/Wm_xsec)**2 + (Wp_xsec_err_stat/Wp_xsec)**2+(Wm_xsec_err_stat/Wm_xsec)**2)
-
-print('Wp/Wm = {} + {}'.format(Wp_Wm_ratio, Wp_Wm_ratio_err))
-print('Wp/Wm, separeted error = {} + {} stat + {} lumi  (+ {} sum vs {} combo test)'.format(Wp_Wm_ratio, Wp_Wm_ratio_stat,Wp_Wm_ratio_lumi,Wp_Wm_ratio_stat+Wp_Wm_ratio_lumi,combo_test))
+#print('Wp/Wm = {} + {}'.format(Wp_Wm_ratio, Wp_Wm_ratio_err))
 
 # calculate (Wp+Wm)/Z ratio
 #retrieve Z xsec
@@ -77,13 +72,11 @@ Z_xsec_err = Z_xsec_input["xsec_err"]
 Z_xsec_err_stat = Z_xsec_input["xsec_err_stat"]
 
 W_Z_ratio = (Wp_xsec+Wm_xsec)/Z_xsec
-W_Z_ratio_err = W_Z_ratio * math.sqrt((Wp_xsec_err**2 + Wm_xsec_err**2)/(Wp_xsec + Wm_xsec)**2 + (Z_xsec_err/Z_xsec)**2)
-W_Z_ratio_stat = W_Z_ratio * math.sqrt((Wp_xsec_err_stat**2 + Wm_xsec_err_stat**2)/(Wp_xsec + Wm_xsec)**2 + (Z_xsec_err_stat/Z_xsec)**2)
+W_Z_ratio_err = W_Z_ratio * math.sqrt((Wp_xsec_err_stat**2 + Wm_xsec_err_stat**2)/(Wp_xsec + Wm_xsec)**2 + (Z_xsec_err_stat/Z_xsec)**2)
 
-print('W/Z = {} + {}'.format(W_Z_ratio, W_Z_ratio_err))
-print('W/Z, stat error = {} + {}'.format(W_Z_ratio, W_Z_ratio_stat))
+#print('W/Z = {} + {}'.format(W_Z_ratio, W_Z_ratio_err))
 
 # output ratios
-ratio_output = {"WW_ratio":Wp_Wm_ratio, "WW_error":Wp_Wm_ratio_err, "WZ_ratio":W_Z_ratio, "WZ_error":W_Z_ratio_err, "WW_error_stat":Wp_Wm_ratio_stat, "WZ_error_stat":W_Z_ratio_stat}
+ratio_output = {"WW_ratio":Wp_Wm_ratio, "WW_error":Wp_Wm_ratio_err, "WZ_ratio":W_Z_ratio, "WZ_error":W_Z_ratio_err}
 with open('Ratios.json','w') as outfile:
     json.dump(ratio_output,outfile)
