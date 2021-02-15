@@ -59,10 +59,12 @@ save_path = os.path.join(current_dir, 'doc/measurement_doc/results/')
 
 with open(save_path+'Z_xsec_output.tex', 'w') as texfile:
     texfile.write("\\"+"begin{equation}\n")
-    texfile.write("\sigma_{{Z\\xrightarrow{{}}\mu^+\mu^-}} = {:.{prec}f} \pm {:.{prec}f}_{stat_txt} \pm {:.{prec}f}_{eff_txt} \pm {:.{prec}f}_{lumi_txt} \; {xsec_unit}.\n".format(xsec, xsec_err_stat, xsec_err_eff, xsec_err_lumi, stat_txt=stat_txt,  eff_txt=eff_txt, lumi_txt=lumi_txt, xsec_unit=xsec_unit, prec=2))
-    texfile.write("\\"+"end{equation}\n")
+    texfile.write("\sigma_{{Z\\xrightarrow{{}}\mu^+\mu^-}} = {:.{prec}f} \pm {:.{prec}f}_{stat_txt} \pm {:.{prec}f}_{eff_txt} \pm {:.{prec}f}_{lumi_txt} \; {xsec_unit},\n".format(xsec, xsec_err_stat, xsec_err_eff, xsec_err_lumi, stat_txt=stat_txt,  eff_txt=eff_txt, lumi_txt=lumi_txt, xsec_unit=xsec_unit, prec=2))
+    texfile.write("\\"+"end{equation}")
 
 with open(save_path+'counts_output.tex', 'w') as texfile:
     texfile.write("Counts in Fiducial Region = ${} \pm {:.0f} \; \\rm counts$\\\\".format(count, count*count_err))
     texfile.write("Counts Relative Uncertainty = ${:.4f}$\\\\".format(count_err))
 
+with open(save_path+'Z_xsec_value.tex', 'w') as texfile:
+    texfile.write("${:.{prec}f} \pm {:.{prec}f}_{stat_txt} \pm {:.{prec}f}_{eff_txt} \pm {:.{prec}f}_{lumi_txt}$".format(xsec, xsec_err_stat, xsec_err_eff, xsec_err_lumi, stat_txt=stat_txt,  eff_txt=eff_txt, lumi_txt=lumi_txt, prec=2))
