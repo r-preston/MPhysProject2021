@@ -30,3 +30,6 @@ lumi_unit = "{" + "\\" + "rm pb^{-1}}"
 with open(save_path+'lumi_output.tex', 'w') as texfile:
     texfile.write("Integrated Luminosity $L$ assumed to have percentage uncertainty of {}\%.\\\\".format(percent_err*100))
     texfile.write("$L = {:.{prec}f} \pm {:.{prec}f} \; {}$\\\\".format(total_lumi, total_lumi_err, lumi_unit, prec=1))
+
+with open(save_path+'lumi_value.tex','w') as texfile:
+    texfile.write("${:.{prec}f} \pm {:.{prec}f} \; {}$".format(total_lumi, total_lumi_err, lumi_unit, prec=1))
