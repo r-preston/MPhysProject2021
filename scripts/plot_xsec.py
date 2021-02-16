@@ -11,7 +11,7 @@ def make_plot(boson, label, n, x, ex, y, ey):
     xsec_plot.SetMarkerStyle(8)
     xsec_plot.SetTitle("")
     y_axis = "#sigma_{" + label + "} (pb)"
-    xsec_plot.GetXaxis().SetTitle("Energy (TeV)")
+    xsec_plot.GetXaxis().SetTitle("#sqrt{s} (TeV)")
     xsec_plot.GetXaxis().CenterTitle(1)
     xsec_plot.GetYaxis().SetTitle(y_axis)
     xsec_plot.GetYaxis().CenterTitle(1)
