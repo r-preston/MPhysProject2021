@@ -54,7 +54,7 @@ y_Wp = array('d',[Wp_5, 861.0, 1093.6])
 ey_Wp = array('d',[Wp_5_err, 2+11.2+14.7, 2.1+7.2+10.9+12.7])
 # 7 = 2014, 8 = 2016
 
-make_plot("Wp", "W^+", n_W, x_W, ex_W, y_Wp, ey_Wp)
+make_plot("Wp", "W^{+}", n_W, x_W, ex_W, y_Wp, ey_Wp)
 
 # Wm boson
 with open('Wm_xsec.json') as json_file:
@@ -66,4 +66,4 @@ y_Wm = array('d',[Wm_5, 675.8, 818.4])
 ey_Wm = array('d',[Wm_5_err, 1.9+8.8+11.6, 1.9+5+7+9.5])
 # 7 = 2014, 8 = 2016
 
-make_plot("Wm", "W^-", n_W, x_W, ex_W, y_Wm, ey_Wm)
+make_plot("Wm", "W^{-}", n_W, x_W, ex_W, y_Wm, ey_Wm)
