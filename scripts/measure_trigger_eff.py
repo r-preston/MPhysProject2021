@@ -28,7 +28,7 @@ mup_mum_eff_err = math.sqrt(mup_mum_eff*(1-mup_mum_eff)/N_total)
 
 data ={"mup":mup_eff, "mum":mum_eff, "trigger_efficiency":mup_mum_eff, "trigger_eff_error":mup_mum_eff_err}
 
-with open('efficiencies.json', 'w') as outfile:
+with open('results_json/efficiencies.json', 'w') as outfile:
     json.dump(data,outfile)
 
 current_dir = os.getcwd()
