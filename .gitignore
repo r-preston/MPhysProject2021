@@ -1,3 +1,9 @@
+# ignore transient results
+plots/*
+doc/measurement_doc/results/*
+results_json/*
+
+
 # environment files
 *.sublime-*
 
