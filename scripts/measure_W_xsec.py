@@ -22,16 +22,16 @@ def xsec_calc(W_data, lumi, lumi_err):
 
 
 # retrieve luminosity
-with open('luminosity.json') as json_file:
+with open('results_json/luminosity.json') as json_file:
     luminosity = json.load(json_file)
 lumi = luminosity["luminosity"]
 lumi_err = luminosity["luminosity_err"]
 
 # retrive background data
-with open('Wp_back_output.json') as json_file:
+with open('results_json/Wp_back_output.json') as json_file:
     Wp_back = json.load(json_file)
 
-with open('Wm_back_output.json') as json_file:
+with open('results_json/Wm_back_output.json') as json_file:
     Wm_back = json.load(json_file)
 
 # calculate cross sections
@@ -40,11 +40,11 @@ Wm_xsec, Wm_xsec_err, Wm_xsec_err_stat, Wm_xsec_err_lumi, Wm_events, Wm_events_e
 
 # output cross sections
 Wp_xsec_output = {"count":Wp_events, "count_error":Wp_events_err, "xsec":Wp_xsec, "xsec_err":Wp_xsec_err, "xsec_err_stat":Wp_xsec_err_stat, "xsec_err_lumi":Wp_xsec_err_lumi}
-with open('Wp_xsec.json', 'w') as outfile:
+with open('results_json/Wp_xsec.json', 'w') as outfile:
     json.dump(Wp_xsec_output,outfile)
 
 Wm_xsec_output = {"count":Wm_events, "count_error":Wm_events_err, "xsec":Wm_xsec, "xsec_err":Wm_xsec_err, "xsec_err_stat":Wm_xsec_err_stat, "xsec_err_lumi":Wm_xsec_err_lumi}
-with open('Wm_xsec.json', 'w') as outfile:
+with open('results_json/Wm_xsec.json', 'w') as outfile:
     json.dump(Wm_xsec_output,outfile)
 
 
@@ -65,7 +65,7 @@ Wp_Wm_ratio_err = Wp_Wm_ratio * math.sqrt((Wp_xsec_err_stat/Wp_xsec)**2+(Wm_xsec
 
 # calculate (Wp+Wm)/Z ratio
 #retrieve Z xsec
-with open('xsec.json') as Z_xsec_file:
+with open('results_json/Z_xsec.json') as Z_xsec_file:
     Z_xsec_input = json.load(Z_xsec_file)
 Z_xsec = Z_xsec_input["xsec"]
 Z_xsec_err = Z_xsec_input["xsec_err"]
@@ -78,5 +78,5 @@ W_Z_ratio_err = W_Z_ratio * math.sqrt((Wp_xsec_err_stat**2 + Wm_xsec_err_stat**2
 
 # output ratios
 ratio_output = {"WW_ratio":Wp_Wm_ratio, "WW_error":Wp_Wm_ratio_err, "WZ_ratio":W_Z_ratio, "WZ_error":W_Z_ratio_err}
-with open('Ratios.json','w') as outfile:
+with open('results_json/Ratios.json','w') as outfile:
     json.dump(ratio_output,outfile)
