@@ -242,7 +242,7 @@ fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_err
 
 
 void output_values(std::string boson, double Z_frac, double Z_err, fit_fractions fractions, double signal_events, double W_in_Z_sim_events, double W_data_events, double Z_data_events, double Z_in_Z_sim_events) {
-  std::string file_name = boson + "_back_output.json";
+  std::string file_name = "results_json/" + boson + "_back_output.json";
   std::ofstream output_file;
   output_file.open(file_name.c_str());
   if (output_file.is_open()) {
@@ -319,12 +319,14 @@ int main() {
   // produce fit model and output data comparison
   produce_fit_model("+",Wp_fractions,Wp_hist_iso,Wp_hist_sim,Wp_background_template,Wp_Z_background, "Wp_fit_model");
   produce_fit_model("-",Wm_fractions,Wm_hist_iso,Wm_hist_sim,Wm_background_template,Wm_Z_background, "Wm_fit_model");
-   
+
+  /*
   printf("Wp Fraction = %lf + %lf\n",Wp_Z_frac,Wp_Z_frac_err);
   printf("Wm Fraction = %lf + %lf\n",Wm_Z_frac,Wm_Z_frac_err);
   printf("Z events in Wp = %lf, in Wm = %lf\n", Wp_events_Z_sim*Z_sim_scaling,Wm_events_Z_sim*Z_sim_scaling);
   printf("Entries: Z in Z data = %lf, Z in Z sim = %lf, Wp in Z sim = %lf, Wp total = %lf, Wm in Z sim = %lf, Wm total = %lf\n", Z_events_data, Z_events_Z_sim, Wp_events_Z_sim, Wp_events_data, Wm_events_Z_sim, Wm_events_data);
   printf("Signal entries: Wp = %lf, Wm = %lf\n", Wp_sim_events, Wm_sim_events);
+  */
 
   // Output values
   output_values("Wp",Wp_Z_frac,Wp_Z_frac_err,Wp_fractions,Wp_sim_events,Wp_events_Z_sim,Wp_events_data,Z_events_data,Z_events_Z_sim);
