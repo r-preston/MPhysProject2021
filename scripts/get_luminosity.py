@@ -20,7 +20,7 @@ total_lumi_err = total_lumi*percent_err
 
 data = {'luminosity':total_lumi, 'luminosity_err':total_lumi_err}
 
-with open('luminosity.json', 'w') as outfile:
+with open('results_json/luminosity.json', 'w') as outfile:
     json.dump(data,outfile)
 
 current_dir = os.getcwd()
