@@ -15,13 +15,13 @@ count = ch.GetEntries("Z_M > 60.e3 && Z_M < 120.e3 && mup_PT > 20.e3 && mum_PT >
 
 count_err = math.sqrt(count)/count
 
-with open('luminosity.json') as json_file:
+with open('results_json/luminosity.json') as json_file:
     luminosity = json.load(json_file)
 
 lumi = luminosity["luminosity"]
 lumi_err = luminosity["luminosity_err"]
 
-with open('efficiencies.json') as json_file:
+with open('results_json/efficiencies.json') as json_file:
     efficiencies = json.load(json_file)
 
 trig_eff = efficiencies["trigger_efficiency"]
@@ -46,7 +46,7 @@ xsec_err_lumi = xsec * lumi_err/lumi
 
 data_output = {"count":count, "count_rel_uncertainty":count_err, "xsec":xsec, "xsec_err":xsec_err, "xsec_err_stat":xsec_err_stat, "xsec_err_eff":xsec_err_eff, "xsec_err_lumi":xsec_err_lumi}
 
-with open('xsec.json', 'w') as outfile:
+with open('results_json/Z_xsec.json', 'w') as outfile:
     json.dump(data_output,outfile)
 
 stat_txt = "{"+"\\"+"rm stat}"
