@@ -121,7 +121,7 @@ The $W$ signal is isolated by calculating the isolation; the sum of $p_T$ for al
     \sqrt{\Delta\eta^2 + \Delta\phi^2} < 0.5.
     \label{eq: isolation}
 \end{equation}
-The inverse of transverse momentum $p_T^{-1}$ are plotted against this isolation, as shown for both $W^+$ and $W^-$ in the histograms below (Figure \ref{fig: LEGO}. These figures use the LEGO plotting option. An additional plot is provided of the COLZ plotting option for $W^+$ in Figure \ref{fig: COLZ}. 
+The inverse of transverse momentum $p_T^{-1}$ are plotted against this isolation, as shown for both $W^+$ and $W^-$ in the histograms below (Figure \ref{fig: LEGO}. These figures use the LEGO plotting option. An additional plot is provided of the COLZ plotting option for $W^+$ in Figure \ref{fig: COLZ}. %Figure from interim report, not created in current workflow (18.02.2021) 
 The $W$ decay signal can be seen as a peak between $p_T^{-1}$ = 0.02 and 0.03 GeV$^{-1}$ at low values of isolation, shown prominently in the COLZ plot. The LEGO plots highlight the charged $\pi/K$ background, identified as the Gaussian peak at high $p_T^{-1}$.
 
 
@@ -136,10 +136,10 @@ The $W$ decay signal can be seen as a peak between $p_T^{-1}$ = 0.02 and 0.03 Ge
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[clip, trim = 0cm 0cm 0.3cm 1.3cm, width=\textwidth]{W+_isolated_signal_COLZ.pdf}
+    \includegraphics[clip, trim = 0cm 0cm 0.3cm 1.3cm, width=\textwidth]{../doc/measurement_doc/W+_isolated_signal_COLZ.pdf}
     \vspace{-4mm}
     \caption{\small COLZ plot of inverse transverse momentum $p_T^{-1}$ against the log of the isolation for the $W \xrightarrow{} \mu \nu_\mu$ decay for $W^+$.}
-    \label{fig: COLZ}
+    \label{fig: COLZ} %Figure from interim report, not created in current workflow (18.02.2021)
 \end{figure}
 
 
@@ -314,7 +314,11 @@ The overall results of the entire analysis are as follows; electroweak productio
 \input{results/WW_ratio_output.tex}
 \input{results/WZ_ratio_output.tex}
 
-The cross section ratios are compared with published LHCb data at 7 and 8 TeV in Table~\ref{tab: ratio comparison}~\cite{7TeV_W+Z_2012,8+7TeV_W+Z_2015}.
+The cross section ratios are compared to published LHCb data at 7 and 8 TeV in Table~\ref{tab: ratio comparison}~\cite{7TeV_W_2014,7TeV_Z_2015,8TeV_W+Z_2015}.
+
+The cross sections are compared to published LHCb data in Figure~\ref{fig: xsec comparison}. The cross section are determined for the same fiducial region in for each centre of mass energy $\sqrt{s}$, with $W$ boson cross sections are compared to values determined at 7 and 8 TeV~\cite{7TeV_W_2014,8TeV_W+Z_2015}, and to values at 7, 8 and 13 TeV for the $Z$ boson cross section~\cite{7TeV_Z_2015,8TeV_W+Z_2015,13TeV_Z_2016}.
+Additionally the cross section ratios are compared in the Figure~\ref{fig: ratio comparison}, using the same LHCb publications as the $Z$ boson cross sections~\cite{7TeV_Z_2015,8TeV_W+Z_2015}.
+These comparison figures are plotted in the code \texttt{plot$\_$xsec.py}.
 
 \begin{table}[]
     \centering
@@ -323,11 +327,11 @@ The cross section ratios are compared with published LHCb data at 7 and 8 TeV in
          Energy (TeV)   & $W^+/W^-$ & $W/Z$  \\
         \hline
          5              & \input{results/WW_value.tex}  & \input{results/WZ_value.tex}  \\
-         7              & 1.27 $\pm$ 0.02 $\pm$ 0.01    & 19.4 $\pm$ 0.5 $\pm$ 0.9  \\
+         7              & 1.274 $\pm$ 0.005 $\pm$ 0.009 $\pm$ 0.002 & 20.63 $\pm$ 0.09 $\pm$ 0.12 $\pm$ 0.05  \\
          8              & 1.336 $\pm$ 0.004 $\pm$ 0.005 $\pm$ 0.002 & 20.13 $\pm$ 0.06 $\pm$ 0.11 $\pm$ 0.4   \\
          \hline
     \end{tabular}
-    \caption{\small Comparison of cross section ratios determined at LHCb at $\sqrt{s} =$ 5, 7, and 8 TeV~\cite{7TeV_W+Z_2012,8+7TeV_W+Z_2015}.}
+    \caption{\small Comparison of cross section ratios determined at LHCb at $\sqrt{s} =$ 5, 7, and 8 TeV. Errors are statistical, systematic, and due to beam energy respectively~\cite{7TeV_W_2014,7TeV_Z_2015,8TeV_W+Z_2015}.}
     \label{tab: ratio comparison}
 \end{table}
 
@@ -340,18 +344,40 @@ There is good agreement between our $W^+/W^-$ ratio and published results. Howev
         \small $\sqrt{s}$ (TeV)   & \small $\sigma_{Z}$ (pb) & \small $\sigma_{W^+}$ (pb) & \small $\sigma_{W^-}$ (pb)  \\
         \hline
          5              & \small \input{results/Z_xsec_value.tex}  & \small \input{results/Wp_xsec_value.tex} & \small \input{results/Wm_xsec_value}\\
-         7              & \small 76.7 $\pm$ 1.7 $\pm$ 3.3 $\pm$ 2.7    & \small 831 $\pm$ 9 $\pm$ 27 $\pm$ 29 & \small 656 $\pm$ 8 $\pm$ 19 $\pm$ 23\\
+         7              & \small 76.0 $\pm$ 0.3 $\pm$ 0.5 $\pm$ 1.0 $\pm$ 1.3 & \small 861.0 $\pm$ 2.0 $\pm$ 11.2 $\pm$ 14.7 & \small 675.8 $\pm$ 1.9 $\pm$ 8.8 $\pm$ 11.6\\
          8              & \small 95.0 $\pm$ 0.3 $\pm$ 0.7 $\pm$ 1.1 $\pm$ 1.1 & \small 1093.6 $\pm$ 2.1 $\pm$ 7.2 $\pm$ 10.9 $\pm$ 12.7 & \small 818.4 $\pm$ 1.9 $\pm$ 5.0 $\pm$ 7.0 $\pm$ 9.5\\
          \hline
     \end{tabular}
-    \caption{\small Comparison of cross sections determined at LHCb at $\sqrt{s} =$ 5, 7, and 8 TeV. Errors on 7 TeV values are statistical, systematic, and luminosity. On 8 TeV, the errors are statistical, systematic, due to knowledge of LHC beam energy, and luminosity~\cite{7TeV_W+Z_2012,8+7TeV_W+Z_2015}.}
+    \caption{\small Comparison of cross sections determined at LHCb at $\sqrt{s} =$ 5, 7, and 8 TeV. Errors on 7 TeV $W$ values are statistical, systematic, and luminosity. On 8 TeV and $Z$ for 7 TeV, the errors are statistical, systematic, due to beam energy, and luminosity. The 7 TeV values were measured at luminosity of 1.0 fb$^{-1}$, and 8 TeV values at 2.0 fb$^{-1}$~\cite{7TeV_W_2014,7TeV_Z_2015,8TeV_W+Z_2015}.}
     \label{tab: xsec comparison}
 \end{table}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[clip, trim = 0.2cm 0.5cm 2.4cm 1.6cm, width = 0.49\textwidth]{Wp_xsec_plot.png}
+\includegraphics[clip, trim = 0.5cm 0.5cm 2.4cm 1.6cm, width = 0.49\textwidth]{Wm_xsec_plot.png}
+\includegraphics[clip, trim = 0.5cm 0.5cm 2.4cm 1.6cm, width = 0.49\textwidth]{Z_xsec_plot.png}
+\vspace{-4mm}
+\caption{\small Comparisons of measured fiducial cross section with published LHCb results at 7, 8 and 13 TeV~\cite{7TeV_W_2014,7TeV_Z_2015,8TeV_W+Z_2015,13TeV_Z_2016}.}
+\label{fig: xsec comparison}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[clip, trim = 0.3cm 0.5cm 2.4cm 1.6cm, width = 0.49\textwidth]{WW_ratio_plot.png}
+\includegraphics[clip, trim = 0.3cm 0.5cm 2.4cm 1.6cm, width = 0.49\textwidth]{WZ_ratio_plot.png} % optimum left cut is 0.7cm, but set to 0.3cm for consistency
+\vspace{-4mm}
+\caption{\small Comparisons of the fiducial cross section ratios calculated in this analysis with published LHCb results at 7 and 8 TeV~\cite{7TeV_Z_2015,8TeV_W+Z_2015}.}
+\label{fig: ratio comparison}
+\end{figure*}
 
 
 \section{Future Work}
 \subsection{Monte Carlo Comparison of Z data for 5 TeV Measurement} \label{Z histograms}
-The use of the simulations used in data analysis should be validated by comparison with the $Z$ experimental data. The plots in Figure~\ref{fig: Z histograms} are comparisons of the $Z$ data with a Monte Carlo simulation of $Z$ produced at $\sqrt{s}=$13 TeV which had undergone detector reconstruction (\texttt{13TeV$\_$2016$\_$28r1$\_$Down$\_$Z$\_$Sim09h.root}). The simulation data has been scaled to the experimental data, each histogram plotted with 100 bins. 
+The use of the simulations used in data analysis should be validated by comparison with the $Z$ experimental data. 
+The plots in Figure~\ref{fig: Z histograms} are comparisons of the $Z$ data with a Monte Carlo simulation of $Z$ produced at $\sqrt{s}=$5 TeV which had undergone detector reconstruction (\texttt{5TeV$\_$2015$\_$24r1$\_$Down$\_$Z$\_$Sim09d.root}). 
+% The plots in Figure~\ref{fig: Z histograms} are comparisons of the $Z$ data with a Monte Carlo simulation of $Z$ produced at $\sqrt{s}=$13 TeV which had undergone detector reconstruction (\texttt{13TeV$\_$2016$\_$28r1$\_$Down$\_$Z$\_$Sim09h.root}). 
+The simulation data has been scaled to the experimental data, each histogram plotted with 100 bins. 
 
 Comparison of these plots can be used to correct for imperfections in the detector and to remove background from measurements, although the simulation is limited in precision to leading order by \textsc{Pythia} and by the precision to which the detector can be described.
 
