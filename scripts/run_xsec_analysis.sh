@@ -9,6 +9,8 @@ make
 ./scripts/measure_W_xsec.py
 ./scripts/make_W_latex.py
 
+./scripts/plot_xsec.py
+
 cd doc/measurement_doc/
 pdflatex measurement_report.tex
 bibtex measurement_report
