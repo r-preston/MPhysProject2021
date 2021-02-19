@@ -55,19 +55,19 @@ def xsec_output (save_path, boson, label, json_in):
         texfile.write("${:.{prec}f} \pm {:.{prec}f}_{{\\rm stat}} \pm {:.{prec}f}_{{\\rm lumi}}$".format(xsec, xsec_err_stat, xsec_err_lumi, prec=0))
 
 
-with open('Wp_back_output.json') as json_file:
+with open('results_json/Wp_back_output.json') as json_file:
     Wp_background = json.load(json_file)
 
-with open('Wm_back_output.json') as json_file:
+with open('results_json/Wm_back_output.json') as json_file:
     Wm_background = json.load(json_file)
 
-with open('Wp_xsec.json') as json_file:
+with open('results_json/Wp_xsec.json') as json_file:
     Wp_xsec_input = json.load(json_file)
 
-with open('Wm_xsec.json') as json_file:
+with open('results_json/Wm_xsec.json') as json_file:
     Wm_xsec_input = json.load(json_file)
 
-with open('Ratios.json') as json_file:
+with open('results_json/Ratios.json') as json_file:
     Ratios = json.load(json_file)
 
 
