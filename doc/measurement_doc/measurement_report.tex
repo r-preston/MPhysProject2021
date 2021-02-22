@@ -5,34 +5,47 @@
 \usepackage{ifthen,etoolbox}
 \usepackage[british]{babel} %languages nicely, with proper date format courtesy of [british]
 \usepackage{csquotes} %helps to quotes nicely
-\usepackage[hidelinks]{hyperref} %hyperlinks contents and references
+%\usepackage{float} %for control over figure positioning
+
+\usepackage{hyperref} %hyperlinks contents and references
 \usepackage{graphicx} %required for image manipulation
 \usepackage[a4paper, top=25mm,bottom=25mm,left=25mm,right=25mm]{geometry} %allows manipulation of page structure
 \usepackage{cite} %BibTeX bibliography manager
 \usepackage{amsmath, amssymb} %adds many fancy maths symbols and things
-%\usepackage{tikz, pgfplots} %for drawing diagrams and charts
-\usepackage{float} %for control over figure positioning
-%\usepackage[final]{microtype} %sorts out all typography, line wrapping and spacing for maximum loveliness
 
-\usepackage{ifthen}
-\newboolean{uprightparticles}
-\setboolean{uprightparticles}{false} %Set true for upright particle symbols
-\usepackage{xspace}
-\usepackage{upgreek}
-\include{lhcb-symbols-def}
+%\usepackage{epstopdf}
+%\usepackage{url}
+%\usepackage{setspace}
+%\usepackage{titlesec}
+
 \graphicspath{{../../plots/}}
 
-\title{Z Cross Section Analysis from 5TeV Measurement}
-\author{Rowan Preston, Laura Cairns}
+%\usepackage{abstract}
+%\addto\captionsenglish{\renewcommand{\abstractname}{}}
+%\addto\captionsenglish{\renewcommand{\absnamepos}{empty}}
+
+\title{Analysis Note: Measurement of forward $W$ and $Z$ boson cross sections in $pp$ collisions at $\sqrt{s}=5 \; \rm{TeV}$}
+\author{Laura Cairns}
 \date{\today}
 
 \begin{document}
 \maketitle
 
+\begin{abstract}
+    \noindent 
+    Measurements of electroweak boson production cross sections are presented for $pp$ collisions at centre of mass energy $\sqrt{s} = 5$ TeV. The data analysed was collected at the LHCb detector with an integrated luminosity of \input{results/lumi_value.tex}. Muon decay channels are studied within the kinematic region defined by pseudorapity $2.0 < \eta < 4.5$ and transverse momenta $p_T > 20$~GeV. The boson cross sections are found to be
+    \input{results/Z_xsec_output.tex}
+    \input{results/Wp_xsec_output.tex}
+    \input{results/Wm_xsec_output.tex}
+    where statistical uncertainties, and uncertainties due to trigger efficiency and luminosity are labelled. Ratios of these cross sections are also determined as 
+    \input{results/WW_ratio_output.tex}
+    \input{results/WZ_ratio_output.tex}
+\end{abstract}
+
 
 \section{Z Cross Section from 5TeV Experimental Data} \label{results}
 
-The LHCb dataset used in this analysis has been taken at $\sqrt{s} = 5$ TeV. The dataset contains 5840 entries. The workflow of the code used to analyse this data is given in Section \ref{workflow}, with results given in Section \ref{results}, and plot given in Section \ref{histograms}.
+The LHCb dataset used in this analysis has been taken at $\sqrt{s} = 5$ TeV. The dataset contains 5840 entries corresponding to $Z$ events. The workflow of the code used to analyse this data is given in Section \ref{workflow}, with results given in Section \ref{results}, and plot given in Section \ref{Z histograms}.
 
 \subsection{Integrated Luminosity} \label{lumi_val}
 \input{results/lumi_output.tex}
@@ -44,32 +57,32 @@ The LHCb dataset used in this analysis has been taken at $\sqrt{s} = 5$ TeV. The
 \input{results/counts_output.tex}
 
 \subsection{Z Cross Section} \label{xsec_val}
-\input{results/xsec_output.tex}
+\input{results/Z_xsec_output.tex}
 
 
-\section{Workflow of Code} \label{workflow}
+\section{Workflow of Z Analysis} \label{workflow}
 
-\subsection{Comparison of Experimental Data with Monte Carlo Simulation}
+\subsection{Comparison of Experimental Data with Monte Carlo Simulation} \label{sec: Z MC comparison}
 In the code \texttt{plot$\_$MC$\_$comparison.cpp}, histograms are plotted using ROOT, comparing a number of variables from the 5 TeV LHCb dataset to a Monte Carlo simulation of the experiment. The Monte Carlo simulation was created in \textit{Pythia} and has 338926 entries, which have been passed through detector reconstruction. Simulation data has been scaled to the experimental data in the histogram plots, with each plotted using 100 bins.
 The variables compared are:
 \begin{itemize}
   \item Transverse Momentum $p_T$, separately for both positive and negative muons
   \item Pseudorapidity $\eta$, separately for both positive and negative muons
   \item Azimuthal angle $\phi$, separately for both positive and negative muons
-  \item Mass of the Z boson $m_Z$
+  \item Dimuon invariant mass $M_{\mu\mu}$, equivalent to the mass of the Z boson $m_Z$
 \end{itemize}
 
 Differences can be seen between the experimental and simulated data due to background in the experimental data, and inaccuracies in the simulation. These inaccuracies arise due to the leading order precision of \textit{Pythia} and limits on the precision to which the detector can be described.
 
-See plots in Section \ref{histograms}.
+See plots in Section \ref{Z histograms}.
 
-\subsection{Luminosity Calculation}
+\subsection{Luminosity Calculation} \label{sec: Z lumi}
 The code \texttt{get$\_$luminosity.py} calculates the integrated luminosity $L$ as the sum of 38 entries, where each entry represents a fraction of the data collected in the 5 TeV run.
 The error on luminosity is assumed to be 5$\%$.
 Integrated luminosity and its error are output as a json file, with their values given in Section \ref{lumi_val}.
  
-\subsection{Trigger Efficiency Calculation}
-The code \texttt{measure$\_$trigger$\_$eff.py} calculates the trigger efficiency, which forms the dominatant systematic error in Z cross section calculation. 
+\subsection{Trigger Efficiency Calculation} \label{sec: Z trigger efficiency}
+The code \texttt{measure$\_$trigger$\_$eff.py} calculates the trigger efficiency, which forms the dominant systematic error in Z cross section calculation. 
 Events where the positive muon or negative muon trigger are counted, as well as the events where both muons trigger. 
 By requiring that one muon triggers (the tag muon), then there is no bias on the other muon (the probe muon). Hence, the efficiency of the probe muon trigger can be calculated as:
 \begin{equation}
@@ -79,12 +92,12 @@ By requiring that one muon triggers (the tag muon), then there is no bias on the
 The trigger efficiency is then calculated as the efficiency of either muon causing a trigger to activate (TOS).
 Trigger efficiency and its relative uncertainty are output as a json file, with the trigger efficiency given in Section \ref{trigger_val}.
 
-\subsection{Cross Section Calculation}
+\subsection{Cross Section Calculation} \label{sec: Z xsec}
 The code \texttt{measure$\_$xsec.py} calculates the integrated cross section of Z $\sigma_Z$.
 The number of events in the fiducial region are counted. The fiducial region is comprised of the kinematic cuts:
 
 \begin{itemize}
-  \item $60 < m_Z < 120 \; {\rm GeV}$ 
+  \item $60 < M_{\mu\mu} < 120 \; {\rm GeV}$ 
   \item $p_T > 20 \; {\rm GeV}$ for both positive and negative muons
   \item $2.0 < \eta < 4.5$ for both positive and negative muons
 \end{itemize}
@@ -97,20 +110,293 @@ using the previously calculated values of integrated luminosity $L$ and trigger 
 
 Error analysis on $\sigma_Z$ is carried out using the relative uncertainities on the number of counts, trigger efficiency, and luminosity. Each of these uncertainties is given separately in the result, with the uncertainty on the number of counts representing the statistical error. The cross section is output to a json file, and its value can be seen in Section \ref{xsec_val}, whilst the value of counts can be seen in Section \ref{counts_val}.
 
-\section{Monte Carlo Comparison for 5 TeV Measurement} \label{histograms}
 
-\includegraphics[width=\textwidth]{Measurement_1.e-3*mup_PT.pdf}
-\includegraphics[width=\textwidth]{Measurement_1.e-3*mum_PT.pdf}
-\includegraphics[width=\textwidth]{Measurement_mup_ETA.pdf}
-\includegraphics[width=\textwidth]{Measurement_mum_ETA.pdf}
-\includegraphics[width=\textwidth]{Measurement_mup_PHI.pdf}
-\includegraphics[width=\textwidth]{Measurement_mum_PHI.pdf}
-\includegraphics[width=\textwidth]{Measurement_1.e-3*Z_M.pdf}
+\section{W Boson Analysis} \label{sec: W boson}
+
+\subsection{Plotting W Data} \label{sec: W plotting}
+
+The $p_T$ distributions of $W \xrightarrow{} \mu \nu_\mu$ decays are plotted for both $W^+$ and $W^-$ in the program \texttt{plot$\_$W$\_$dist.cpp}. 
+The $W$ signal is isolated by calculating the isolation; the sum of $p_T$ for all particles surrounding the muon in a cone satisfying
+\begin{equation}
+    \sqrt{\Delta\eta^2 + \Delta\phi^2} < 0.5.
+    \label{eq: isolation}
+\end{equation}
+The inverse of transverse momentum $p_T^{-1}$ are plotted against this isolation, as shown for both $W^+$ and $W^-$ in the histograms below (Figure \ref{fig: LEGO}. These figures use the LEGO plotting option. An additional plot is provided of the COLZ plotting option for $W^+$ in Figure \ref{fig: COLZ}. %Figure from interim report, not created in current workflow (18.02.2021) 
+The $W$ decay signal can be seen as a peak between $p_T^{-1}$ = 0.02 and 0.03 GeV$^{-1}$ at low values of isolation, shown prominently in the COLZ plot. The LEGO plots highlight the charged $\pi/K$ background, identified as the Gaussian peak at high $p_T^{-1}$.
+
+
+\begin{figure*}[t]
+\centering
+\includegraphics[clip, trim = 0.3cm 0.3cm 1.7cm 1.3cm,width=0.49\textwidth]{W+_isolated_signal.pdf}
+\includegraphics[clip, trim = 0.3cm 0.3cm 1.7cm 1.3cm,width=0.49\textwidth]{W-_isolated_signal.pdf} \hspace{3mm}
+\vspace{-8mm}
+\caption{\small Histogram plots of inverse transverse momentum $p_T^{-1}$ against the log of the isolation for the $W \xrightarrow{} \mu \nu_\mu$ decay. $W^+$ and $W^-$ are shown left and right respectively Plotted using the LEGO option.}
+\label{fig: LEGO}
+\end{figure*}
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[clip, trim = 0cm 0cm 0.3cm 1.3cm, width=\textwidth]{../doc/measurement_doc/W+_isolated_signal_COLZ.pdf}
+    \vspace{-4mm}
+    \caption{\small COLZ plot of inverse transverse momentum $p_T^{-1}$ against the log of the isolation for the $W \xrightarrow{} \mu \nu_\mu$ decay for $W^+$.}
+    \label{fig: COLZ} %Figure from interim report, not created in current workflow (18.02.2021)
+\end{figure}
+
+
+\subsection{W Background Analysis} \label{sec: W background}
+
+The code \texttt{W$\_$background.cpp} plots and analyses the various background contributions to the $W^+$ and $W^-$ data.
+
+The files used are:
+\begin{itemize}
+    \item Data: \texttt{5TeV$\_$2017$\_$32$\_$Down$\_$EW.root}
+    \item Simulation of W signal: \texttt{5TeV$\_$2015$\_$24r1$\_$Down$\_$W$\_$Sim09d.root}
+    \item Simulation of Z production: \texttt{5TeV$\_$2015$\_$24r1$\_$Down$\_$Z$\_$Sim09d.root}
+\end{itemize}
+
+The code includes a number of functions which carry out different parts of the analysis, allowing for $W^+$ and $W^-$ data to be analysed simultaneously. The purposes of the functions are as follows:
+\begin{itemize}
+    \item \texttt{output$\_$histogram}: Plots a histogram from a TH1F object and outputs as a "png" file, used for testing purposes.
+    \item \texttt{make$\_$histogram}: Creates and returns a TH1F histogram from an input decay tree, expression, and cuts.
+    \item \texttt{background$\_$fit}: Analyses $\pi/K \xrightarrow{} \mu\nu$ background, fitting the W "SingleTrackNoBias" trees in the data with an exponential, and returning a Monte Carlo template of the fit. A plot of the exponential fit is output as a "png" file.
+    \item \texttt{fraction$\_$fitter}: TFractionFitter is carried out on the background contributions, returning the fractions of each in the $W$ data. A plot of this fit is output as a "png file. 
+    \item \texttt{produce$\_$fit$\_$model}: Produces a plot of the fit model, output as a "png" file. Each background contribution is scaled to the data by the fraction calculated in \texttt{fraction$\_$fitter}, and the fit model is calculated as the sum of all background contributions.
+    \item \texttt{output$\_$values}: Outputs numerical results of the code to a ``json'' file. The python code \texttt{make$\_$W$\_$latex.py} formats these outputs into latex forms, outputting ``tex'' files, which are input to this document.
+\end{itemize}
+A structure \texttt{fit$\_$fractions} is also introduced to store the fit fractions calculated by the function \texttt{fraction$\_$fitter}. The structure includes the value and error of each fit fraction, along with the string used to label its value in a plot. This forms the output of the function \texttt{fraction$\_$fitter}, and is passed as an input to \texttt{produce$\_$fit$\_$model}.
+
+When creating histogram, the following event selection is carried out, with kinematic cuts carried out on both $W$ and $Z$ histograms, applied to both muons in $Z$.
+\begin{itemize}
+    \item Kinematic cuts: $p_T >$ 20, 2 $< \eta <$ 4.5
+    \item Additional W cuts: $\log_{10}$(Isolation) $<$ 3 (defined in Equation \ref{eq: isolation})
+    \item Additional Z cuts: 60 GeV $< M_{\mu\mu} <$ 120 GeV, where $M_{\mu\mu}$ is the invariant mass of the dimuon system; this is equivalent to the mass of the $Z$ boson $m_Z$.
+\end{itemize}
+
+The analysis is carried out in the following steps:
+\begin{enumerate}
+    \item Make and retrieve background templates. Each is a TH1F histogram of $p_T$ plotted with range 20 to 60 GeV. This is carried out for both $W^+$ and $W^-$, with the number of events in each histogram after event selection shown in Table \ref{tab: W events}.
+    \begin{enumerate}
+        \item $\pi/K$ background: Function \texttt{background$\_$fit} is run. $p_T$ is plotted for the Wp and Wm ``SingleTrackNoBias" decay trees in the data file, and fit with an exponential. This is plotted, as shown in Figure \ref{fig: W exp back fit}. These decay trees contain high $p_T$ tracks without the requirement for events to be identified as muons (as in the Wp and Wm ``Iso" trees). Hence, these trees contain mostly charged pions $\pi$ and kaons $K$, forming the $\pi/K$ background.
+        \newline The slope of the exponential fit is then set to 0.2 which is used to create the background template. This is a TH1F histogram of 10000 Monte Carlo events generated from the fit.
+        \item Signal: Function \texttt{make$\_$histogram} is run. $p_T$ is plotted for the Wp and Wm ``Iso" decay trees in the W simulation file, with W cuts. These histograms are statistically limited, as seen in Table \ref{tab: W events}.
+        \item Z background: Function \texttt{make$\_$histogram} is run. $p_T$ is plotted for the Wp and Wm ``Iso" decay trees in the Z simulation file, with W cuts. These histograms are statistically limited, as seen in Table \ref{tab: W events}.
+    \end{enumerate}
+    
+    \item Retrieve $W$ isolated data: The function \texttt{make$\_$histogram} is called. $p_T$ is plotted for the Wp and Wm ``Iso" decay trees in the experimental data, with W cuts.
+    
+    \item Calculate Z fraction in W data:
+    \begin{enumerate}
+        \item Retrieve histograms for $M_{\mu\mu}$ distributions of the ``Z" tree in both data and the $Z$ simulation. The function \texttt{make$\_$histogram} is called for each, using Z cuts.
+        \item Calculate the predicted number of $Z$ events in the data of $W^+$ and $W^-$ using
+        \begin{equation}
+            N_Z[{\rm predicted \; in \;} W {\rm\; data}] = N_Z[{\rm reconstructed \; as \;} W {\rm \; in \;} Z {\rm \; simulation}] \times \frac{N_Z[Z {\rm \; data}]}{N_Z[Z {\rm\; simulation}]},
+        \end{equation}
+        where $N_Z$ is the number of Z events, with the tree counted referred to in square brackets. The fraction of $Z$ in $W$ data, fraction$_Z$, is then calculated as
+        \begin{equation}
+            {\rm fraction}_Z = \frac{N_Z[{\rm predicted \; in \;} W {\rm\; data}]}{N_W[W {\rm \; data}]}.
+        \end{equation}
+        [$W$ data] refers to ``WpIso" and ``WmIso" trees, and [$Z$ data] to the ``Z" tree in the data file. \newline
+        [reconstructed as $W$ in $Z$ simulation] refers to ``WpIso" and ``WmIso" trees, and [$Z$ simulation] to the ``Z" tree in the $Z$ simulation file. \newline 
+        The number of events is counted in each of these trees by taking the integral of their histogram, each retrieved in the above steps. \newline
+        The calculated $Z$ fractions are given in Section \ref{sec: W background results}.
+        The statistical uncertainity is calculated using the relative uncertainty $\sqrt{N}/N$ on each count in fraction$_Z$.
+        %The number of events in each of these trees is calculated by taking the integral of a histogram of the tree. For the ``W" trees, the $Z$ background and $W$ isolated data histograms discussed above are used, whereas for ``Z" trees, the invariant mass of $Z$ ``Z$\_$M" is plotted with the kinematic cuts used in Section \ref{sec: Z xsec}. 
+    \end{enumerate}
+    
+    \item Run TFractionFitter on the background contributions to determine the fractions they constitute in the $W$ data. The function \texttt{fraction$\_$fitter} is called to do this. The previously determined $Z$ fraction is passed to this function, and is constrained to this value with its statistical uncertainity. \newline
+    This fit produces the plots in Figure \ref{fig: W fraction fit}, and the fit fractions for each background contribution are given in \ref{sec: W background results}.
+    
+    \item Produce the fit model: the function \texttt{produce$\_$fit$\_$model} is called to do this. The histogram of each background contribution is scaled to the $W$ experimental data by
+    \begin{equation}
+        \frac{{\rm fraction} \times N_W[{\rm W \; data}]}{N[{\rm histogram}]}.
+    \end{equation}
+    The contributions of each background are summed to give the overall fit model, and this is plotted alongside the data and each individual background contribution, as shown in Figure \ref{fig: W fit model}.
+\end{enumerate}
 
 
 
 
-\bibliography{refs}{}
-\bibliographystyle{plain}
+\subsubsection{Results of Background Analysis} \label{sec: W background results}
+% include fit files, events counted in Z fraction calculation,
+Results of \texttt{W$\_$background.cpp} are listed below, and include Table~\ref{tab: W events}, and Figures~\ref{fig: W exp back fit}, \ref{fig: W fraction fit}, and \ref{fig: W fit model}.
+
+% Exponential fit of pion kaon background
+\begin{figure*}[h]
+  \centering
+  \includegraphics[clip, trim = 0.6cm 0.1cm 2.1cm 1.5cm, width=0.49\textwidth]{W+_expo_back_plot.png}
+  \includegraphics[clip, trim = 0.6cm 0.1cm 2.1cm 1.5cm, width=0.49\textwidth]{W-_expo_back_plot.png} \hspace{3mm}
+  \vspace{-4mm}
+  \caption{\small Exponential Fits of $p_T$ distributions for $W^+$ (left) and $W^-$ (right) in the ``SingleTrackNoIso" trees; high $p_T$ tracks without a muon identification requirement. This is mostly comprised of charged pions and kaons, forming the $\pi/K$ background.}
+  \label{fig: W exp back fit}
+\end{figure*}
+
+% Table of event numbers
+\input{results/W_event_table_output.tex}
+
+% Z fractions
+\textbf{The $Z$ fractions are calculated to be}: \newline
+\input{results/Wp_Z_frac_output.tex}
+\input{results/Wm_Z_frac_output.tex}
+
+% Fit fractions
+\textbf{The background fractions are determined by TFractionFitter to be:} \newline
+\input{results/Wp_fit_fracs_output.tex}
+\newline
+\input{results/Wm_fit_fracs_output.tex}
+
+% Fraction fitter plots
+\begin{figure*}[h]
+\centering
+\includegraphics[clip, trim = 0.2cm 0.3cm 2.2cm 1.6cm, width=0.49\textwidth]{W+_fraction_fit.png}
+\includegraphics[clip, trim = 0.2cm 0.3cm 2.2cm 1.6cm, width=0.49\textwidth]{W-_fraction_fit.png} 
+\vspace{-4mm}
+\caption{\small Plots of fits produced by TFractionFitter carried out on $W^+$ (left) and $W^-$ (right) data, with background fractions from $\pi/K \xrightarrow{} \mu\nu$, $W$ signal, and $Z \xrightarrow{} \mu\mu$. Crosses indicate the $W$ data, and the line indicates the fit. The $\chi^2/$degrees of freedom of the fit is given.}
+\label{fig: W fraction fit}
+\end{figure*}
+
+% Fit model plots
+\begin{figure*}[h]
+\centering
+\includegraphics[clip, trim = 0.2cm 0.3cm 2.2cm 1.6cm, width=0.49\textwidth]{W+_fit_model.png}
+\includegraphics[clip, trim = 0.2cm 0.3cm 2.2cm 1.6cm, width=0.49\textwidth]{W-_fit_model.png} 
+\vspace{-4mm}
+\caption{\small Fit models for $W^+$ (left) and $W^+$ (right). The data are indicated with crosses, and the fit model calculated as the sum of all background contributions is plotted in black. Separate background contributions are plotted for $\pi/K \xrightarrow{} \mu\nu$ (blue), $W$ signal (red), and $Z \xrightarrow{} \mu\mu$ (green), with their fit fractions listed. The $\chi^2/$degrees of freedom of the fraction fit is given.}
+\label{fig: W fit model}
+\end{figure*}
+
+
+\section{W Cross Section and Cross Section Ratio Determination}
+The code \texttt{measure$\_$W$\_$xsec.py} calculates the $W^+$ and $W^-$ cross sections, and calculates the cross section ratios $W^+/W^-$ and $W/Z$. Values used in this calculation are read in from json files produced in the codes \texttt{W$\_$background.cpp}, \texttt{get$\_$luminosity.py}, and \texttt{measure$\_$xsec.py} (see Sections \ref{sec: W background}, \ref{sec: Z lumi}, and \ref{sec: Z xsec} respectively). Results are output as json files, and formatted to a tex file in the code \texttt{make$\_$W$\_$latex.py}, similarly to \texttt{W$\_$background.cpp}.
+
+Each cross section is determined in the function \texttt{xsec$\_$calc}. Background subtraction is carried on the $W$ experimental data, determining the expected number of $W$ events in the signal $N_{\rm signal}$ as
+\begin{equation}
+    N_{\rm signal} = N_W \times {\rm f}_{\rm signal},
+\end{equation}
+where $N_W$ is the total number of $W$ events in the data after event selection, and f$_{\rm signal}$ is the signal fraction determined in the background fitting, both found in \texttt{W$\_$background.cpp} (Section \ref{sec: W background}). The error on $N_{\rm signal}$ forms the statitsical error on the cross section measurement, and is determined as
+\begin{equation}
+    \frac{\alpha_{N_{\rm signal}}}{N_{\rm signal}} = \sqrt{\left(\frac{\alpha_{{\rm f}_{\rm signal}}}{{\rm f}_{\rm signal}}\right)^2 + \left(\frac{\sqrt{N_W}}{N_W}\right)^2} .
+\end{equation}
+The cross section of each $W$ boson $\sigma_W$ is subsequently calculated as
+\begin{equation}
+    \sigma_W = \frac{N_{\rm signal}}{L},
+\end{equation}
+where $L$ is luminosity. The error on this value is given separately as statistical error and luminosity error.
+
+The ratio $W^+/W^-$ is calculated as 
+\begin{equation}
+    \frac{W^+}{W^-} = \frac{\sigma_{W^+}}{\sigma_{W^-}}.    
+\end{equation}
+As luminosity cancels from this equation, the dominant errors imposed on the cross section measurements by luminosity can be ignored. This leaves the statistical error as the only error contribution, although in later analysis, errors produced by the trigger efficiency will also contribute. Hence, errors can be propagated as follows,
+\begin{equation}
+    \frac{\alpha_{W^+/W^-}}{W^+/W^-} = \sqrt{\left(\frac{\alpha_{\sigma_{W^+}}}{\sigma_{W^+}}\right)^2 + \left(\frac{\alpha_{\sigma_{W^-}}}{\sigma_{W^-}}\right)^2} = \sqrt{\left(\frac{\alpha_{\sigma_{W^+} \rm stat}}{\sigma_{W^+}}\right)^2 + \left(\frac{\alpha_{\sigma_{W^-} \rm stat}}{\sigma_{W^-}}\right)^2}.
+\end{equation}
+
+The ratio of $W$ to $Z$ boson cross sections $W/Z$ is calculated as
+\begin{equation}
+    \frac{W}{Z} = \frac{\sigma_{W^+} + \sigma_{W^-}}{\sigma_{Z}},
+\end{equation}
+and similarly to the $W^+/W^-$ ratio, luminosity cancels, producing the following error propagation
+\begin{equation}
+    \frac{\alpha_{W/Z}}{W/Z} = \sqrt{\frac{\alpha_{\sigma_{W^+}}^2+\alpha_{\sigma_{W^-}}^2}{(\sigma_{W^+}+\sigma_{W^-})^2} + \left(\frac{\alpha_{\sigma_{Z}}}{\sigma_{Z}}\right)^2} = \sqrt{\frac{\alpha_{\sigma_{W^+} \rm stat }^2+\alpha_{\sigma_{W^-} \rm stat}^2}{(\sigma_{W^+}+\sigma_{W^-})^2} + \left(\frac{\alpha_{\sigma_{Z}\rm stat}}{\sigma_{Z}}\right)^2}.
+\end{equation}
+
+The results of this analysis are as follows:
+\input{results/Wp_xsec_output.tex}
+\input{results/Wm_xsec_output.tex}
+\input{results/WW_ratio_output.tex}
+\input{results/WZ_ratio_output.tex}
+
+\section{Results}
+The overall results of the entire analysis are as follows; electroweak production in $pp$ collisions at $\sqrt{s}=5$ TeV,
+\input{results/Z_xsec_output.tex}
+\input{results/Wp_xsec_output.tex}
+\input{results/Wm_xsec_output.tex}
+\input{results/WW_ratio_output.tex}
+\input{results/WZ_ratio_output.tex}
+
+The cross section ratios are compared to published LHCb data at 7 and 8 TeV in Table~\ref{tab: ratio comparison}~\cite{7TeV_W_2014,7TeV_Z_2015,8TeV_W+Z_2015}.
+
+The cross sections are compared to published LHCb data in Figure~\ref{fig: xsec comparison}. The cross section are determined for the same fiducial region in for each centre of mass energy $\sqrt{s}$, with $W$ boson cross sections are compared to values determined at 7 and 8 TeV~\cite{7TeV_W_2014,8TeV_W+Z_2015}, and to values at 7, 8 and 13 TeV for the $Z$ boson cross section~\cite{7TeV_Z_2015,8TeV_W+Z_2015,13TeV_Z_2016}.
+Additionally the cross section ratios are compared in the Figure~\ref{fig: ratio comparison}, using the same LHCb publications as the $Z$ boson cross sections~\cite{7TeV_Z_2015,8TeV_W+Z_2015}.
+These comparison figures are plotted in the code \texttt{plot$\_$xsec.py}.
+
+\begin{table}[]
+    \centering
+    \begin{tabular}{c|ll}
+        \hline
+         Energy (TeV)   & $W^+/W^-$ & $W/Z$  \\
+        \hline
+         5              & \input{results/WW_value.tex}  & \input{results/WZ_value.tex}  \\
+         7              & 1.274 $\pm$ 0.005 $\pm$ 0.009 $\pm$ 0.002 & 20.63 $\pm$ 0.09 $\pm$ 0.12 $\pm$ 0.05  \\
+         8              & 1.336 $\pm$ 0.004 $\pm$ 0.005 $\pm$ 0.002 & 20.13 $\pm$ 0.06 $\pm$ 0.11 $\pm$ 0.4   \\
+         \hline
+    \end{tabular}
+    \caption{\small Comparison of cross section ratios determined at LHCb at $\sqrt{s} =$ 5, 7, and 8 TeV. Errors are statistical, systematic, and due to beam energy respectively~\cite{7TeV_W_2014,7TeV_Z_2015,8TeV_W+Z_2015}.}
+    \label{tab: ratio comparison}
+\end{table}
+
+There is good agreement between our $W^+/W^-$ ratio and published results. However, our $W/Z$ ratio is higher than these previous results. This would suggest that either the determined $Z$ cross section is too small, or the $W$ cross sections could be too large. Comparing the $W$ cross sections at each energy (as seen in Table~\ref{tab: xsec comparison}), I would propose that the $W$ cross sections are too large; there is a significant difference between 7 and 8 TeV, which is not seen between 5 and 7 TeV. For this larger gap in energy, I would expect a large difference in cross section, as seen in the $Z$ cross section. These differences will become more apparent in plotting the cross sections as a function $\sqrt{s}$, the next step in this analysis.
+
+\begin{table}[]
+    \centering
+    \begin{tabular}{c|lll}
+        \hline
+        \small $\sqrt{s}$ (TeV)   & \small $\sigma_{Z}$ (pb) & \small $\sigma_{W^+}$ (pb) & \small $\sigma_{W^-}$ (pb)  \\
+        \hline
+         5              & \small \input{results/Z_xsec_value.tex}  & \small \input{results/Wp_xsec_value.tex} & \small \input{results/Wm_xsec_value}\\
+         7              & \small 76.0 $\pm$ 0.3 $\pm$ 0.5 $\pm$ 1.0 $\pm$ 1.3 & \small 861.0 $\pm$ 2.0 $\pm$ 11.2 $\pm$ 14.7 & \small 675.8 $\pm$ 1.9 $\pm$ 8.8 $\pm$ 11.6\\
+         8              & \small 95.0 $\pm$ 0.3 $\pm$ 0.7 $\pm$ 1.1 $\pm$ 1.1 & \small 1093.6 $\pm$ 2.1 $\pm$ 7.2 $\pm$ 10.9 $\pm$ 12.7 & \small 818.4 $\pm$ 1.9 $\pm$ 5.0 $\pm$ 7.0 $\pm$ 9.5\\
+         \hline
+    \end{tabular}
+    \caption{\small Comparison of cross sections determined at LHCb at $\sqrt{s} =$ 5, 7, and 8 TeV. Errors on 7 TeV $W$ values are statistical, systematic, and luminosity. On 8 TeV and $Z$ for 7 TeV, the errors are statistical, systematic, due to beam energy, and luminosity. The 7 TeV values were measured at luminosity of 1.0 fb$^{-1}$, and 8 TeV values at 2.0 fb$^{-1}$~\cite{7TeV_W_2014,7TeV_Z_2015,8TeV_W+Z_2015}.}
+    \label{tab: xsec comparison}
+\end{table}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[clip, trim = 0.2cm 0.5cm 2.4cm 1.6cm, width = 0.49\textwidth]{Wp_xsec_plot.png}
+\includegraphics[clip, trim = 0.5cm 0.5cm 2.4cm 1.6cm, width = 0.49\textwidth]{Wm_xsec_plot.png}
+\includegraphics[clip, trim = 0.5cm 0.5cm 2.4cm 1.6cm, width = 0.49\textwidth]{Z_xsec_plot.png}
+\vspace{-4mm}
+\caption{\small Comparisons of measured fiducial cross section with published LHCb results at 7, 8 and 13 TeV~\cite{7TeV_W_2014,7TeV_Z_2015,8TeV_W+Z_2015,13TeV_Z_2016}.}
+\label{fig: xsec comparison}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[clip, trim = 0.3cm 0.5cm 2.4cm 1.6cm, width = 0.49\textwidth]{WW_ratio_plot.png}
+\includegraphics[clip, trim = 0.3cm 0.5cm 2.4cm 1.6cm, width = 0.49\textwidth]{WZ_ratio_plot.png} % optimum left cut is 0.7cm, but set to 0.3cm for consistency
+\vspace{-4mm}
+\caption{\small Comparisons of the fiducial cross section ratios calculated in this analysis with published LHCb results at 7 and 8 TeV~\cite{7TeV_Z_2015,8TeV_W+Z_2015}.}
+\label{fig: ratio comparison}
+\end{figure*}
+
+
+\section{Future Work}
+\subsection{Monte Carlo Comparison of Z data for 5 TeV Measurement} \label{Z histograms}
+The use of the simulations used in data analysis should be validated by comparison with the $Z$ experimental data. 
+The plots in Figure~\ref{fig: Z histograms} are comparisons of the $Z$ data with a Monte Carlo simulation of $Z$ produced at $\sqrt{s}=$5 TeV which had undergone detector reconstruction (\texttt{5TeV$\_$2015$\_$24r1$\_$Down$\_$Z$\_$Sim09d.root}). 
+% The plots in Figure~\ref{fig: Z histograms} are comparisons of the $Z$ data with a Monte Carlo simulation of $Z$ produced at $\sqrt{s}=$13 TeV which had undergone detector reconstruction (\texttt{13TeV$\_$2016$\_$28r1$\_$Down$\_$Z$\_$Sim09h.root}). 
+The simulation data has been scaled to the experimental data, each histogram plotted with 100 bins. 
+
+Comparison of these plots can be used to correct for imperfections in the detector and to remove background from measurements, although the simulation is limited in precision to leading order by \textsc{Pythia} and by the precision to which the detector can be described.
+
+\begin{figure*}[p]
+\centering
+\includegraphics[clip, trim = 0.5cm 0cm 1.7cm 1.3cm, width=0.49\textwidth]{Measurement_mup_PT.png}
+\includegraphics[clip, trim = 0.5cm 0cm 1.7cm 1.3cm, width=0.49\textwidth]{Measurement_mum_PT.png}
+\includegraphics[clip, trim = 0.5cm 0cm 1.7cm 1.3cm, width=0.49\textwidth]{Measurement_mup_ETA.png}
+\includegraphics[clip, trim = 0.5cm 0cm 1.7cm 1.3cm, width=0.49\textwidth]{Measurement_mum_ETA.png}
+\includegraphics[width=0.49\textwidth]{Measurement_mup_PHI.png}
+\includegraphics[width=0.49\textwidth]{Measurement_mum_PHI.png}
+\includegraphics[clip, trim = 0.5cm 0cm 1.7cm 1.3cm, width=0.49\textwidth]{Measurement_Z_M.png}
+\vspace{-4mm}
+\caption{\small Comparison of $Z$ experimental data with a Monte Carlo simulation with detector reconstruction. Plots are shown for both positive and negative muons, plotting $M_{\mu\mu}$, $p_T$, $\eta$, and $\phi$.}
+\label{fig: Z histograms}
+\end{figure*}
+
+
+\bibliography{measurement_report}
+\bibliographystyle{h-physrev5}
 
 \end{document}
