@@ -3,7 +3,7 @@ import json
 import math
 import os
 
-def xsec_calc(W_data, lumi, lumi_err):
+def xsec_calc(W_data, lumi, lumi_err, trig_eff, trig_eff_rel_unc):
     signal_frac = W_data["signal_frac"]
     signal_frac_err = W_data["signal_frac_err"]    
     W_events = W_data["W_data_events"]
@@ -12,12 +12,13 @@ def xsec_calc(W_data, lumi, lumi_err):
     counts = signal_frac * W_events
     counts_err = counts * math.sqrt((signal_frac_err/signal_frac)*(signal_frac_err/signal_frac) + W_events_rel_unc*W_events_rel_unc)
 
-    xsec = counts/lumi
-    xsec_err_stat = xsec * (counts_err/counts )
+    xsec = counts/(lumi*trig_eff)
+    xsec_err_stat = xsec * (counts_err/counts)
     xsec_err_lumi = xsec * (lumi_err/lumi)    
-    xsec_err = xsec_err_stat + xsec_err_lumi
+    xsec_err_eff = xsec * trig_eff_rel_unc
+    xsec_err = xsec_err_stat + xsec_err_lumi + xsec_err_eff
 
-    return xsec, xsec_err, xsec_err_stat, xsec_err_lumi, counts, counts_err
+    return xsec, xsec_err, xsec_err_stat, xsec_err_lumi, xsec_err_eff, counts, counts_err
 
 
 
@@ -27,6 +28,13 @@ with open('results_json/luminosity.json') as json_file:
 lumi = luminosity["luminosity"]
 lumi_err = luminosity["luminosity_err"]
 
+# retrieve trigger efficiency
+with open('results_json/efficiencies.json') as json_file:
+    efficiencies = json.load(json_file)
+trig_eff = efficiencies["trigger_efficiency"]
+trig_eff_rel_unc = efficiencies["trigger_eff_error"]
+
+
 # retrive background data
 with open('results_json/Wp_back_output.json') as json_file:
     Wp_back = json.load(json_file)
@@ -35,15 +43,15 @@ with open('results_json/Wm_back_output.json') as json_file:
     Wm_back = json.load(json_file)
 
 # calculate cross sections
-Wp_xsec, Wp_xsec_err, Wp_xsec_err_stat, Wp_xsec_err_lumi, Wp_events, Wp_events_err = xsec_calc(Wp_back, lumi, lumi_err)
-Wm_xsec, Wm_xsec_err, Wm_xsec_err_stat, Wm_xsec_err_lumi, Wm_events, Wm_events_err = xsec_calc(Wm_back, lumi, lumi_err)
+Wp_xsec, Wp_xsec_err, Wp_xsec_err_stat, Wp_xsec_err_lumi, Wp_xsec_err_eff, Wp_events, Wp_events_err = xsec_calc(Wp_back, lumi, lumi_err, trig_eff, trig_eff_rel_unc)
+Wm_xsec, Wm_xsec_err, Wm_xsec_err_stat, Wm_xsec_err_lumi, Wm_xsec_err_eff, Wm_events, Wm_events_err = xsec_calc(Wm_back, lumi, lumi_err, trig_eff, trig_eff_rel_unc)
 
 # output cross sections
-Wp_xsec_output = {"count":Wp_events, "count_error":Wp_events_err, "xsec":Wp_xsec, "xsec_err":Wp_xsec_err, "xsec_err_stat":Wp_xsec_err_stat, "xsec_err_lumi":Wp_xsec_err_lumi}
+Wp_xsec_output = {"count":Wp_events, "count_error":Wp_events_err, "xsec":Wp_xsec, "xsec_err":Wp_xsec_err, "xsec_err_stat":Wp_xsec_err_stat, "xsec_err_lumi":Wp_xsec_err_lumi, "xsec_err_eff":Wp_xsec_err_eff}
 with open('results_json/Wp_xsec.json', 'w') as outfile:
     json.dump(Wp_xsec_output,outfile)
 
-Wm_xsec_output = {"count":Wm_events, "count_error":Wm_events_err, "xsec":Wm_xsec, "xsec_err":Wm_xsec_err, "xsec_err_stat":Wm_xsec_err_stat, "xsec_err_lumi":Wm_xsec_err_lumi}
+Wm_xsec_output = {"count":Wm_events, "count_error":Wm_events_err, "xsec":Wm_xsec, "xsec_err":Wm_xsec_err, "xsec_err_stat":Wm_xsec_err_stat, "xsec_err_lumi":Wm_xsec_err_lumi, "xsec_err_eff":Wm_xsec_err_eff}
 with open('results_json/Wm_xsec.json', 'w') as outfile:
     json.dump(Wm_xsec_output,outfile)
 
