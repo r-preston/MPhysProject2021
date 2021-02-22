@@ -82,11 +82,11 @@ The error on luminosity is assumed to be 5$\%$.
 Integrated luminosity and its error are output as a json file, with their values given in Section \ref{lumi_val}.
  
 \subsection{Trigger Efficiency Calculation} \label{sec: Z trigger efficiency}
-The code \texttt{measure$\_$trigger$\_$eff.py} calculates the trigger efficiency, which forms the dominant systematic error in Z cross section calculation. 
+The code \texttt{measure$\_$trigger$\_$eff.py} calculates the trigger efficiency $\varepsilon_{\rm trigger}$, which forms the dominant systematic error in Z cross section calculation. 
 Events where the positive muon or negative muon trigger are counted, as well as the events where both muons trigger. 
 By requiring that one muon triggers (the tag muon), then there is no bias on the other muon (the probe muon). Hence, the efficiency of the probe muon trigger can be calculated as:
 \begin{equation}
-{\rm efficiency}_{{\rm probe \;  muon}} = \frac{{\rm number \; of \; events \; where \; both \; muons \; trigger}}{{\rm number \; of \; events \; where \; tag \; muon \; triggers}}.
+{\varepsilon}_{{\rm probe \;  muon}} = \frac{{\rm number \; of \; events \; where \; both \; muons \; trigger}}{{\rm number \; of \; events \; where \; tag \; muon \; triggers}}.
 \end{equation}
 
 The trigger efficiency is then calculated as the efficiency of either muon causing a trigger to activate (TOS).
@@ -104,9 +104,9 @@ The number of events in the fiducial region are counted. The fiducial region is 
 
 $\sigma_Z$ is then calculated as
 \begin{equation}
-\sigma_Z = \frac{{\rm counts}}{L \times {\rm \; trigger \; efficiency}},
+\sigma_Z = \frac{{\rm counts}}{L \times {\varepsilon_{\rm trigger}}},
 \end{equation}
-using the previously calculated values of integrated luminosity $L$ and trigger efficiency, read in from their respective codes.
+using the previously calculated values of integrated luminosity $L$ and trigger efficiency $\varepsilon_{\rm trigger}$, read in from their respective codes.
 
 Error analysis on $\sigma_Z$ is carried out using the relative uncertainities on the number of counts, trigger efficiency, and luminosity. Each of these uncertainties is given separately in the result, with the uncertainty on the number of counts representing the statistical error. The cross section is output to a json file, and its value can be seen in Section \ref{xsec_val}, whilst the value of counts can be seen in Section \ref{counts_val}.
 
@@ -278,15 +278,20 @@ where $N_W$ is the total number of $W$ events in the data after event selection,
 \end{equation}
 The cross section of each $W$ boson $\sigma_W$ is subsequently calculated as
 \begin{equation}
-    \sigma_W = \frac{N_{\rm signal}}{L},
+    \sigma_W = \frac{N_{\rm signal}}{L \times \varepsilon_{\rm trigger}},
 \end{equation}
-where $L$ is luminosity. The error on this value is given separately as statistical error and luminosity error.
+where $L$ is luminosity and $\varepsilon_{\rm trigger}$ is the trigger efficiency. The error on this value is given separately as statistical error, error due to trigger efficiency and luminosity error.
+The trigger efficiency used here is the same value previously calculated for $Z\xrightarrow{}\mu\mu$ decays in the program \texttt{measure$\_$trigger$\_$eff.py}, as given in Section \ref{trigger_val} and used in the calculation of the $Z$ boson cross section $\sigma_Z$. 
+As $W$ boson decays only produce one muon, there is no redundancy with which to calculate trigger efficiency; if a muon does not activate a trigger, no event will be counted. The muon will either trigger or not. Conversely, in the $Z$ boson decay, two muons are produced, allowing for the trigger efficiency to be measured according to whether one or both muons activate the trigger in each event.
 
 The ratio $W^+/W^-$ is calculated as 
 \begin{equation}
     \frac{W^+}{W^-} = \frac{\sigma_{W^+}}{\sigma_{W^-}}.    
 \end{equation}
-As luminosity cancels from this equation, the dominant errors imposed on the cross section measurements by luminosity can be ignored. This leaves the statistical error as the only error contribution, although in later analysis, errors produced by the trigger efficiency will also contribute. Hence, errors can be propagated as follows,
+As luminosity cancels from this equation, the dominant errors imposed on the cross section measurements by luminosity can be ignored. This similarly occurs for trigger efficiency. 
+This leaves the statistical error as the only error contribution.
+%, although in later analysis, errors produced by the trigger efficiency will also contribute. 
+Hence, errors can be propagated as follows,
 \begin{equation}
     \frac{\alpha_{W^+/W^-}}{W^+/W^-} = \sqrt{\left(\frac{\alpha_{\sigma_{W^+}}}{\sigma_{W^+}}\right)^2 + \left(\frac{\alpha_{\sigma_{W^-}}}{\sigma_{W^-}}\right)^2} = \sqrt{\left(\frac{\alpha_{\sigma_{W^+} \rm stat}}{\sigma_{W^+}}\right)^2 + \left(\frac{\alpha_{\sigma_{W^-} \rm stat}}{\sigma_{W^-}}\right)^2}.
 \end{equation}
@@ -295,7 +300,7 @@ The ratio of $W$ to $Z$ boson cross sections $W/Z$ is calculated as
 \begin{equation}
     \frac{W}{Z} = \frac{\sigma_{W^+} + \sigma_{W^-}}{\sigma_{Z}},
 \end{equation}
-and similarly to the $W^+/W^-$ ratio, luminosity cancels, producing the following error propagation
+and similarly to the $W^+/W^-$ ratio, luminosity and trigger efficiency cancel, producing the following error propagation
 \begin{equation}
     \frac{\alpha_{W/Z}}{W/Z} = \sqrt{\frac{\alpha_{\sigma_{W^+}}^2+\alpha_{\sigma_{W^-}}^2}{(\sigma_{W^+}+\sigma_{W^-})^2} + \left(\frac{\alpha_{\sigma_{Z}}}{\sigma_{Z}}\right)^2} = \sqrt{\frac{\alpha_{\sigma_{W^+} \rm stat }^2+\alpha_{\sigma_{W^-} \rm stat}^2}{(\sigma_{W^+}+\sigma_{W^-})^2} + \left(\frac{\alpha_{\sigma_{Z}\rm stat}}{\sigma_{Z}}\right)^2}.
 \end{equation}
