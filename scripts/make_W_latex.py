@@ -45,14 +45,15 @@ def xsec_output (save_path, boson, label, json_in):
     xsec = json_in["xsec"]
     xsec_err_stat = json_in["xsec_err_stat"]
     xsec_err_lumi = json_in["xsec_err_lumi"]
+    xsec_err_eff = json_in["xsec_err_eff"]
 
     with open(save_path+boson+'_xsec_output.tex', 'w') as texfile:
         texfile.write("\\"+"begin{equation}\n")
-        texfile.write("\sigma_{} = {:.{prec}f} \pm {:.{prec}f}_{{\\rm stat}} \pm {:.{prec}f}_{{\\rm lumi}} \; {{\\rm pb}},\n".format(label, xsec, xsec_err_stat, xsec_err_lumi, prec=0))
+        texfile.write("\sigma_{} = {:.{prec}f} \pm {:.{prec}f}_{{\\rm stat}} \pm {:.{prec}f}_{{\\rm eff}} \pm {:.{prec}f}_{{\\rm lumi}} \; {{\\rm pb}},\n".format(label, xsec, xsec_err_stat, xsec_err_eff, xsec_err_lumi, prec=1))
         texfile.write("\\"+"end{equation}\n")
     
     with open(save_path+boson+'_xsec_value.tex', 'w') as texfile:
-        texfile.write("${:.{prec}f} \pm {:.{prec}f}_{{\\rm stat}} \pm {:.{prec}f}_{{\\rm lumi}}$".format(xsec, xsec_err_stat, xsec_err_lumi, prec=0))
+        texfile.write("${:.{prec}f} \pm {:.{prec}f}_{{\\rm stat}} \pm {:.{prec}f}_{{\\rm eff}} \pm {:.{prec}f}_{{\\rm lumi}}$".format(xsec, xsec_err_stat, xsec_err_eff, xsec_err_lumi, prec=1))
 
 
 with open('results_json/Wp_back_output.json') as json_file:
