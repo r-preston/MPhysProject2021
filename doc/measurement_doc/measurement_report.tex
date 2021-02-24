@@ -45,7 +45,7 @@
 
 \section{Z Cross Section from 5TeV Experimental Data} \label{results}
 
-The LHCb dataset used in this analysis has been taken at $\sqrt{s} = 5$ TeV. The dataset contains 5840 entries corresponding to $Z$ events. The workflow of the code used to analyse this data is given in Section \ref{workflow}, with results given in Section \ref{results}, and plot given in Section \ref{Z histograms}.
+The LHCb dataset used in this analysis has been taken at $\sqrt{s} = 5$ TeV. The dataset contains 5840 entries. The workflow of the code used to analyse this data is given in Section \ref{workflow}, with results given in Section \ref{results}, and plots given in Section \ref{Z histograms}.
 
 \subsection{Integrated Luminosity} \label{lumi_val}
 \input{results/lumi_output.tex}
@@ -72,29 +72,45 @@ The variables compared are:
   \item Dimuon invariant mass $M_{\mu\mu}$, equivalent to the mass of the Z boson $m_Z$
 \end{itemize}
 
-Differences can be seen between the experimental and simulated data due to background in the experimental data, and inaccuracies in the simulation. These inaccuracies arise due to the leading order precision of \textit{Pythia} and limits on the precision to which the detector can be described.
+Differences can be seen between the experimental and simulated data due to background in the experimental data, and inaccuracies in the simulation. These inaccuracies arise due to the leading order precision of \textit{Pythia} and limits on the precision to which the detector can be described. 
+Comparing these plots tests the validity of using the simulation in determination of $W$ boson background.
 
 See plots in Section \ref{Z histograms}.
 
 \subsection{Luminosity Calculation} \label{sec: Z lumi}
 The code \texttt{get$\_$luminosity.py} calculates the integrated luminosity $L$ as the sum of 38 entries, where each entry represents a fraction of the data collected in the 5 TeV run.
 The error on luminosity is assumed to be 5$\%$.
-Integrated luminosity and its error are output as a json file, with their values given in Section \ref{lumi_val}.
+Integrated luminosity and its error are output as a json file ``luminosity.json", with their values given in Section~\ref{lumi_val}.
  
 \subsection{Trigger Efficiency Calculation} \label{sec: Z trigger efficiency}
-The code \texttt{measure$\_$trigger$\_$eff.py} calculates the trigger efficiency, which forms the dominant systematic error in Z cross section calculation. 
-Events where the positive muon or negative muon trigger are counted, as well as the events where both muons trigger. 
+The code \texttt{measure$\_$trigger$\_$eff.py} calculates the trigger efficiency $\varepsilon_{\rm trigger}$, which forms the dominant systematic error in Z cross section calculation. 
+Events where the positive muon or negative muon trigger are counted in the fiducial region (see \ref{sec: Z xsec}), as well as the events where both muons trigger. 
 By requiring that one muon triggers (the tag muon), then there is no bias on the other muon (the probe muon). Hence, the efficiency of the probe muon trigger can be calculated as:
 \begin{equation}
-{\rm efficiency}_{{\rm probe \;  muon}} = \frac{{\rm number \; of \; events \; where \; both \; muons \; trigger}}{{\rm number \; of \; events \; where \; tag \; muon \; triggers}}.
+{\varepsilon}_{{\rm probe \;  muon}} = \frac{{\rm number \; of \; events \; where \; both \; muons \; trigger}}{{\rm number \; of \; events \; where \; tag \; muon \; triggers}}.
 \end{equation}
 
-The trigger efficiency is then calculated as the efficiency of either muon causing a trigger to activate (TOS).
-Trigger efficiency and its relative uncertainty are output as a json file, with the trigger efficiency given in Section \ref{trigger_val}.
+This gives the trigger efficiencies of the positive and negative muons $\varepsilon_{\mu^+}$ and $\varepsilon_{\mu^-}$ as
+\begin{equation}
+    \varepsilon_{\mu^+} = \frac{N_{\mu^- + \mu^+}}{N_{\mu^-}},
+    \label{eq: mup_eff}
+\end{equation}
+\begin{equation}
+    \varepsilon_{\mu^-} = \frac{N_{\mu^- + \mu^+}}{N_{\mu^+}},
+    \label{eq: mum_eff}
+\end{equation}
+where $N$ represents the number of events where the indicated muon(s) triggers. These efficiencies are used in the determination of $W^+$ and $W^-$ cross sections respectively (see Section \ref{sec: W xsec}).
+The trigger efficiency used in the $Z$ analysis is calculated as the efficiency of either muon causing a trigger to activate (TOS), given as
+\begin{equation}
+    \varepsilon_{\mu\mu} = \varepsilon_{\mu^+} + \varepsilon_{\mu^-} - \varepsilon_{\mu^+} \times \varepsilon_{\mu^-}.
+    \label{eq: either eff}
+\end{equation}
+The relative uncertainty on each efficiency is determined using the binomial formula $\sqrt{\varepsilon(1-\varepsilon/N}$ where $N$ represents the sample size. In this analysis, $N$ is given as the number of $Z$ events in the fiducial region.
+The trigger efficiencies and their relative uncertainties are output as a json file ``efficiencies.json", with the trigger efficiencies given in Section \ref{trigger_val}.
 
-\subsection{Cross Section Calculation} \label{sec: Z xsec}
+\subsection{Z Cross Section Calculation} \label{sec: Z xsec}
 The code \texttt{measure$\_$xsec.py} calculates the integrated cross section of Z $\sigma_Z$.
-The number of events in the fiducial region are counted. The fiducial region is comprised of the kinematic cuts:
+The number of events in the fiducial region $N_{\rm fiducial}$ are counted. The fiducial region is comprised of the kinematic cuts:
 
 \begin{itemize}
   \item $60 < M_{\mu\mu} < 120 \; {\rm GeV}$ 
@@ -104,11 +120,23 @@ The number of events in the fiducial region are counted. The fiducial region is 
 
 $\sigma_Z$ is then calculated as
 \begin{equation}
-\sigma_Z = \frac{{\rm counts}}{L \times {\rm \; trigger \; efficiency}},
+\sigma_Z = \frac{N_{\rm fiducial}}{L \times {\varepsilon_{\rm trigger}}},
+\label{eq: Z_xsec}
 \end{equation}
-using the previously calculated values of integrated luminosity $L$ and trigger efficiency, read in from their respective codes.
+using the previously calculated values of integrated luminosity $L$ and trigger efficiency $\varepsilon_{\rm trigger}$, read in from their respective codes.
 
-Error analysis on $\sigma_Z$ is carried out using the relative uncertainities on the number of counts, trigger efficiency, and luminosity. Each of these uncertainties is given separately in the result, with the uncertainty on the number of counts representing the statistical error. The cross section is output to a json file, and its value can be seen in Section \ref{xsec_val}, whilst the value of counts can be seen in Section \ref{counts_val}.
+Errors are propagated through $\sigma_Z$ according to the equation,
+\begin{equation}
+    \alpha_\sigma = \sigma \sqrt{\left(\frac{\alpha_N}{N}\right)^2 + \left(\frac{\alpha_L}{L}\right)^2 + \left(\frac{\alpha_\varepsilon}{\varepsilon}\right)^2},
+    \label{eq: xsec error}
+\end{equation}
+and given separately in the result as statistical error (from the number of counts), and errors due to efficiency and luminosity. Errors are separated according to the following equation, with the statistical error given as an example;
+\begin{equation}
+    \alpha_{\rm stat} = \frac{(\alpha_N/N)^2}{(\alpha_\sigma/\sigma)^2}\alpha_\sigma.
+    \label{eq: xsec error separation}
+\end{equation}
+%Error analysis on $\sigma_Z$ is carried out using the relative uncertainties on the number of counts, trigger efficiency, and luminosity. Each of these uncertainties is given separately in the result, with the uncertainty on the number of counts representing the statistical error. 
+The cross section is output to a json file ``Z$\_$xsec.output", and its value can be seen in Section \ref{xsec_val}, whilst the value of counts can be seen in Section \ref{counts_val}.
 
 
 \section{W Boson Analysis} \label{sec: W boson}
@@ -128,13 +156,13 @@ The $W$ decay signal can be seen as a peak between $p_T^{-1}$ = 0.02 and 0.03 Ge
 \begin{figure*}[t]
 \centering
 \includegraphics[clip, trim = 0.3cm 0.3cm 1.7cm 1.3cm,width=0.49\textwidth]{W+_isolated_signal.pdf}
-\includegraphics[clip, trim = 0.3cm 0.3cm 1.7cm 1.3cm,width=0.49\textwidth]{W-_isolated_signal.pdf} \hspace{3mm}
-\vspace{-8mm}
+\includegraphics[clip, trim = 0.3cm 0.3cm 1.7cm 1.3cm,width=0.49\textwidth]{W-_isolated_signal.pdf} %\hspace{3mm}
+\vspace{-4mm}
 \caption{\small Histogram plots of inverse transverse momentum $p_T^{-1}$ against the log of the isolation for the $W \xrightarrow{} \mu \nu_\mu$ decay. $W^+$ and $W^-$ are shown left and right respectively Plotted using the LEGO option.}
 \label{fig: LEGO}
 \end{figure*}
 
-\begin{figure}[!h]
+\begin{figure}[!hb]
     \centering
     \includegraphics[clip, trim = 0cm 0cm 0.3cm 1.3cm, width=\textwidth]{../doc/measurement_doc/W+_isolated_signal_COLZ.pdf}
     \vspace{-4mm}
@@ -161,7 +189,7 @@ The code includes a number of functions which carry out different parts of the a
     \item \texttt{background$\_$fit}: Analyses $\pi/K \xrightarrow{} \mu\nu$ background, fitting the W "SingleTrackNoBias" trees in the data with an exponential, and returning a Monte Carlo template of the fit. A plot of the exponential fit is output as a "png" file.
     \item \texttt{fraction$\_$fitter}: TFractionFitter is carried out on the background contributions, returning the fractions of each in the $W$ data. A plot of this fit is output as a "png file. 
     \item \texttt{produce$\_$fit$\_$model}: Produces a plot of the fit model, output as a "png" file. Each background contribution is scaled to the data by the fraction calculated in \texttt{fraction$\_$fitter}, and the fit model is calculated as the sum of all background contributions.
-    \item \texttt{output$\_$values}: Outputs numerical results of the code to a ``json'' file. The python code \texttt{make$\_$W$\_$latex.py} formats these outputs into latex forms, outputting ``tex'' files, which are input to this document.
+    \item \texttt{output$\_$values}: Outputs numerical results of the code to a ``json'' file. The python code \texttt{make$\_$W$\_$latex.py} formats these outputs into latex forms, outputting ``tex'' files, which are input to this document. The json files are ``Wp$\_$back$\_$output.json" and``Wm$\_$back$\_$output.json".
 \end{itemize}
 A structure \texttt{fit$\_$fractions} is also introduced to store the fit fractions calculated by the function \texttt{fraction$\_$fitter}. The structure includes the value and error of each fit fraction, along with the string used to label its value in a plot. This forms the output of the function \texttt{fraction$\_$fitter}, and is passed as an input to \texttt{produce$\_$fit$\_$model}.
 
@@ -221,7 +249,7 @@ The analysis is carried out in the following steps:
 Results of \texttt{W$\_$background.cpp} are listed below, and include Table~\ref{tab: W events}, and Figures~\ref{fig: W exp back fit}, \ref{fig: W fraction fit}, and \ref{fig: W fit model}.
 
 % Exponential fit of pion kaon background
-\begin{figure*}[h]
+\begin{figure*}[ht]
   \centering
   \includegraphics[clip, trim = 0.6cm 0.1cm 2.1cm 1.5cm, width=0.49\textwidth]{W+_expo_back_plot.png}
   \includegraphics[clip, trim = 0.6cm 0.1cm 2.1cm 1.5cm, width=0.49\textwidth]{W-_expo_back_plot.png} \hspace{3mm}
@@ -245,7 +273,7 @@ Results of \texttt{W$\_$background.cpp} are listed below, and include Table~\ref
 \input{results/Wm_fit_fracs_output.tex}
 
 % Fraction fitter plots
-\begin{figure*}[h]
+\begin{figure*}[hbt]
 \centering
 \includegraphics[clip, trim = 0.2cm 0.3cm 2.2cm 1.6cm, width=0.49\textwidth]{W+_fraction_fit.png}
 \includegraphics[clip, trim = 0.2cm 0.3cm 2.2cm 1.6cm, width=0.49\textwidth]{W-_fraction_fit.png} 
@@ -255,7 +283,7 @@ Results of \texttt{W$\_$background.cpp} are listed below, and include Table~\ref
 \end{figure*}
 
 % Fit model plots
-\begin{figure*}[h]
+\begin{figure*}[ht]
 \centering
 \includegraphics[clip, trim = 0.2cm 0.3cm 2.2cm 1.6cm, width=0.49\textwidth]{W+_fit_model.png}
 \includegraphics[clip, trim = 0.2cm 0.3cm 2.2cm 1.6cm, width=0.49\textwidth]{W-_fit_model.png} 
@@ -265,9 +293,11 @@ Results of \texttt{W$\_$background.cpp} are listed below, and include Table~\ref
 \end{figure*}
 
 
-\section{W Cross Section and Cross Section Ratio Determination}
-The code \texttt{measure$\_$W$\_$xsec.py} calculates the $W^+$ and $W^-$ cross sections, and calculates the cross section ratios $W^+/W^-$ and $W/Z$. Values used in this calculation are read in from json files produced in the codes \texttt{W$\_$background.cpp}, \texttt{get$\_$luminosity.py}, and \texttt{measure$\_$xsec.py} (see Sections \ref{sec: W background}, \ref{sec: Z lumi}, and \ref{sec: Z xsec} respectively). Results are output as json files, and formatted to a tex file in the code \texttt{make$\_$W$\_$latex.py}, similarly to \texttt{W$\_$background.cpp}.
+\section{W Cross Section and Cross Section Ratio Determination} \label{sec: W xsec}
+The code \texttt{measure$\_$W$\_$xsec.py} calculates the $W^+$ and $W^-$ cross sections, and calculates the cross section ratios $W^+/W^-$ ($R_{WW}$) and $W/Z$ ($R_{WZ}$). Values used in this calculation are read in from json files produced in the codes \texttt{W$\_$background.cpp}, \texttt{get$\_$luminosity.py}, \texttt{measure$\_$trigger$\_$eff.py}, and \texttt{measure$\_$xsec.py} (see Sections \ref{sec: W background}, \ref{sec: Z lumi}, \ref{sec: Z trigger efficiency}, and \ref{sec: Z xsec} respectively). Results are output as json files, ``Wp$\_$xsec.json", ``Wm$\_$xsec.json", and ``Ratios.json". These are formatted to tex files in the code \texttt{make$\_$W$\_$latex.py}, similarly to \texttt{W$\_$background.cpp}.
+The results of this analysis are given in Section~\ref{sec: results}.
 
+\subsection{W Cross Sections}
 Each cross section is determined in the function \texttt{xsec$\_$calc}. Background subtraction is carried on the $W$ experimental data, determining the expected number of $W$ events in the signal $N_{\rm signal}$ as
 \begin{equation}
     N_{\rm signal} = N_W \times {\rm f}_{\rm signal},
@@ -278,35 +308,90 @@ where $N_W$ is the total number of $W$ events in the data after event selection,
 \end{equation}
 The cross section of each $W$ boson $\sigma_W$ is subsequently calculated as
 \begin{equation}
-    \sigma_W = \frac{N_{\rm signal}}{L},
+    \sigma_W = \frac{N_{\rm signal}}{L \times \varepsilon_{\rm trigger}},
+    \label{eq: W_xsec}
 \end{equation}
-where $L$ is luminosity. The error on this value is given separately as statistical error and luminosity error.
+where $L$ is luminosity and $\varepsilon_{\rm trigger}$ is the trigger efficiency. The error on this value is given separately as statistical error, error due to trigger efficiency, and luminosity error, determined using Equations~\ref{eq: xsec error} and \ref{eq: xsec error separation}.
+The trigger efficiencies used here are $\varepsilon_{\mu^+}$ and $\varepsilon_{\mu^-}$ for $W^+$ and $W^-$ respectively, as given in Equations~\ref{eq: mup_eff} and \ref{eq: mum_eff}. These are calculated in the program \texttt{measure$\_$trigger$\_$eff.py} and their values given in Section \ref{trigger_val}. 
 
-The ratio $W^+/W^-$ is calculated as 
-\begin{equation}
-    \frac{W^+}{W^-} = \frac{\sigma_{W^+}}{\sigma_{W^-}}.    
-\end{equation}
-As luminosity cancels from this equation, the dominant errors imposed on the cross section measurements by luminosity can be ignored. This leaves the statistical error as the only error contribution, although in later analysis, errors produced by the trigger efficiency will also contribute. Hence, errors can be propagated as follows,
-\begin{equation}
-    \frac{\alpha_{W^+/W^-}}{W^+/W^-} = \sqrt{\left(\frac{\alpha_{\sigma_{W^+}}}{\sigma_{W^+}}\right)^2 + \left(\frac{\alpha_{\sigma_{W^-}}}{\sigma_{W^-}}\right)^2} = \sqrt{\left(\frac{\alpha_{\sigma_{W^+} \rm stat}}{\sigma_{W^+}}\right)^2 + \left(\frac{\alpha_{\sigma_{W^-} \rm stat}}{\sigma_{W^-}}\right)^2}.
-\end{equation}
+As $W$ boson decays only produce one muon, there is no redundancy with which to calculate trigger efficiency; if a muon does not activate a trigger, no event will be counted. The muon will either trigger or not. Conversely, in the $Z$ boson decay, two muons are produced, allowing for the trigger efficiency to be measured according to whether one or both muons activate the trigger in each event. Hence, the trigger efficiency has to be calculated using the $Z$ boson data rather than $W$. It is assumed that the trigger efficiency is independent of the muon kinematics.
 
-The ratio of $W$ to $Z$ boson cross sections $W/Z$ is calculated as
-\begin{equation}
-    \frac{W}{Z} = \frac{\sigma_{W^+} + \sigma_{W^-}}{\sigma_{Z}},
-\end{equation}
-and similarly to the $W^+/W^-$ ratio, luminosity cancels, producing the following error propagation
-\begin{equation}
-    \frac{\alpha_{W/Z}}{W/Z} = \sqrt{\frac{\alpha_{\sigma_{W^+}}^2+\alpha_{\sigma_{W^-}}^2}{(\sigma_{W^+}+\sigma_{W^-})^2} + \left(\frac{\alpha_{\sigma_{Z}}}{\sigma_{Z}}\right)^2} = \sqrt{\frac{\alpha_{\sigma_{W^+} \rm stat }^2+\alpha_{\sigma_{W^-} \rm stat}^2}{(\sigma_{W^+}+\sigma_{W^-})^2} + \left(\frac{\alpha_{\sigma_{Z}\rm stat}}{\sigma_{Z}}\right)^2}.
-\end{equation}
-
-The results of this analysis are as follows:
+The $W$ cross sections are found to be
 \input{results/Wp_xsec_output.tex}
 \input{results/Wm_xsec_output.tex}
-\input{results/WW_ratio_output.tex}
-\input{results/WZ_ratio_output.tex}
 
-\section{Results}
+% WW Ratio
+\subsection{WW Ratio}
+The ratio of $W^+/W^-$, $R_{WW}$, is calculated using cross sections, with the ratio given in terms of Equation~\ref{eq: W_xsec} for purposes of error propagation;
+\begin{equation}
+    R_{WW} = \frac{\sigma_{W^+}}{\sigma_{W^-}} = \frac{N_{W^+}}{\varepsilon_{\mu^+}} \cdot \frac{\varepsilon_{\mu^-}}{N_{W^-}}.    
+\end{equation}
+where $N_{W^+}$ and $N_{W^-}$ are the $N_{\rm signal}$ used in $\sigma_{W^+}$ and $\sigma_{W^-}$ determination respectively.
+As luminosity cancels from this equation, the dominant errors imposed on the cross section measurements by luminosity can be ignored.
+This leaves the statistical and efficiency errors as the only error contributions.
+Hence, errors can be propagated as follows,
+\begin{equation}
+    \alpha_{WW} = R_{WW}\sqrt{\left(\frac{\alpha_{N_{W^+}}}{N_{W^+}}\right)^2 + \left(\frac{\alpha_{N_{W^-}}}{N_{W^-}}\right)^2 + \left(\frac{\alpha_{\varepsilon_{\mu^+}}}{\varepsilon_{\mu^+}}\right)^2 + \left(\frac{\alpha_{\varepsilon_{\mu^-}}}{\varepsilon_{\mu^-}}\right)^2}.
+\end{equation}
+Using Equation~\ref{eq: xsec error separation}, this can be set in terms of the statistical and efficiency errors of $\sigma_{W^+}$ and $\sigma_{W^-}$ as,
+\begin{equation}
+       \alpha_{WW} = R_{WW}\sqrt{C_{W+} \cdot \alpha_{\sigma_{W+} \rm stat} + C_{W-} \cdot \alpha_{\sigma_{W-}\rm stat} + C_{W+} \cdot \alpha_{\sigma_{W+} \rm eff} + C_{W-} \cdot \alpha_{\sigma_{W-}\rm eff}}.
+       \label{eq: WW errors}
+\end{equation}
+where $C_{W+}$ and $C_{W-}$ are coefficients found to be,
+\begin{equation}
+    C_{W+} = \frac{\alpha_{\sigma{W+}}}{{\sigma_{W^+}}^2}, \quad {\rm and} \quad C_{W-} = \frac{\alpha_{\sigma{W-}}}{{\sigma_{W^-}}^2}.
+    \label{eq: Wp Wm separation coeffs}
+\end{equation}
+The statistical and efficiency errors on the cross sections in Equation~\ref{eq: WW errors} are grouped together to find the statistical and efficiency errors on $R_{WW}$ in a similar method to Equation~\ref{eq: xsec error separation}, giving the final separated errors on the $R_{WW}$. The statistical error on $R_{WW}$ is given as an example;
+\begin{equation}
+    \alpha_{WW \rm stat} = \frac{(C_{W+} \cdot \alpha_{\sigma_{W+} \rm stat} + C_{W-} \cdot \alpha_{\sigma_{W-}\rm stat})}{(\alpha_{WW}/{R_{WW}})^2} \alpha_{WW}.
+\end{equation}
+The $W^+/W^-$ ratio is found to be
+\input{results/WW_ratio_output}
+
+\subsection{WZ Ratio}
+% WZ Ratio
+The ratio of $W$ to $Z$ boson cross sections $W/Z$, $R_{WZ}$, is calculated using cross sections, with the ratio given in terms of Equation~\ref{eq: W_xsec} for purposes of error propagation;
+\begin{equation}
+    R_{WZ} = \frac{\sigma_{W^+} + \sigma_{W^-}}{\sigma_{Z}} = \left( \frac{N_{W^+}}{\varepsilon_{\mu^+}} + \frac{N_{W^-}}{\varepsilon_{\mu^-}} \right) \cdot \frac{\varepsilon_{\mu\mu}}{N_{Z}},
+\end{equation}
+where $\varepsilon_{\mu\mu}$ is the trigger efficiency of either muon in a $Z$ decay, given in Equation~\ref{eq: either eff}, and $N_Z$ is $N_{\rm fiducial}$ in Equation~\ref{eq: Z_xsec}.
+Similarly to $R_{WW}$, luminosity cancels, removing it from error propagation. The error on $R_{WZ}$ can be propagated as follows, with coefficients $A$ and $B$ given below,
+\begin{equation}
+        \frac{\alpha_{WZ}}{R_{WZ}} = \sqrt{
+            A\cdot\left(\frac{\alpha_{N_{W^+}}}{N_{W^+}}\right)^2 + B\cdot\left(\frac{\alpha_{N_{W^-}}}{N_{W^-}}\right)^2 + \left(\frac{\alpha_{N_{Z}}}{N_{Z}}\right)^2 + A\cdot\left(\frac{\alpha_{\varepsilon_{\mu^+}}}{\varepsilon_{\mu^+}}\right)^2 + B\cdot\left(\frac{\alpha_{\varepsilon_{\mu^-}}}{\varepsilon_{\mu^-}}\right)^2 + \left(\frac{\alpha_{\varepsilon_{\mu\mu}}}{\varepsilon_{\mu\mu}}\right)^2
+        },
+\end{equation}
+\begin{equation}
+    A = \left(\frac{N_{W^+}}{\varepsilon_{\mu^+}}\right)^2 \bigg/ \left(\frac{N_{W^+}}{\varepsilon_{\mu^+}} + \frac{N_{W^-}}{\varepsilon_{\mu^-}}\right)^2, \quad {\rm and} \quad B = \left(\frac{N_{W^-}}{\varepsilon_{\mu^-}}\right)^2 \bigg/ \left(\frac{N_{W^+}}{\varepsilon_{\mu^+}} + \frac{N_{W^-}}{\varepsilon_{\mu^-}}\right)^2.
+\end{equation}
+Using Equation~\ref{eq: xsec error separation}, this can be set in terms of the statistical and efficiency errors of $\sigma_{W^+}$ and $\sigma_{W^-}$ as,
+\begin{equation}
+        \alpha_{WZ} = R_{WZ}\sqrt{
+            \begin{aligned}
+                A \cdot C_{W+} \cdot \alpha_{\sigma_{W+} \rm stat} + B \cdot C_{W-} \cdot \alpha_{\sigma_{W-}\rm stat} + C_{Z} \cdot \alpha_{\sigma_{Z}\rm stat} \\
+                + A \cdot C_{W+} \cdot \alpha_{\sigma_{W+} \rm eff} + B \cdot C_{W-} \cdot \alpha_{\sigma_{W-}\rm eff} + C_{Z} \cdot \alpha_{\sigma_{Z}\rm eff}
+            \end{aligned}
+        },
+        \label{eq: WZ errors}
+\end{equation}
+where $C_{W+}$ and $C_{W-}$ are given in Equation~\ref{eq: Wp Wm separation coeffs}, with $C_Z$ calculated similarly using $\alpha_{\sigma_Z}$ and $\sigma_Z$. The statistical and efficiency errors on the cross sections are grouped together to find the statistical and efficiency errors on $R_{WZ}$, as before for $R_{WW}$, with statistical error given as an example;
+\begin{equation}
+    \alpha_{WZ \rm stat} = \frac{(A \cdot C_{W+} \cdot \alpha_{\sigma_{W+} \rm stat} + B \cdot C_{W-} \cdot \alpha_{\sigma_{W-}\rm stat} + C_Z \cdot \alpha_{\sigma_{Z} \rm stat})}{(\alpha_{WZ}/R_{WZ})^2} \alpha_{WZ}.
+\end{equation}
+The $W/Z$ ratio is found to be
+\input{results/WZ_ratio_output}
+
+
+%\subsection{Results of W Analysis}
+%The results of this analysis are as follows:
+%\input{results/Wp_xsec_output.tex}
+%\input{results/Wm_xsec_output.tex}
+%\input{results/WW_ratio_output.tex}
+%\input{results/WZ_ratio_output.tex}
+
+\section{Results} \label{sec: results}
 The overall results of the entire analysis are as follows; electroweak production in $pp$ collisions at $\sqrt{s}=5$ TeV,
 \input{results/Z_xsec_output.tex}
 \input{results/Wp_xsec_output.tex}
@@ -324,7 +409,7 @@ These comparison figures are plotted in the code \texttt{plot$\_$xsec.py}.
     \centering
     \begin{tabular}{c|ll}
         \hline
-         Energy (TeV)   & $W^+/W^-$ & $W/Z$  \\
+         Energy (TeV)   & $R_{WW}$ & $R_{WZ}$  \\
         \hline
          5              & \input{results/WW_value.tex}  & \input{results/WZ_value.tex}  \\
          7              & 1.274 $\pm$ 0.005 $\pm$ 0.009 $\pm$ 0.002 & 20.63 $\pm$ 0.09 $\pm$ 0.12 $\pm$ 0.05  \\
@@ -335,17 +420,18 @@ These comparison figures are plotted in the code \texttt{plot$\_$xsec.py}.
     \label{tab: ratio comparison}
 \end{table}
 
-There is good agreement between our $W^+/W^-$ ratio and published results. However, our $W/Z$ ratio is higher than these previous results. This would suggest that either the determined $Z$ cross section is too small, or the $W$ cross sections could be too large. Comparing the $W$ cross sections at each energy (as seen in Table~\ref{tab: xsec comparison}), I would propose that the $W$ cross sections are too large; there is a significant difference between 7 and 8 TeV, which is not seen between 5 and 7 TeV. For this larger gap in energy, I would expect a large difference in cross section, as seen in the $Z$ cross section. These differences will become more apparent in plotting the cross sections as a function $\sqrt{s}$, the next step in this analysis.
+There is good agreement between our $R_{WW}$ ratio and published results. However, our $R_{WZ}$ ratio is higher than these previous results. This would suggest that either the determined $Z$ cross section is too small, or the $W$ cross sections could be too large. Comparing the $W$ cross sections at each energy (as seen in Table~\ref{tab: xsec comparison}), I would propose that the $W$ cross sections are too large; there is a significant difference between 7 and 8 TeV, which is not seen between 5 and 7 TeV. For this larger gap in energy, I would expect a large difference in cross section, as seen in the $Z$ cross section. These differences will become more apparent in plotting the cross sections as a function $\sqrt{s}$, the next step in this analysis.
 
 \begin{table}[]
     \centering
+    \footnotesize
     \begin{tabular}{c|lll}
         \hline
-        \small $\sqrt{s}$ (TeV)   & \small $\sigma_{Z}$ (pb) & \small $\sigma_{W^+}$ (pb) & \small $\sigma_{W^-}$ (pb)  \\
+         $\sqrt{s}$ (TeV)   &  $\sigma_{Z}$ (pb) &  $\sigma_{W^+}$ (pb) &  $\sigma_{W^-}$ (pb)  \\
         \hline
-         5              & \small \input{results/Z_xsec_value.tex}  & \small \input{results/Wp_xsec_value.tex} & \small \input{results/Wm_xsec_value}\\
-         7              & \small 76.0 $\pm$ 0.3 $\pm$ 0.5 $\pm$ 1.0 $\pm$ 1.3 & \small 861.0 $\pm$ 2.0 $\pm$ 11.2 $\pm$ 14.7 & \small 675.8 $\pm$ 1.9 $\pm$ 8.8 $\pm$ 11.6\\
-         8              & \small 95.0 $\pm$ 0.3 $\pm$ 0.7 $\pm$ 1.1 $\pm$ 1.1 & \small 1093.6 $\pm$ 2.1 $\pm$ 7.2 $\pm$ 10.9 $\pm$ 12.7 & \small 818.4 $\pm$ 1.9 $\pm$ 5.0 $\pm$ 7.0 $\pm$ 9.5\\
+         5              &  \input{results/Z_xsec_value.tex}  &  \input{results/Wp_xsec_value.tex} &  \input{results/Wm_xsec_value}\\
+         7              &  76.0 $\pm$ 0.3 $\pm$ 0.5 $\pm$ 1.0 $\pm$ 1.3 &  861.0 $\pm$ 2.0 $\pm$ 11.2 $\pm$ 14.7 &  675.8 $\pm$ 1.9 $\pm$ 8.8 $\pm$ 11.6\\
+         8              &  95.0 $\pm$ 0.3 $\pm$ 0.7 $\pm$ 1.1 $\pm$ 1.1 &  1093.6 $\pm$ 2.1 $\pm$ 7.2 $\pm$ 10.9 $\pm$ 12.7 &  818.4 $\pm$ 1.9 $\pm$ 5.0 $\pm$ 7.0 $\pm$ 9.5\\
          \hline
     \end{tabular}
     \caption{\small Comparison of cross sections determined at LHCb at $\sqrt{s} =$ 5, 7, and 8 TeV. Errors on 7 TeV $W$ values are statistical, systematic, and luminosity. On 8 TeV and $Z$ for 7 TeV, the errors are statistical, systematic, due to beam energy, and luminosity. The 7 TeV values were measured at luminosity of 1.0 fb$^{-1}$, and 8 TeV values at 2.0 fb$^{-1}$~\cite{7TeV_W_2014,7TeV_Z_2015,8TeV_W+Z_2015}.}
@@ -372,7 +458,7 @@ There is good agreement between our $W^+/W^-$ ratio and published results. Howev
 \end{figure*}
 
 
-\section{Future Work}
+\section{Future Work} \label{sec: future work}
 \subsection{Monte Carlo Comparison of Z data for 5 TeV Measurement} \label{Z histograms}
 The use of the simulations used in data analysis should be validated by comparison with the $Z$ experimental data. 
 The plots in Figure~\ref{fig: Z histograms} are comparisons of the $Z$ data with a Monte Carlo simulation of $Z$ produced at $\sqrt{s}=$5 TeV which had undergone detector reconstruction (\texttt{5TeV$\_$2015$\_$24r1$\_$Down$\_$Z$\_$Sim09d.root}). 
@@ -381,7 +467,7 @@ The simulation data has been scaled to the experimental data, each histogram plo
 
 Comparison of these plots can be used to correct for imperfections in the detector and to remove background from measurements, although the simulation is limited in precision to leading order by \textsc{Pythia} and by the precision to which the detector can be described.
 
-\begin{figure*}[p]
+\begin{figure*}[bt]
 \centering
 \includegraphics[clip, trim = 0.5cm 0cm 1.7cm 1.3cm, width=0.49\textwidth]{Measurement_mup_PT.png}
 \includegraphics[clip, trim = 0.5cm 0cm 1.7cm 1.3cm, width=0.49\textwidth]{Measurement_mum_PT.png}
