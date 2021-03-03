@@ -58,18 +58,21 @@ def xsec_output (save_path, boson, label, json_in):
 
 def systematic_table(save_path, Wp_xsec_json, Wm_xsec_json, ratios_json):
     with open(save_path+'sys_unc_table_output.tex','w') as texfile:
+        Wp_xsec = Wp_xsec_json["xsec"]
         Wp_xsec_err_eff = Wp_xsec_json["xsec_err_eff"]
         Wp_xsec_err_track = Wp_xsec_json["xsec_err_track"]
-        Wp_xsec_err_sys = Wp_xsec_json["xsec_err_sys"]    
+        Wp_xsec_err_lumi = Wp_xsec_json["xsec_err_lumi"]
+        Wm_xsec = Wm_xsec_json["xsec"]
         Wm_xsec_err_eff = Wm_xsec_json["xsec_err_eff"]
         Wm_xsec_err_track = Wm_xsec_json["xsec_err_track"]
-        Wm_xsec_err_sys = Wm_xsec_json["xsec_err_sys"]    
+        Wm_xsec_err_lumi = Wm_xsec_json["xsec_err_lumi"]
+        WW_ratio = ratios_json["WW_ratio"]
         WW_ratio_eff = ratios_json["WW_eff"]
         WW_ratio_track = ratios_json["WW_track"]
-        WW_ratio_sys = ratios_json["WW_sys"]
+        WZ_ratio = ratios_json["WZ_ratio"]
         WZ_ratio_eff = ratios_json["WZ_eff"]
         WZ_ratio_track = ratios_json["WZ_track"]
-        WZ_ratio_sys = ratios_json["WZ_sys"]
+
 
         texfile.write("\\begin{table}[h]\n")
         texfile.write("\\centering\n")
@@ -77,8 +80,9 @@ def systematic_table(save_path, Wp_xsec_json, Wm_xsec_json, ratios_json):
 
         texfile.write("\\hline\n Source & $\sigma_{W+}$ ($\%$) & $\sigma_{W-}$ ($\%$) & $R_{WW}$ ($\%$) & $R_{WZ}$ ($\%$) \\\\\n\\hline\n")
 
-        texfile.write("Trigger Efficiency & {:.{prec}f} & {:.{prec}f} & {:.{prec}f} & {:.{prec}f}\\\\\n".format((Wp_xsec_err_eff**2/Wp_xsec_err_sys**2),(Wm_xsec_err_eff**2/Wm_xsec_err_sys**2),(WW_ratio_eff**2/WW_ratio_sys**2),(WZ_ratio_eff**2/WZ_ratio_sys**2),prec=4))
-        texfile.write("Track Cut on $\pi/K$ Background & {:.{prec}f} & {:.{prec}f} & {:.{prec}f} & {:.{prec}f}\\\\\n".format((Wp_xsec_err_track**2/Wp_xsec_err_sys**2),(Wm_xsec_err_track**2/Wm_xsec_err_sys**2),(WW_ratio_track**2/WW_ratio_sys**2),(WZ_ratio_track**2/WZ_ratio_sys**2),prec=4))
+        texfile.write("Trigger Efficiency & {:.{prec}f} & {:.{prec}f} & {:.{prec}f} & {:.{prec}f}\\\\\n".format(100*Wp_xsec_err_eff/Wp_xsec, 100*Wm_xsec_err_eff/Wm_xsec, 100*WW_ratio_eff/WW_ratio, 100*WZ_ratio_eff/WZ_ratio, prec=1))
+        texfile.write("Track Cut on $\pi/K$ Background & {:.{prec}f} & {:.{prec}f} & {:.{prec}f} & {:.{prec}f}\\\\\n".format(100*Wp_xsec_err_track/Wp_xsec, 100*Wm_xsec_err_track/Wm_xsec, 100*WW_ratio_track/WW_ratio, 100*WZ_ratio_track/WZ_ratio,prec=0))
+        texfile.write("Luminosity & {:.{prec}f} & {:.{prec}f} & - & -\\\\\n".format(100*Wp_xsec_err_lumi/Wp_xsec, 100*Wm_xsec_err_lumi/Wm_xsec, prec=0))
 
         texfile.write("\\hline\n")
         texfile.write("\\end{tabular}\n")
