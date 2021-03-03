@@ -132,7 +132,7 @@ Errors are propagated through $\sigma_Z$ according to the equation,
 \end{equation}
 and given separately in the result as statistical error (from the number of counts), and errors due to efficiency and luminosity. Errors are separated according to the following equation, with the statistical error given as an example;
 \begin{equation}
-    \alpha_{\rm stat} = \frac{(\alpha_N/N)^2}{(\alpha_\sigma/\sigma)^2}\alpha_\sigma.
+    \alpha_{\sigma {\rm stat}} = \frac{\alpha_N}{N}\sigma.
     \label{eq: xsec error separation}
 \end{equation}
 %Error analysis on $\sigma_Z$ is carried out using the relative uncertainties on the number of counts, trigger efficiency, and luminosity. Each of these uncertainties is given separately in the result, with the uncertainty on the number of counts representing the statistical error. 
@@ -204,8 +204,9 @@ The analysis is carried out in the following steps:
 \begin{enumerate}
     \item Make and retrieve background templates. Each is a TH1F histogram of $p_T$ plotted with range 20 to 60 GeV. This is carried out for both $W^+$ and $W^-$, with the number of events in each histogram after event selection shown in Table \ref{tab: W events}.
     \begin{enumerate}
-        \item $\pi/K$ background: Function \texttt{background$\_$fit} is run. $p_T$ is plotted for the Wp and Wm ``SingleTrackNoBias" decay trees in the data file, and fit with an exponential. This is plotted, as shown in Figure \ref{fig: W exp back fit}. These decay trees contain high $p_T$ tracks without the requirement for events to be identified as muons (as in the Wp and Wm ``Iso" trees). Hence, these trees contain mostly charged pions $\pi$ and kaons $K$, forming the $\pi/K$ background.
-        \newline The slope of the exponential fit is then set to 0.2 which is used to create the background template. This is a TH1F histogram of 10000 Monte Carlo events generated from the fit.
+        \item $\pi/K$ background: Function \texttt{background$\_$fit} is run. $p_T$ is plotted in the range 15 to 30 GeV for the Wp and Wm ``SingleTrackNoBias" decay trees in the data file with kinematic cuts on eta, and fit with an exponential. These decay trees contain high $p_T$ tracks without the requirement for events to be identified as muons (as in the Wp and Wm ``Iso" trees). Hence, these trees contain mostly charged pions $\pi$ and kaons $K$, forming the $\pi/K$ background.
+          \newline This function is run twice for each $W$ boson, once with a selection requirement on the track reconstruction of the tree, and once without. This requirement forms the cut \texttt{mu$\_$CHI2NDF $<$ 2}; the chi squared per degrees of freedom of the track reconstruction must be less than 2. This fitting is plotted both with and without the track cut, as shown in Figure \ref{fig: W exp back fit}.
+          \newline The exponential fit is then used to create the background template. This is a TH1F histogram of 10000 Monte Carlo events generated from the fit.
         \item Signal: Function \texttt{make$\_$histogram} is run. $p_T$ is plotted for the Wp and Wm ``Iso" decay trees in the W simulation file, with W cuts. These histograms are statistically limited, as seen in Table \ref{tab: W events}.
         \item Z background: Function \texttt{make$\_$histogram} is run. $p_T$ is plotted for the Wp and Wm ``Iso" decay trees in the Z simulation file, with W cuts. These histograms are statistically limited, as seen in Table \ref{tab: W events}.
     \end{enumerate}
@@ -231,10 +232,12 @@ The analysis is carried out in the following steps:
         %The number of events in each of these trees is calculated by taking the integral of a histogram of the tree. For the ``W" trees, the $Z$ background and $W$ isolated data histograms discussed above are used, whereas for ``Z" trees, the invariant mass of $Z$ ``Z$\_$M" is plotted with the kinematic cuts used in Section \ref{sec: Z xsec}. 
     \end{enumerate}
     
-    \item Run TFractionFitter on the background contributions to determine the fractions they constitute in the $W$ data. The function \texttt{fraction$\_$fitter} is called to do this. The previously determined $Z$ fraction is passed to this function, and is constrained to this value with its statistical uncertainity. \newline
-    This fit produces the plots in Figure \ref{fig: W fraction fit}, and the fit fractions for each background contribution are given in \ref{sec: W background results}.
+    \item Run TFractionFitter on the background contributions to determine the fractions they constitute in the $W$ data. The function \texttt{fraction$\_$fitter} is called to do this. The previously determined $Z$ fraction is passed to this function, and is constrained to this value with its statistical uncertainity. This function is called twice for each $W$ boson, using the background templates produced with and without the track reconstruction requirement (or track cut).\newline
+    This fit produces the plots in Figure \ref{fig: W fraction fit}, and the fit fractions for each background contribution, calculated using the track cut, are given in Section \ref{sec: W background results}.
     
-    \item Produce the fit model: the function \texttt{produce$\_$fit$\_$model} is called to do this. The histogram of each background contribution is scaled to the $W$ experimental data by
+    \item Calculate the systematic uncertainty on the signal fraction introduced by the track cut. This is found by taking the difference between the signal fraction determined with the track cut and without. This uncertainty is give in Section \ref{sec: W background results}, and in the fit model in Figure~\ref{fig: W fit model}.
+
+    \item Produce the fit model: the function \texttt{produce$\_$fit$\_$model} is called to do this. The background template produced using the track cut is passed to this function. The histogram of each background contribution is scaled to the $W$ experimental data by
     \begin{equation}
         \frac{{\rm fraction} \times N_W[{\rm W \; data}]}{N[{\rm histogram}]}.
     \end{equation}
@@ -251,10 +254,12 @@ Results of \texttt{W$\_$background.cpp} are listed below, and include Table~\ref
 % Exponential fit of pion kaon background
 \begin{figure*}[ht]
   \centering
-  \includegraphics[clip, trim = 0.6cm 0.1cm 2.1cm 1.5cm, width=0.49\textwidth]{W+_expo_back_plot.png}
-  \includegraphics[clip, trim = 0.6cm 0.1cm 2.1cm 1.5cm, width=0.49\textwidth]{W-_expo_back_plot.png} \hspace{3mm}
+  \includegraphics[clip, trim = 0.6cm 0.1cm 2.1cm 1.5cm, width=0.49\textwidth]{W+_expo_back_track_cut_plot.png}
+  \includegraphics[clip, trim = 0.6cm 0.1cm 2.1cm 1.5cm, width=0.49\textwidth]{W-_expo_back_track_cut_plot.png}
+  \includegraphics[clip, trim = 0.6cm 0.1cm 2.1cm 1.5cm, width=0.49\textwidth]{W+_expo_back_no_cut_plot.png}
+  \includegraphics[clip, trim = 0.6cm 0.1cm 2.1cm 1.5cm, width=0.49\textwidth]{W-_expo_back_no_cut_plot.png} \hspace{3mm}
   \vspace{-4mm}
-  \caption{\small Exponential Fits of $p_T$ distributions for $W^+$ (left) and $W^-$ (right) in the ``SingleTrackNoIso" trees; high $p_T$ tracks without a muon identification requirement. This is mostly comprised of charged pions and kaons, forming the $\pi/K$ background.}
+  \caption{\small Exponential Fits of $p_T$ distributions for $W^+$ (left) and $W^-$ (right) in the ``SingleTrackNoIso" trees; high $p_T$ tracks without a muon identification requirement. This is mostly comprised of charged pions and kaons, forming the $\pi/K$ background. Top plots show these tracks plotted with a requirement on the chi squared per ndf to be less than 2. The bottom plots do not include this cut.}
   \label{fig: W exp back fit}
 \end{figure*}
 
@@ -275,18 +280,20 @@ Results of \texttt{W$\_$background.cpp} are listed below, and include Table~\ref
 % Fraction fitter plots
 \begin{figure*}[hbt]
 \centering
-\includegraphics[clip, trim = 0.2cm 0.3cm 2.2cm 1.6cm, width=0.49\textwidth]{W+_fraction_fit.png}
-\includegraphics[clip, trim = 0.2cm 0.3cm 2.2cm 1.6cm, width=0.49\textwidth]{W-_fraction_fit.png} 
+\includegraphics[clip, trim = 0.1cm 0.1cm 2.2cm 1.6cm, width=0.49\textwidth]{W+_fraction_fit_track_cut.png}
+\includegraphics[clip, trim = 0.1cm 0.1cm 2.2cm 1.6cm, width=0.49\textwidth]{W-_fraction_fit_track_cut.png} 
+\includegraphics[clip, trim = 0.1cm 0.1cm 2.2cm 1.6cm, width=0.49\textwidth]{W+_fraction_fit_no_cut.png}
+\includegraphics[clip, trim = 0.1cm 0.1cm 2.2cm 1.6cm, width=0.49\textwidth]{W-_fraction_fit_no_cut.png} 
 \vspace{-4mm}
-\caption{\small Plots of fits produced by TFractionFitter carried out on $W^+$ (left) and $W^-$ (right) data, with background fractions from $\pi/K \xrightarrow{} \mu\nu$, $W$ signal, and $Z \xrightarrow{} \mu\mu$. Crosses indicate the $W$ data, and the line indicates the fit. The $\chi^2/$degrees of freedom of the fit is given.}
+\caption{\small Plots of fits produced by TFractionFitter carried out on $W^+$ (left) and $W^-$ (right) data, with background fractions from $\pi/K \xrightarrow{} \mu\nu$, $W$ signal, and $Z \xrightarrow{} \mu\mu$. Crosses indicate the $W$ data, and the line indicates the fit. The $\chi^2/$degrees of freedom of the fit is given. The top plots include a requirement on the track reconstruction examined in the background template, which is not included in the bottom plots.}
 \label{fig: W fraction fit}
 \end{figure*}
 
 % Fit model plots
 \begin{figure*}[ht]
 \centering
-\includegraphics[clip, trim = 0.2cm 0.3cm 2.2cm 1.6cm, width=0.49\textwidth]{W+_fit_model.png}
-\includegraphics[clip, trim = 0.2cm 0.3cm 2.2cm 1.6cm, width=0.49\textwidth]{W-_fit_model.png} 
+\includegraphics[clip, trim = 0.1cm 0cm 2.2cm 1.6cm, width=0.49\textwidth]{W+_fit_model.png}
+\includegraphics[clip, trim = 0.1cm 0cm 2.2cm 1.6cm, width=0.49\textwidth]{W-_fit_model.png} 
 \vspace{-4mm}
 \caption{\small Fit models for $W^+$ (left) and $W^+$ (right). The data are indicated with crosses, and the fit model calculated as the sum of all background contributions is plotted in black. Separate background contributions are plotted for $\pi/K \xrightarrow{} \mu\nu$ (blue), $W$ signal (red), and $Z \xrightarrow{} \mu\mu$ (green), with their fit fractions listed. The $\chi^2/$degrees of freedom of the fraction fit is given.}
 \label{fig: W fit model}
@@ -322,37 +329,32 @@ The $W$ cross sections are found to be
 
 % WW Ratio
 \subsection{WW Ratio}
-The ratio of $W^+/W^-$, $R_{WW}$, is calculated using cross sections, with the ratio given in terms of Equation~\ref{eq: W_xsec} for purposes of error propagation;
+The ratio of $W^+/W^-$, $R_{WW}$, is calculated using cross sections, with the ratio given in terms of Equation~\ref{eq: W_xsec} for purposes of error propagation:
 \begin{equation}
     R_{WW} = \frac{\sigma_{W^+}}{\sigma_{W^-}} = \frac{N_{W^+}}{\varepsilon_{\mu^+}} \cdot \frac{\varepsilon_{\mu^-}}{N_{W^-}}.    
 \end{equation}
 where $N_{W^+}$ and $N_{W^-}$ are the $N_{\rm signal}$ used in $\sigma_{W^+}$ and $\sigma_{W^-}$ determination respectively.
 As luminosity cancels from this equation, the dominant errors imposed on the cross section measurements by luminosity can be ignored.
 This leaves the statistical and efficiency errors as the only error contributions.
-Hence, errors can be propagated as follows,
+Hence, errors can be propagated as,
 \begin{equation}
     \alpha_{WW} = R_{WW}\sqrt{\left(\frac{\alpha_{N_{W^+}}}{N_{W^+}}\right)^2 + \left(\frac{\alpha_{N_{W^-}}}{N_{W^-}}\right)^2 + \left(\frac{\alpha_{\varepsilon_{\mu^+}}}{\varepsilon_{\mu^+}}\right)^2 + \left(\frac{\alpha_{\varepsilon_{\mu^-}}}{\varepsilon_{\mu^-}}\right)^2}.
 \end{equation}
 Using Equation~\ref{eq: xsec error separation}, this can be set in terms of the statistical and efficiency errors of $\sigma_{W^+}$ and $\sigma_{W^-}$ as,
 \begin{equation}
-       \alpha_{WW} = R_{WW}\sqrt{C_{W+} \cdot \alpha_{\sigma_{W+} \rm stat} + C_{W-} \cdot \alpha_{\sigma_{W-}\rm stat} + C_{W+} \cdot \alpha_{\sigma_{W+} \rm eff} + C_{W-} \cdot \alpha_{\sigma_{W-}\rm eff}}.
+       \alpha_{WW} = R_{WW}\sqrt{\left(\frac{\alpha_{\sigma_{W+} \rm stat}}{\sigma_{W+}}\right)^2 + \left(\frac{\alpha_{\sigma_{W-}\rm stat}}{\sigma_{W-}}\right)^2 + \left(\frac{\alpha_{\sigma_{W+} \rm eff}}{\sigma_{W+}}\right)^2 + \left(\frac{\alpha_{\sigma_{W-}\rm eff}}{\sigma_{W-}}\right)^2}.
        \label{eq: WW errors}
 \end{equation}
-where $C_{W+}$ and $C_{W-}$ are coefficients found to be,
+The statistical and efficiency errors on the cross sections in Equation~\ref{eq: WW errors} are grouped together to find the statistical and efficiency errors on $R_{WW}$, giving the final separated errors as follows, with the statistical error given as an example:
 \begin{equation}
-    C_{W+} = \frac{\alpha_{\sigma{W+}}}{{\sigma_{W^+}}^2}, \quad {\rm and} \quad C_{W-} = \frac{\alpha_{\sigma{W-}}}{{\sigma_{W^-}}^2}.
-    \label{eq: Wp Wm separation coeffs}
-\end{equation}
-The statistical and efficiency errors on the cross sections in Equation~\ref{eq: WW errors} are grouped together to find the statistical and efficiency errors on $R_{WW}$ in a similar method to Equation~\ref{eq: xsec error separation}, giving the final separated errors on the $R_{WW}$. The statistical error on $R_{WW}$ is given as an example;
-\begin{equation}
-    \alpha_{WW \rm stat} = \frac{(C_{W+} \cdot \alpha_{\sigma_{W+} \rm stat} + C_{W-} \cdot \alpha_{\sigma_{W-}\rm stat})}{(\alpha_{WW}/{R_{WW}})^2} \alpha_{WW}.
+    \alpha_{WW \rm stat} = R_{WW}\sqrt{\left(\frac{\alpha_{\sigma_{W+} \rm stat}}{\sigma_{W+}}\right)^2 + \left(\frac{\alpha_{\sigma_{W-}\rm stat}}{\sigma_{W-}}\right)^2}.
 \end{equation}
 The $W^+/W^-$ ratio is found to be
 \input{results/WW_ratio_output}
 
 \subsection{WZ Ratio}
 % WZ Ratio
-The ratio of $W$ to $Z$ boson cross sections $W/Z$, $R_{WZ}$, is calculated using cross sections, with the ratio given in terms of Equation~\ref{eq: W_xsec} for purposes of error propagation;
+The ratio of $W$ to $Z$ boson cross sections $W/Z$, $R_{WZ}$, is calculated using cross sections, with the ratio given in terms of Equation~\ref{eq: W_xsec} for purposes of error propagation:
 \begin{equation}
     R_{WZ} = \frac{\sigma_{W^+} + \sigma_{W^-}}{\sigma_{Z}} = \left( \frac{N_{W^+}}{\varepsilon_{\mu^+}} + \frac{N_{W^-}}{\varepsilon_{\mu^-}} \right) \cdot \frac{\varepsilon_{\mu\mu}}{N_{Z}},
 \end{equation}
@@ -370,15 +372,15 @@ Using Equation~\ref{eq: xsec error separation}, this can be set in terms of the 
 \begin{equation}
         \alpha_{WZ} = R_{WZ}\sqrt{
             \begin{aligned}
-                A \cdot C_{W+} \cdot \alpha_{\sigma_{W+} \rm stat} + B \cdot C_{W-} \cdot \alpha_{\sigma_{W-}\rm stat} + C_{Z} \cdot \alpha_{\sigma_{Z}\rm stat} \\
-                + A \cdot C_{W+} \cdot \alpha_{\sigma_{W+} \rm eff} + B \cdot C_{W-} \cdot \alpha_{\sigma_{W-}\rm eff} + C_{Z} \cdot \alpha_{\sigma_{Z}\rm eff}
+                A \cdot \left(\frac{\alpha_{\sigma_{W+} \rm stat}}{\sigma_{W+}}\right)^2 + B \cdot \left(\frac{\alpha_{\sigma_{W-}\rm stat}}{\sigma_{W-}}\right)^2 + \left(\frac{\alpha_{\sigma_{Z}\rm stat}}{\sigma_Z}\right)^2 \\
+                + A \cdot \left(\frac{\alpha_{\sigma_{W+} \rm eff}}{\sigma_{W+}}\right)^2 + B \cdot \left(\frac{\alpha_{\sigma_{W-}\rm eff}}{\sigma_{W-}}\right)^2 + \left(\frac{\alpha_{\sigma_{Z}\rm eff}}{\sigma_Z}\right)^2 \\
             \end{aligned}
-        },
+        }.
         \label{eq: WZ errors}
 \end{equation}
-where $C_{W+}$ and $C_{W-}$ are given in Equation~\ref{eq: Wp Wm separation coeffs}, with $C_Z$ calculated similarly using $\alpha_{\sigma_Z}$ and $\sigma_Z$. The statistical and efficiency errors on the cross sections are grouped together to find the statistical and efficiency errors on $R_{WZ}$, as before for $R_{WW}$, with statistical error given as an example;
+The statistical and efficiency errors on the cross sections are grouped together to find the statistical and efficiency errors on $R_{WZ}$, as before for $R_{WW}$, with statistical error given as an example:
 \begin{equation}
-    \alpha_{WZ \rm stat} = \frac{(A \cdot C_{W+} \cdot \alpha_{\sigma_{W+} \rm stat} + B \cdot C_{W-} \cdot \alpha_{\sigma_{W-}\rm stat} + C_Z \cdot \alpha_{\sigma_{Z} \rm stat})}{(\alpha_{WZ}/R_{WZ})^2} \alpha_{WZ}.
+    \alpha_{WZ \rm stat} = R_{WZ}\sqrt{A \cdot \left(\frac{\alpha_{\sigma_{W+} \rm stat}}{\sigma_{W+}}\right)^2 + B \cdot \left(\frac{\alpha_{\sigma_{W-}\rm stat}}{\sigma_{W-}}\right)^2 + \left(\frac{\alpha_{\sigma_{Z}\rm stat}}{\sigma_Z}\right)^2}
 \end{equation}
 The $W/Z$ ratio is found to be
 \input{results/WZ_ratio_output}
@@ -399,9 +401,11 @@ The overall results of the entire analysis are as follows; electroweak productio
 \input{results/WW_ratio_output.tex}
 \input{results/WZ_ratio_output.tex}
 
+\input{results/sys_unc_table_output.tex}
+
 The cross section ratios are compared to published LHCb data at 7 and 8 TeV in Table~\ref{tab: ratio comparison}~\cite{7TeV_W_2014,7TeV_Z_2015,8TeV_W+Z_2015}.
 
-The cross sections are compared to published LHCb data in Figure~\ref{fig: xsec comparison}. The cross section are determined for the same fiducial region in for each centre of mass energy $\sqrt{s}$, with $W$ boson cross sections are compared to values determined at 7 and 8 TeV~\cite{7TeV_W_2014,8TeV_W+Z_2015}, and to values at 7, 8 and 13 TeV for the $Z$ boson cross section~\cite{7TeV_Z_2015,8TeV_W+Z_2015,13TeV_Z_2016}.
+The cross sections are compared to published LHCb data in Figure~\ref{fig: xsec comparison}. The cross section are determined for the same fiducial region in for each centre of mass energy $\sqrt{s}$, with $W$ boson cross sections are compared to values determined at 7 and 8 TeV~\cite{7TeV_Z_2015,8TeV_W+Z_2015}, and to values at 7, 8 and 13 TeV for the $Z$ boson cross section~\cite{7TeV_Z_2015,8TeV_W+Z_2015,13TeV_Z_2016}.
 Additionally the cross section ratios are compared in the Figure~\ref{fig: ratio comparison}, using the same LHCb publications as the $Z$ boson cross sections~\cite{7TeV_Z_2015,8TeV_W+Z_2015}.
 These comparison figures are plotted in the code \texttt{plot$\_$xsec.py}.
 
@@ -416,7 +420,7 @@ These comparison figures are plotted in the code \texttt{plot$\_$xsec.py}.
          8              & 1.336 $\pm$ 0.004 $\pm$ 0.005 $\pm$ 0.002 & 20.13 $\pm$ 0.06 $\pm$ 0.11 $\pm$ 0.4   \\
          \hline
     \end{tabular}
-    \caption{\small Comparison of cross section ratios determined at LHCb at $\sqrt{s} =$ 5, 7, and 8 TeV. Errors are statistical, systematic, and due to beam energy respectively~\cite{7TeV_W_2014,7TeV_Z_2015,8TeV_W+Z_2015}.}
+    \caption{\small Comparison of cross section ratios determined at LHCb at $\sqrt{s} =$ 5, 7, and 8 TeV. Errors are statistical, systematic, and due to beam energy respectively~\cite{7TeV_Z_2015,8TeV_W+Z_2015}.}
     \label{tab: ratio comparison}
 \end{table}
 
@@ -430,28 +434,36 @@ There is good agreement between our $R_{WW}$ ratio and published results. Howeve
          $\sqrt{s}$ (TeV)   &  $\sigma_{Z}$ (pb) &  $\sigma_{W^+}$ (pb) &  $\sigma_{W^-}$ (pb)  \\
         \hline
          5              &  \input{results/Z_xsec_value.tex}  &  \input{results/Wp_xsec_value.tex} &  \input{results/Wm_xsec_value}\\
-         7              &  76.0 $\pm$ 0.3 $\pm$ 0.5 $\pm$ 1.0 $\pm$ 1.3 &  861.0 $\pm$ 2.0 $\pm$ 11.2 $\pm$ 14.7 &  675.8 $\pm$ 1.9 $\pm$ 8.8 $\pm$ 11.6\\
+         7              &  76.0 $\pm$ 0.3 $\pm$ 0.5 $\pm$ 1.0 $\pm$ 1.3 &  878.0 $\pm$ 2.1 $\pm$ 6.7 $\pm$ 9.3 $\pm$ 15.0 &  689.5 $\pm$ 2.0 $\pm$ 5.3 $\pm$ 6.3 $\pm$ 11.8\\
          8              &  95.0 $\pm$ 0.3 $\pm$ 0.7 $\pm$ 1.1 $\pm$ 1.1 &  1093.6 $\pm$ 2.1 $\pm$ 7.2 $\pm$ 10.9 $\pm$ 12.7 &  818.4 $\pm$ 1.9 $\pm$ 5.0 $\pm$ 7.0 $\pm$ 9.5\\
          \hline
     \end{tabular}
-    \caption{\small Comparison of cross sections determined at LHCb at $\sqrt{s} =$ 5, 7, and 8 TeV. Errors on 7 TeV $W$ values are statistical, systematic, and luminosity. On 8 TeV and $Z$ for 7 TeV, the errors are statistical, systematic, due to beam energy, and luminosity. The 7 TeV values were measured at luminosity of 1.0 fb$^{-1}$, and 8 TeV values at 2.0 fb$^{-1}$~\cite{7TeV_W_2014,7TeV_Z_2015,8TeV_W+Z_2015}.}
+    \caption{\small Comparison of cross sections determined at LHCb at $\sqrt{s} =$ 5, 7, and 8 TeV. Errors on 5 TeV values are statistical, systematic, and luminosity. On 7 and 8 TeV values, the errors are statistical, systematic, due to beam energy, and luminosity. The 7 TeV values were measured at luminosity of 1.0 fb$^{-1}$, and 8 TeV values at 2.0 fb$^{-1}$~\cite{7TeV_Z_2015,8TeV_W+Z_2015}.}
     \label{tab: xsec comparison}
 \end{table}
 
 \begin{figure*}[t]
 \centering
-\includegraphics[clip, trim = 0.2cm 0.5cm 2.4cm 1.6cm, width = 0.49\textwidth]{Wp_xsec_plot.png}
-\includegraphics[clip, trim = 0.5cm 0.5cm 2.4cm 1.6cm, width = 0.49\textwidth]{Wm_xsec_plot.png}
-\includegraphics[clip, trim = 0.5cm 0.5cm 2.4cm 1.6cm, width = 0.49\textwidth]{Z_xsec_plot.png}
+\includegraphics[clip, trim = 0.2cm 0.2cm 2.4cm 1.6cm, width = 0.49\textwidth]{Wp_xsec_plot.png}
+\includegraphics[clip, trim = 0.2cm 0.2cm 2.4cm 1.6cm, width = 0.49\textwidth]{Wm_xsec_plot.png}
+\includegraphics[clip, trim = 0.2cm 0.2cm 2.4cm 1.6cm, width = 0.49\textwidth]{Z_xsec_plot.png}
 \vspace{-4mm}
-\caption{\small Comparisons of measured fiducial cross section with published LHCb results at 7, 8 and 13 TeV~\cite{7TeV_W_2014,7TeV_Z_2015,8TeV_W+Z_2015,13TeV_Z_2016}.}
+\caption{\small Comparisons of measured fiducial cross section with published LHCb results at 7, 8 and 13 TeV~\cite{7TeV_Z_2015,8TeV_W+Z_2015,13TeV_Z_2016}. The theoretical relationship between cross section and centre of mass energy $\sqrt{s}$ is also included (red), which have been taken from the supplementary of the 2015 8 TeV LHCb paper~\cite{8TeV_W+Z_2015}, where they were determined using the DYNNLO generator~\cite{DYNNLO} with the MSTW08 parton distribution function~\cite{MSTW08}.}
 \label{fig: xsec comparison}
 \end{figure*}
 
+\begin{figure}
+\centering
+\includegraphics[clip, trim = 0.3cm 0.3cm 2.4cm 1.6cm, width = 0.49\textwidth]{all_xsecs_plot.png}
+\vspace{-3mm}
+\caption{\small Comparisons of the fiducial cross sections $\sigma$ of $W^+$, $W^-$, and $Z$ bosons measured in this report (blue) with published LHCb results (black) at 7, 8 and 13 TeV~\cite{7TeV_Z_2015,8TeV_W+Z_2015,13TeV_Z_2016}. The theoretical relationship between cross section and centre of mass energy $\sqrt{s}$ is also included (red), which have been taken from the supplementary of the 2015 8 TeV LHCb paper~\cite{8TeV_W+Z_2015}, where they were determined using the DYNNLO generator~\cite{DYNNLO} with the MSTW08 parton distribution function~\cite{MSTW08}.}
+\label{fig: all xsec comparison}
+\end{figure}
+
 \begin{figure*}[t]
 \centering
-\includegraphics[clip, trim = 0.3cm 0.5cm 2.4cm 1.6cm, width = 0.49\textwidth]{WW_ratio_plot.png}
-\includegraphics[clip, trim = 0.3cm 0.5cm 2.4cm 1.6cm, width = 0.49\textwidth]{WZ_ratio_plot.png} % optimum left cut is 0.7cm, but set to 0.3cm for consistency
+\includegraphics[clip, trim = 0.3cm 0.4cm 2.4cm 1.6cm, width = 0.49\textwidth]{WW_ratio_plot.png}
+\includegraphics[clip, trim = 0.3cm 0.4cm 2.4cm 1.6cm, width = 0.49\textwidth]{WZ_ratio_plot.png} % optimum left cut is 0.7cm, but set to 0.3cm for consistency
 \vspace{-4mm}
 \caption{\small Comparisons of the fiducial cross section ratios calculated in this analysis with published LHCb results at 7 and 8 TeV~\cite{7TeV_Z_2015,8TeV_W+Z_2015}.}
 \label{fig: ratio comparison}
