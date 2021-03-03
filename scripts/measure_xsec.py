@@ -29,10 +29,10 @@ trig_eff_rel_unc = efficiencies["trigger_eff_error"]
 
 xsec = count/(lumi*trig_eff)
 
-xsec_err = xsec*math.sqrt((count_rel_unc)**2+(lumi_err/lumi)**2+trig_eff_rel_unc**2)
-xsec_err_stat = xsec_err * (count_rel_unc)**2/(xsec_err/xsec)**2
-xsec_err_lumi = xsec_err * (lumi_err/lumi)**2/(xsec_err/xsec)**2    
-xsec_err_eff = xsec_err * trig_eff_rel_unc**2/(xsec_err/xsec)**2
+xsec_err_stat = xsec * (count_rel_unc)
+xsec_err_lumi = xsec * (lumi_err/lumi)
+xsec_err_eff = xsec * (trig_eff_rel_unc)
+xsec_err = math.sqrt(xsec_err_stat**2 + xsec_err_eff**2 + xsec_err_lumi**2)
 
 #print('Z Count = {}'.format(count))
 #print('Z Count Relative Uncertainty = {}'.format(count_rel_unc))
@@ -58,7 +58,7 @@ save_path = os.path.join(current_dir, 'doc/measurement_doc/results/')
 
 with open(save_path+'Z_xsec_output.tex', 'w') as texfile:
     texfile.write("\\"+"begin{equation}\n")
-    texfile.write("\sigma_{{Z\\xrightarrow{{}}\mu^+\mu^-}} = {:.{prec}f} \pm {:.{prec}f}_{stat_txt} \pm {:.{prec}f}_{eff_txt} \pm {:.{prec}f}_{lumi_txt} \; {xsec_unit},\n".format(xsec, xsec_err_stat, xsec_err_eff, xsec_err_lumi, stat_txt=stat_txt,  eff_txt=eff_txt, lumi_txt=lumi_txt, xsec_unit=xsec_unit, prec=3))
+    texfile.write("\sigma_{{Z\\xrightarrow{{}}\mu^+\mu^-}} = {:.{prec}f} \pm {:.{prec}f}_{stat_txt} \pm {:.{prec}f}_{eff_txt} \pm {:.{prec}f}_{lumi_txt} \; {xsec_unit},\n".format(xsec, xsec_err_stat, xsec_err_eff, xsec_err_lumi, stat_txt=stat_txt,  eff_txt=eff_txt, lumi_txt=lumi_txt, xsec_unit=xsec_unit, prec=2))
     texfile.write("\\"+"end{equation}")
 
 with open(save_path+'counts_output.tex', 'w') as texfile:
@@ -66,4 +66,4 @@ with open(save_path+'counts_output.tex', 'w') as texfile:
     texfile.write("Counts Relative Uncertainty = ${:.4f}$\\\\".format(count_rel_unc))
 
 with open(save_path+'Z_xsec_value.tex', 'w') as texfile:
-    texfile.write("${:.{prec}f} \pm {:.{prec}f} \pm {:.{prec}f} \pm {:.{prec}f}$".format(xsec, xsec_err_stat, xsec_err_eff, xsec_err_lumi, stat_txt=stat_txt,  eff_txt=eff_txt, lumi_txt=lumi_txt, prec=3))
+    texfile.write("${:.{prec}f} \pm {:.{prec}f} \pm {:.{prec}f} \pm {:.{prec}f}$".format(xsec, xsec_err_stat, xsec_err_eff, xsec_err_lumi, stat_txt=stat_txt,  eff_txt=eff_txt, lumi_txt=lumi_txt, prec=2))
