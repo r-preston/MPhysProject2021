@@ -72,17 +72,21 @@ def systematic_table(save_path, Wp_xsec_json, Wm_xsec_json, ratios_json):
         WZ_ratio = ratios_json["WZ_ratio"]
         WZ_ratio_eff = ratios_json["WZ_eff"]
         WZ_ratio_track = ratios_json["WZ_track"]
-
+        with open('results_json/Z_xsec.json') as json_file:
+            Z_xsec_json = json.load(json_file)
+        Z_xsec = Z_xsec_json["xsec"]
+        Z_xsec_err_eff = Z_xsec_json["xsec_err_eff"]
+        Z_xsec_err_lumi = Z_xsec_json["xsec_err_lumi"]
 
         texfile.write("\\begin{table}[h]\n")
         texfile.write("\\centering\n")
-        texfile.write("\\begin{tabular}{lcccc}\n")
+        texfile.write("\\begin{tabular}{lccccc}\n")
 
-        texfile.write("\\hline\n Source & $\sigma_{W+}$ ($\%$) & $\sigma_{W-}$ ($\%$) & $R_{WW}$ ($\%$) & $R_{WZ}$ ($\%$) \\\\\n\\hline\n")
+        texfile.write("\\hline\n Source & $\sigma_{Z}$ ($\%$) & $\sigma_{W+}$ ($\%$) & $\sigma_{W-}$ ($\%$) & $R_{WW}$ ($\%$) & $R_{WZ}$ ($\%$) \\\\\n\\hline\n")
 
-        texfile.write("Trigger Efficiency & {:.{prec}f} & {:.{prec}f} & {:.{prec}f} & {:.{prec}f}\\\\\n".format(100*Wp_xsec_err_eff/Wp_xsec, 100*Wm_xsec_err_eff/Wm_xsec, 100*WW_ratio_eff/WW_ratio, 100*WZ_ratio_eff/WZ_ratio, prec=1))
-        texfile.write("Track Cut on $\pi/K$ Background & {:.{prec}f} & {:.{prec}f} & {:.{prec}f} & {:.{prec}f}\\\\\n".format(100*Wp_xsec_err_track/Wp_xsec, 100*Wm_xsec_err_track/Wm_xsec, 100*WW_ratio_track/WW_ratio, 100*WZ_ratio_track/WZ_ratio,prec=0))
-        texfile.write("Luminosity & {:.{prec}f} & {:.{prec}f} & - & -\\\\\n".format(100*Wp_xsec_err_lumi/Wp_xsec, 100*Wm_xsec_err_lumi/Wm_xsec, prec=0))
+        texfile.write("Trigger Efficiency & {:.{prec}f} &{:.{prec}f} & {:.{prec}f} & {:.{prec}f} & {:.{prec}f}\\\\\n".format(100*Z_xsec_err_eff/Z_xsec, 100*Wp_xsec_err_eff/Wp_xsec, 100*Wm_xsec_err_eff/Wm_xsec, 100*WW_ratio_eff/WW_ratio, 100*WZ_ratio_eff/WZ_ratio, prec=1))
+        texfile.write("Track Cut on $\pi/K$ Background & - & {:.{prec}f} & {:.{prec}f} & {:.{prec}f} & {:.{prec}f}\\\\\n".format(100*Wp_xsec_err_track/Wp_xsec, 100*Wm_xsec_err_track/Wm_xsec, 100*WW_ratio_track/WW_ratio, 100*WZ_ratio_track/WZ_ratio,prec=0))
+        texfile.write("Luminosity & {:.{prec}f} & {:.{prec}f} & {:.{prec}f} & - & -\\\\\n".format(100*Z_xsec_err_lumi/Z_xsec, 100*Wp_xsec_err_lumi/Wp_xsec, 100*Wm_xsec_err_lumi/Wm_xsec, prec=0))
 
         texfile.write("\\hline\n")
         texfile.write("\\end{tabular}\n")
