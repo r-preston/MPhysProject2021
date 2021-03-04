@@ -60,34 +60,20 @@ TH1F* make_histogram(std::string input_path, std::string chain, std::string hist
 }
 
 
-TH1F* background_fit(std::string chain, std::string boson, double slope, bool track_cut_on) {
-
+TH1F* background_fit(std::string chain, std::string boson, double momentum) {
+  std::string momentum_str = std::to_string(momentum);
+  
   std::string full_chain = chain + "/DecayTree";
   TChain ch(full_chain.c_str());
   ch.Add(data_file_path.c_str());
 
-  std::string track_name, track_cut, track_label;
-  float legend_left;
-  if (track_cut_on == 1) {
-    track_name = "_track_cut";
-    track_cut = " && mu_TRCHI2DOF < 2";
-    track_label = " with Track Cut";
-    legend_left = 0.48;
-  }
-  else { 
-    track_name = "_no_cut";
-    track_cut = "";
-    track_label = " without Track Cut";
-    legend_left = 0.44;
-  }
-
-  std::string hist_name = "W" + boson + "hist_back" + track_name;
-  TH1F *hist_back = new TH1F(hist_name.c_str(),";p_{T} (GeV);Events",100,15.,30.);
+  std::string hist_name = "W" + boson + "hist_back_" + momentum_str + "_GeV";
+  TH1F *hist_back = new TH1F(hist_name.c_str(),";p_{T} (GeV);Events",100,15.,momentum);
   std::string expression = "mu_PT*1.e-3>>" + hist_name;
   std::string eta_cut = "mu_ETA > 2 && mu_ETA < 4.5",
-    pT_cut = "mu_PT*1.e-3 < 30",
-    cuts_kinematic = eta_cut + " && " + pT_cut,
-    cuts_all = cuts_kinematic + track_cut;
+    track_cut = "mu_TRCHI2DOF < 2",
+    pT_cut = "mu_PT*1.e-3 < " + momentum_str,
+    cuts_all = eta_cut + " && " + pT_cut + " && "+ track_cut;
 
   ch.Draw(expression.c_str(),cuts_all.c_str());
   
@@ -98,41 +84,43 @@ TH1F* background_fit(std::string chain, std::string boson, double slope, bool tr
   hist_back->Fit(function->GetName());
   function->SetLineColor(2);
   
-  // output plot with fit
-  TCanvas canv1;
-  hist_back->Draw();
-  hist_back->GetXaxis()->CenterTitle(true);
-  hist_back->GetYaxis()->CenterTitle(true);
-  hist_back->GetXaxis()->SetTitleSize(0.04);
-  hist_back->GetXaxis()->SetLabelSize(0.04);
-  hist_back->GetYaxis()->SetTitleOffset(1);
-  hist_back->GetYaxis()->SetTitleSize(0.04);
-  hist_back->GetYaxis()->SetLabelSize(0.04);
+  if (momentum == 30) {
+    // output plot with fit
+    TCanvas canv1;
+    hist_back->Draw();
+    hist_back->SetTitle("");
+    hist_back->GetXaxis()->CenterTitle(true);
+    hist_back->GetYaxis()->CenterTitle(true);
+    hist_back->GetXaxis()->SetTitleSize(0.04);
+    hist_back->GetXaxis()->SetLabelSize(0.04);
+    hist_back->GetYaxis()->SetTitleOffset(1);
+    hist_back->GetYaxis()->SetTitleSize(0.04);
+    hist_back->GetYaxis()->SetLabelSize(0.04);
 
-  canv1.Update();
-  canv1.Modified();
-  TPaveStats *st = (TPaveStats*)hist_back->FindObject("stats");
-  st->SetOptStat(0);
-  st->SetOptFit(111);
-  st->SetX1NDC(0.6);
-  st->SetX2NDC(0.9);
-  st->SetY1NDC(0.61);
-  st->SetY2NDC(0.78);
-  st->Draw();  
-  TLegend *legend = new TLegend(legend_left,0.78,0.9,0.9);
-  std::string plot_label = "W^{" + boson + "} Track p_{T}" + track_label;
-  legend->AddEntry(hist_back,plot_label.c_str(),"l");
-  legend->AddEntry(function, "Exponential Fit", "l");
-  legend->SetTextSize(0.04);
-  legend->Draw();
+    canv1.Update();
+    canv1.Modified();
+    TPaveStats *st = (TPaveStats*)hist_back->FindObject("stats");
+    st->SetOptStat(0);
+    st->SetOptFit(111);
+    st->SetX1NDC(0.6);
+    st->SetX2NDC(0.9);
+    st->SetY1NDC(0.6);
+    st->SetY2NDC(0.78);
+    st->Draw();  
+    TLegend *legend = new TLegend(0.6,0.78,0.9,0.9);
+    std::string plot_label = "W^{" + boson + "} Track p_{T}";
+    legend->AddEntry(hist_back,plot_label.c_str(),"l");
+    legend->AddEntry(function, "Exponential Fit", "l");
+    legend->SetTextSize(0.04);
+    legend->Draw();
 
-  std::string const filename = plots_dir + "W" + boson + "_expo_back" + track_name + "_plot.png";
-  canv1.SaveAs(filename.c_str());
-  canv1.Close();
-
+    std::string const filename = plots_dir + "W" + boson + "_expo_back_plot.png";
+    canv1.SaveAs(filename.c_str());
+    canv1.Close();
+  }
   // make background template from fit
-  //function->SetParameter(1,slope);
-  std::string template_name = "W^{" + boson + "} Background Template from Exp Fit" + track_label; 
+  //function->SetParameter(1,0.2);
+  std::string template_name = "W^{" + boson + "} Background Template from Exp Fit " + momentum_str; 
   TH1F *background_template = new TH1F(template_name.c_str(),";p_{T} (GeV);Events",100,20.,60.);
   for (int i=0; i<100000; i++) {background_template->Fill(function->GetRandom());}
 
@@ -185,8 +173,8 @@ void produce_fit_model(std::string boson, fit_fractions fractions, double sim_fr
   fit_legend->Draw();
 
   std::string sim_sys_str = std::to_string(round(sim_frac_sys*1000)/1000); sim_sys_str.resize(5);
-  std::string sim_label = fractions.sim_label + "#pm" + sim_sys_str;
-  TPaveText *statBox = new TPaveText(0.43,0.68,0.9,0.9, "NDC");
+  std::string sim_label = fractions.sim_label + "_{stat}#pm" + sim_sys_str + "_{sys}";
+  TPaveText *statBox = new TPaveText(0.37,0.68,0.9,0.9, "NDC");
   statBox->SetFillStyle(0);
   statBox->SetTextAlign(12);
   statBox->AddText(fractions.K_label.c_str());
@@ -205,7 +193,7 @@ void produce_fit_model(std::string boson, fit_fractions fractions, double sim_fr
 }
 
 
-fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_error, TH1F* hist_iso, TH1F* hist_sim, TH1F* background_template, TH1F* Z_background, bool track_cut_on) {
+fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_error, TH1F* hist_iso, TH1F* hist_sim, TH1F* background_template, TH1F* Z_background, std::string momentum) {
   fit_fractions output;
   TCanvas fraction_canv;
   TObjArray *mc = new TObjArray(3);
@@ -217,19 +205,6 @@ fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_err
   Int_t status = fit->Fit();
   std::cout << "fit status: " << status;
   if (status == 0) {
-    TH1F *result = (TH1F*) fit->GetPlot();
-    hist_iso->Draw("E");
-    result->Draw("SAME");
-
-    hist_iso->SetStats(false);
-    hist_iso->GetXaxis()->CenterTitle(true);
-    hist_iso->GetXaxis()->SetTitleSize(0.04);
-    hist_iso->GetXaxis()->SetLabelSize(0.04);
-    hist_iso->GetYaxis()->CenterTitle(true);
-    hist_iso->GetYaxis()->SetTitleSize(0.04);
-    hist_iso->GetYaxis()->SetLabelSize(0.04);
-    hist_iso->GetYaxis()->SetTitleOffset(1.3);
-
     fit->GetResult(0, output.K_frac, output.K_err);
     fit->GetResult(1, output.sim_frac, output.sim_err);
     fit->GetResult(2, output.Z_frac, output.Z_err);
@@ -247,33 +222,46 @@ fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_err
     output.ndf = fit->GetNDF();
     std::string chi_squared_str = std::to_string(round(output.chi_squared*10)/10); chi_squared_str.resize(5);
     output.chi_squared_ndf = "#chi^{2}/ndf: " + chi_squared_str + "/" + std::to_string(output.ndf); 
-    
-    TLegend *fraction_legend = new TLegend(0.5,0.76,0.9,0.9);
-    std::string data_label = "Isolated W^{" + boson + "} Data";
-    fraction_legend->AddEntry(hist_iso, data_label.c_str(), "lep");
-    fraction_legend->AddEntry(result, "Fit from TFractionFitter", "l");
-    fraction_legend->SetTextSize(0.04);
-    fraction_legend->Draw();
 
-    TPaveText *statBox = new TPaveText(0.5,0.5,0.9,0.76, "NDC");
-    statBox->SetFillStyle(0);
-    statBox->SetTextAlign(12);
-    statBox->AddText(output.K_label.c_str());
-    statBox->AddText(output.sim_label.c_str());
-    statBox->AddText(output.Z_label.c_str());
-    statBox->AddText(output.chi_squared_ndf.c_str());
-    if (track_cut_on == 1) {statBox->AddText("(includes track cut)");}
-    else {statBox->AddText("(does not include track cut)");}
-    statBox->SetBorderSize(1); //removes shadow
-    statBox->SetTextFont(fraction_legend->GetTextFont());
-    statBox->SetTextSize(0.04);
-    statBox->Draw();    
+
+    if (momentum == "30") {
+      TH1F *result = (TH1F*) fit->GetPlot();
+      hist_iso->Draw("E");
+      result->Draw("SAME");
+      
+      hist_iso->SetStats(false);
+      hist_iso->GetXaxis()->CenterTitle(true);
+      hist_iso->GetXaxis()->SetTitleSize(0.04);
+      hist_iso->GetXaxis()->SetLabelSize(0.04);
+      hist_iso->GetYaxis()->CenterTitle(true);
+      hist_iso->GetYaxis()->SetTitleSize(0.04);
+      hist_iso->GetYaxis()->SetLabelSize(0.04);
+      hist_iso->GetYaxis()->SetTitleOffset(1.3);
+    
+      TLegend *fraction_legend = new TLegend(0.5,0.76,0.9,0.9);
+      std::string data_label = "Isolated W^{" + boson + "} Data";
+      fraction_legend->AddEntry(hist_iso, data_label.c_str(), "lep");
+      fraction_legend->AddEntry(result, "Fit from TFractionFitter", "l");
+      fraction_legend->SetTextSize(0.04);
+      fraction_legend->Draw();
+
+      TPaveText *statBox = new TPaveText(0.5,0.5,0.9,0.76, "NDC");
+      statBox->SetFillStyle(0);
+      statBox->SetTextAlign(12);
+      statBox->AddText(output.K_label.c_str());
+      statBox->AddText(output.sim_label.c_str());
+      statBox->AddText(output.Z_label.c_str());
+      statBox->AddText(output.chi_squared_ndf.c_str());
+      statBox->SetBorderSize(1); //removes shadow
+      statBox->SetTextFont(fraction_legend->GetTextFont());
+      statBox->SetTextSize(0.04);
+      statBox->Draw();    
+    }
   }
-  std::string track_name;
-  if (track_cut_on == 1) {track_name = "_track_cut";}
-  else {track_name = "_no_cut";}
-  std::string const fraction_filename = plots_dir + "W" + boson + "_fraction_fit" + track_name + ".png";
-  fraction_canv.SaveAs(fraction_filename.c_str());
+  if (momentum == "30") {
+    std::string const fraction_filename = plots_dir + "W" + boson + "_fraction_fit.png";
+    fraction_canv.SaveAs(fraction_filename.c_str());
+  }
   fraction_canv.Close();
   return output;
 }
@@ -311,11 +299,13 @@ void output_values(std::string boson, double Z_frac, double Z_err, fit_fractions
 int main() {
 
   // make background template
-  TH1F *Wp_background_template_no_cut = background_fit("WpSingleTrackNoBias","+",0.2,0);
-  TH1F *Wm_background_template_no_cut = background_fit("WmSingleTrackNoBias","-",0.2,0);
-  // make background template with track cut
-  TH1F *Wp_background_template_cut = background_fit("WpSingleTrackNoBias","+",0.2,1);
-  TH1F *Wm_background_template_cut = background_fit("WmSingleTrackNoBias","-",0.2,1);
+  TH1F *Wp_background_template_30 = background_fit("WpSingleTrackNoBias","+",30);
+  TH1F *Wm_background_template_30 = background_fit("WmSingleTrackNoBias","-",30);
+  // make background template for systematic uncertainty
+  TH1F *Wp_background_template_25 = background_fit("WpSingleTrackNoBias","+",25);
+  TH1F *Wm_background_template_25 = background_fit("WmSingleTrackNoBias","-",25);
+  TH1F *Wp_background_template_35 = background_fit("WpSingleTrackNoBias","+",35);
+  TH1F *Wm_background_template_35 = background_fit("WmSingleTrackNoBias","-",35);
 
   // initialise W cuts
   std::string isolation_cut = "TMath::Log10(TMath::Max(0.1,1.e-3*mu_PTSUMCONE040)) < 3", 
@@ -354,20 +344,22 @@ int main() {
   double Wm_Z_frac = (Wm_events_Z_sim*Z_sim_scaling)/Wm_events_data;
   double Wm_Z_frac_err = Wm_Z_frac * (pow(Z_events_data,-0.5) + pow(Z_events_Z_sim,-0.5) + pow(Wm_events_data,-0.5) + pow(Wm_events_Z_sim,-0.5));
   
-  // TFractionFitter without track cut
-  fit_fractions Wp_fractions_no_cut = fraction_fitter("+",Wp_Z_frac,Wp_Z_frac_err,Wp_hist_iso,Wp_hist_sim,Wp_background_template_no_cut,Wp_Z_background,0);
-  fit_fractions Wm_fractions_no_cut = fraction_fitter("-",Wm_Z_frac,Wm_Z_frac_err,Wm_hist_iso,Wm_hist_sim,Wm_background_template_no_cut,Wm_Z_background,0);
-  // TFractionFitter with track cut
-  fit_fractions Wp_fractions_cut = fraction_fitter("+",Wp_Z_frac,Wp_Z_frac_err,Wp_hist_iso,Wp_hist_sim,Wp_background_template_cut,Wp_Z_background,1);
-  fit_fractions Wm_fractions_cut = fraction_fitter("-",Wm_Z_frac,Wm_Z_frac_err,Wm_hist_iso,Wm_hist_sim,Wm_background_template_cut,Wm_Z_background,1);
+  // TFractionFitter at 30 GeV for xsec calc and fit model
+  fit_fractions Wp_fractions_30 = fraction_fitter("+",Wp_Z_frac,Wp_Z_frac_err,Wp_hist_iso,Wp_hist_sim,Wp_background_template_30,Wp_Z_background,"30");
+  fit_fractions Wm_fractions_30 = fraction_fitter("-",Wm_Z_frac,Wm_Z_frac_err,Wm_hist_iso,Wm_hist_sim,Wm_background_template_30,Wm_Z_background,"30");
+  // TFractionFitter for systematic uncertainty
+  fit_fractions Wp_fractions_25 = fraction_fitter("+",Wp_Z_frac,Wp_Z_frac_err,Wp_hist_iso,Wp_hist_sim,Wp_background_template_25,Wp_Z_background,"25");
+  fit_fractions Wm_fractions_25 = fraction_fitter("-",Wm_Z_frac,Wm_Z_frac_err,Wm_hist_iso,Wm_hist_sim,Wm_background_template_25,Wm_Z_background,"25");
+  fit_fractions Wp_fractions_35 = fraction_fitter("+",Wp_Z_frac,Wp_Z_frac_err,Wp_hist_iso,Wp_hist_sim,Wp_background_template_35,Wp_Z_background,"35");
+  fit_fractions Wm_fractions_35 = fraction_fitter("-",Wm_Z_frac,Wm_Z_frac_err,Wm_hist_iso,Wm_hist_sim,Wm_background_template_35,Wm_Z_background,"35");
 
   // Signal fraction systematic uncertainty
-  double Wp_sim_frac_err_sys = Wp_fractions_cut.sim_frac - Wp_fractions_no_cut.sim_frac;
-  double Wm_sim_frac_err_sys = Wm_fractions_cut.sim_frac - Wm_fractions_no_cut.sim_frac;
+  double Wp_sim_frac_err_sys = Wp_fractions_25.sim_frac - Wp_fractions_35.sim_frac;
+  double Wm_sim_frac_err_sys = Wm_fractions_25.sim_frac - Wm_fractions_35.sim_frac;
 
   // produce fit model and output data comparison
-  produce_fit_model("+",Wp_fractions_cut,Wp_sim_frac_err_sys,Wp_hist_iso,Wp_hist_sim,Wp_background_template_cut,Wp_Z_background, "Wp_fit_model");
-  produce_fit_model("-",Wm_fractions_cut,Wm_sim_frac_err_sys,Wm_hist_iso,Wm_hist_sim,Wm_background_template_cut,Wm_Z_background, "Wm_fit_model");
+  produce_fit_model("+",Wp_fractions_30,Wp_sim_frac_err_sys,Wp_hist_iso,Wp_hist_sim,Wp_background_template_30,Wp_Z_background, "Wp_fit_model");
+  produce_fit_model("-",Wm_fractions_30,Wm_sim_frac_err_sys,Wm_hist_iso,Wm_hist_sim,Wm_background_template_30,Wm_Z_background, "Wm_fit_model");
 
   // testing track cut
   /*
@@ -391,8 +383,8 @@ int main() {
   */
 
   // Output values
-  output_values("Wp",Wp_Z_frac,Wp_Z_frac_err,Wp_fractions_cut,Wp_sim_frac_err_sys,Wp_sim_events,Wp_events_Z_sim,Wp_events_data,Z_events_data,Z_events_Z_sim);
-  output_values("Wm",Wm_Z_frac,Wm_Z_frac_err,Wm_fractions_cut,Wm_sim_frac_err_sys,Wm_sim_events,Wm_events_Z_sim,Wm_events_data,Z_events_data,Z_events_Z_sim);
+  output_values("Wp",Wp_Z_frac,Wp_Z_frac_err,Wp_fractions_30,Wp_sim_frac_err_sys,Wp_sim_events,Wp_events_Z_sim,Wp_events_data,Z_events_data,Z_events_Z_sim);
+  output_values("Wm",Wm_Z_frac,Wm_Z_frac_err,Wm_fractions_30,Wm_sim_frac_err_sys,Wm_sim_events,Wm_events_Z_sim,Wm_events_data,Z_events_data,Z_events_Z_sim);
 
   return 0;
 }
