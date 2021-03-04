@@ -102,7 +102,9 @@ def all_xsec_plot(Z_plot, Z_theory, Wp_plot, Wp_theory, Wm_plot, Wm_theory):
 def make_ratio_plot(ratio, label, n, x, ex, y, ey, theory):
     canv = ROOT.TCanvas()
     ratio_plot = ROOT.TGraphErrors(n,x,y,ex,ey)
-    ratio_plot.GetXaxis().SetLimits(4.5,8.5)
+    ratio_plot.GetXaxis().SetLimits(4.1,13.9)
+    if ratio == "WZ":
+        ratio_plot.GetYaxis().SetRangeUser(18.5,30.5)
     ratio_plot.SetMarkerStyle(8)
     ratio_plot.SetTitle("")
     ratio_plot.GetXaxis().SetTitle("#sqrt{s} (TeV)")
@@ -469,6 +471,118 @@ def WW_ratio_theory():
     return gre;
 
 
+def WZ_ratio_theory():
+    gre = ROOT.TGraphErrors(19);
+    gre.SetName("Graph0");
+    gre.SetTitle("Graph");
+    gre.SetFillColor(2);
+    gre.SetFillStyle(3005);
+   
+    ci = ROOT.TColor.GetColor("#ff0000");
+    gre.SetLineColor(ci);
+    gre.SetLineWidth(2);
+    gre.SetMarkerStyle(20);
+    r = (55.81644+45.9)/1.610353;
+    r_err = r*math.sqrt((0.106449/55.81644)**2+(0.2/45.9)**2+(0.003089874/1.610353)**2);
+    gre.SetPoint(0,2,r);
+    gre.SetPointError(0,0,r_err);
+    r = (169.2912+151.5867)/8.471595;
+    r_err = r*math.sqrt((0.3504109/169.2912)**2+(0.3278794/151.5867)**2+(0.01932682/8.471595)**2);
+    gre.SetPoint(1,3,r);
+    gre.SetPointError(1,0,r_err);
+    r = (355.9231+301.3271)/20.51431;
+    r_err = r*math.sqrt((0.772978/355.9231)**2+(0.5989437/301.3271)**2+(0.04558532/20.51431)**2);
+    gre.SetPoint(2,4,r);
+    gre.SetPointError(2,0,r_err);
+    r = (510.098+430.9132)/36.20083;
+    r_err = r*math.sqrt((1.344652/510.098)**2+(1.017377/430.9132)**2+(0.09373648/36.20083)**2);
+    gre.SetPoint(3,5,r);
+    gre.SetPointError(3,0,r_err);
+    r = (705.0895+565.626)/54.30165;
+    r_err = r*math.sqrt((1.805724/705.0895)**2+(1.210156/565.626)**2+(0.1376057/54.30165)**2);
+    gre.SetPoint(4,6,r);
+    gre.SetPointError(4,0,r_err);
+    r = (908.8186+701.1258)/73.36457;
+    r_err = r*math.sqrt((2.903108/908.8186)**2+(2.049885/701.1258)**2+(0.2258884/73.36457)**2);
+    gre.SetPoint(5,7,r);
+    gre.SetPointError(5,0,r_err);
+    r = (1126.259+843.4793)/94.2233;
+    r_err = r*math.sqrt((3.258412/1126.259)**2+(2.540942/843.4793)**2+(0.2701851/94.2233)**2);
+    gre.SetPoint(6,8,r);
+    gre.SetPointError(6,0,r_err);
+    r = (1338.557+978.5042)/114.5502;
+    r_err = r*math.sqrt((3.93392/1338.557)**2+(3.793097/978.5042)**2+(0.3495494/114.5502)**2);
+    gre.SetPoint(7,9,r);
+    gre.SetPointError(7,0,r_err);
+    r = (1544.101+1120.532)/134.3898;
+    r_err = r*math.sqrt((4.41897/1544.101)**2+(3.18583/1120.532)**2+(0.4008405/134.3898)**2);
+    gre.SetPoint(8,10,r);
+    gre.SetPointError(8,0,r_err);
+    r = (1754.364+1253.042)/154.531;
+    r_err = r*math.sqrt((6.022293/1754.364)**2+(3.838623/1253.042)**2+(0.5230851/154.531)**2);
+    gre.SetPoint(9,11,r);
+    gre.SetPointError(9,0,r_err);
+    r = (1959.431+1381.146)/174.5487;
+    r_err = r*math.sqrt((6.161057/1959.431)**2+(4.668509/1381.146)**2+(0.5222072/174.5487)**2);
+    gre.SetPoint(10,12,r);
+    gre.SetPointError(10,0,r_err);
+    r = (2177.632+1521.508)/194.4331;
+    r_err = r*math.sqrt((7.538669/2177.632)**2+(4.876128/1521.508)**2+(0.6131347/194.4331)**2);
+    gre.SetPoint(11,13,r);
+    gre.SetPointError(11,0,r_err);
+    r = (2393.976+1648.683)/213.2666;
+    r_err = r*math.sqrt((7.999908/2393.976)**2+(5.180606/1648.683)**2+(0.7358615/213.2666)**2);
+    gre.SetPoint(12,14,r);
+    gre.SetPointError(12,0,r_err);
+    r = (2557.823+1789.207)/231.7848;
+    r_err = r*math.sqrt((10.31271/2557.823)**2+(6.676192/1789.207)**2+(0.8716615/231.7848)**2);
+    gre.SetPoint(13,15,r);
+    gre.SetPointError(13,0,r_err);
+    r = (2754.785+1909.586)/249.1646;
+    r_err = r*math.sqrt((10.67382/2754.785)**2+(7.7596/1909.586)**2+(0.8382152/249.1646)**2);
+    gre.SetPoint(14,16,r);
+    gre.SetPointError(14,0,r_err);
+    r = (2942.312+2043.151)/267.9907;
+    r_err = r*math.sqrt((12.98126/2942.312)**2+(7.511781/2043.151)**2+(0.9506001/267.9907)**2);
+    gre.SetPoint(15,17,r);
+    gre.SetPointError(15,0,r_err);
+    r = (3158.145+2159.585)/282.812;
+    r_err = r*math.sqrt((11.71054/3158.145)**2+(7.80703/2159.585)**2+(1.321404/282.812)**2);
+    gre.SetPoint(16,18,r);
+    gre.SetPointError(16,0,r_err);
+    r = (3306.39+2294.989)/303.6655;
+    r_err = r*math.sqrt((15.44113/3306.39)**2+(8.552556/2294.989)**2+(1.077402/303.6655)**2);
+    gre.SetPoint(17,19,r);
+    gre.SetPointError(17,0,r_err);
+    r = (3484.935+2432.562)/316.5302;
+    r_err = r*math.sqrt((15.69135/3484.935)**2+(8.775901/2432.562)**2+(1.336074/316.5302)**2);
+    gre.SetPoint(18,20,r);
+    gre.SetPointError(18,0,r_err);
+      
+    Graph_Graph17 = ROOT.TH1F("Graph_Graph17","Graph",100,0.2,21.8);
+    Graph_Graph17.SetDirectory(0);
+    Graph_Graph17.SetStats(0);
+    Graph_Graph17.SetLineWidth(2);
+    Graph_Graph17.SetMarkerStyle(20);
+    Graph_Graph17.GetXaxis().SetNdivisions(505);
+    Graph_Graph17.GetXaxis().SetLabelFont(132);
+    Graph_Graph17.GetXaxis().SetLabelOffset(0.01);
+    Graph_Graph17.GetXaxis().SetLabelSize(0.06);
+    Graph_Graph17.GetXaxis().SetTitleSize(0.06);
+    Graph_Graph17.GetXaxis().SetTitleOffset(1.1);
+    Graph_Graph17.GetXaxis().SetTitleFont(132);
+    Graph_Graph17.GetYaxis().SetNdivisions(506);
+    Graph_Graph17.GetYaxis().SetLabelFont(132);
+    Graph_Graph17.GetYaxis().SetLabelOffset(0.01);
+    Graph_Graph17.GetYaxis().SetLabelSize(0.06);
+    Graph_Graph17.GetYaxis().SetTitleSize(0.06);
+    Graph_Graph17.GetYaxis().SetTitleFont(132);
+    Graph_Graph17.GetZaxis().SetLabelFont(132);
+    Graph_Graph17.GetZaxis().SetLabelSize(0.06);
+    Graph_Graph17.GetZaxis().SetTitleSize(0.06);
+    Graph_Graph17.GetZaxis().SetTitleFont(132);
+    gre.SetHistogram(Graph_Graph17);
+    return gre;
 
     
 
@@ -544,5 +658,5 @@ make_ratio_plot("WW", "W^{+}/W^{-}", n_W, x_W, ex_W, y_WW_ratio, ey_WW_ratio, WW
 y_WZ_ratio = array('d', [WZ_ratio_5, 20.63, 20.13])
 ey_WZ_ratio = array('d', [WZ_ratio_5_err, math.sqrt(0.09**2+0.12**2+0.05**2), math.sqrt(0.06**2+0.11**2+0.04**2)])
 # 7 = 2014, 8 = 2016
-
-#make_ratio_plot("WZ", "W/Z", n_W, x_W, ex_W, y_WZ_ratio, ey_WZ_ratio)
+WZ_ratio_theory_plot = WZ_ratio_theory()
+make_ratio_plot("WZ", "W/Z", n_W, x_W, ex_W, y_WZ_ratio, ey_WZ_ratio, WZ_ratio_theory_plot)
