@@ -114,8 +114,8 @@ def make_ratio_plot(ratio, label, n, x, ex, y, ey, theory):
     ratio_plot.Draw("AP")
     theory.Draw("c")
 
-    legend = ROOT.TLegend(0.6,0.78,0.9,0.9)
-    legend.AddEntry(ratio_plot, "LHCb #sigma_{" + label + "}", "ep")
+    legend = ROOT.TLegend(0.58,0.78,0.9,0.9)
+    legend.AddEntry(ratio_plot, "LHCb "+ label, "ep")
     legend.AddEntry(theory, "DYNNLO+MSTW08", "l")
     legend.SetTextSize(0.04)
     legend.Draw()
@@ -653,10 +653,10 @@ y_WW_ratio = array('d',[WW_ratio_5, 1.274, 1.336])
 ey_WW_ratio = array('d',[WW_ratio_5_err, math.sqrt(0.005**2+0.009**2+0.002**2), math.sqrt(0.004**2+0.005**2+0.002**2)])
 # 7 = 2014, 8 = 2016
 WW_ratio_theory_plot = WW_ratio_theory()
-make_ratio_plot("WW", "W^{+}/W^{-}", n_W, x_W, ex_W, y_WW_ratio, ey_WW_ratio, WW_ratio_theory_plot)
+make_ratio_plot("WW", "#sigma_{W+}#scale[1.2]{/}#sigma_{W-}", n_W, x_W, ex_W, y_WW_ratio, ey_WW_ratio, WW_ratio_theory_plot)
 
 y_WZ_ratio = array('d', [WZ_ratio_5, 20.63, 20.13])
 ey_WZ_ratio = array('d', [WZ_ratio_5_err, math.sqrt(0.09**2+0.12**2+0.05**2), math.sqrt(0.06**2+0.11**2+0.04**2)])
 # 7 = 2014, 8 = 2016
 WZ_ratio_theory_plot = WZ_ratio_theory()
-make_ratio_plot("WZ", "W/Z", n_W, x_W, ex_W, y_WZ_ratio, ey_WZ_ratio, WZ_ratio_theory_plot)
+make_ratio_plot("WZ", "(#sigma_{W+}+#sigma_{W-}) #scale[1.2]{/}#sigma_{Z}", n_W, x_W, ex_W, y_WZ_ratio, ey_WZ_ratio, WZ_ratio_theory_plot)
