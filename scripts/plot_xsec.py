@@ -6,11 +6,27 @@ import json
 from array import array
 import math
 
-def make_xsec_plot(boson, label, n, x, ex, y, ey, theory):
+def make_xsec_plot(boson, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, theory):
     canv = ROOT.TCanvas()
+    xsec_5TeV = ROOT.TGraphErrors(1)
+    xsec_5TeV.SetPoint(0,5,point_5TeV);
+    xsec_5TeV.SetPointError(0,0,point_5TeV_err);
+    xsec_5TeV.SetMarkerSize(0.75)
+    xsec_5TeV.SetMarkerColor(8)
+    xsec_5TeV.SetLineColor(1)
+    xsec_5TeV.GetXaxis().SetLimits(3.9,14.1)
+    if boson == "Z":
+        xsec_5TeV.GetYaxis().SetRangeUser(25,225)
+        xsec_5TeV.SetMarkerStyle(25)
+    elif boson == "Wp":
+        xsec_5TeV.GetYaxis().SetRangeUser(410,2450)
+        xsec_5TeV.SetMarkerStyle(20)
+    elif boson == "Wm":
+        xsec_5TeV.GetYaxis().SetRangeUser(350,1690)
+        xsec_5TeV.SetMarkerStyle(24)
 
     xsec_plot = ROOT.TGraphErrors(n,x,y,ex,ey)
-    xsec_plot.GetXaxis().SetLimits(4.1,13.9)
+    xsec_plot.GetXaxis().SetLimits(3.9,14.1)
     xsec_plot.SetMarkerSize(0.75)
     if boson == "Z":
         xsec_plot.GetYaxis().SetRangeUser(25,225)
@@ -33,13 +49,49 @@ def make_xsec_plot(boson, label, n, x, ex, y, ey, theory):
     xsec_plot.GetYaxis().SetTitleSize(0.04)
     xsec_plot.GetYaxis().SetLabelSize(0.04)
     xsec_plot.GetYaxis().SetTitleOffset(1.15)
-    xsec_plot.Draw("AP")
-    theory.Draw("same c")
 
-    legend = ROOT.TLegend(0.1,0.78,0.4,0.9)
-    experimental_label = "LHCb #sigma_{" + label + "}"
-    legend.AddEntry(xsec_plot, experimental_label, "ep")
-    legend.AddEntry(theory, "DYNNLO+MSTW08", "l")
+    theory.GetXaxis().SetLimits(3.9,14.1)
+    multiplot = ROOT.TMultiGraph()
+    multiplot.GetXaxis().SetLimits(3.9,14.1)
+    if boson == "Z":
+        theory.SetMinimum(25)
+        theory.SetMaximum(225)
+        multiplot.SetMinimum(25)
+        multiplot.SetMaximum(225)
+    elif boson == "Wp":
+        theory.SetMinimum(410)
+        theory.SetMaximum(2450)
+        multiplot.SetMinimum(410)
+        multiplot.SetMaximum(2450)
+    elif boson == "Wm":
+        theory.SetMinimum(350)
+        theory.SetMaximum(1690)
+        multiplot.SetMinimum(350)
+        multiplot.SetMaximum(1690)
+
+    multiplot.SetTitle("")
+    multiplot.GetXaxis().SetTitle("#sqrt{s} (TeV)")
+    multiplot.GetXaxis().CenterTitle(1)
+    multiplot.GetXaxis().SetTitleSize(0.04)
+    multiplot.GetXaxis().SetLabelSize(0.04)
+    multiplot.GetYaxis().SetTitle(y_axis)
+    multiplot.GetYaxis().CenterTitle(1)
+    multiplot.GetYaxis().SetTitleSize(0.04)
+    multiplot.GetYaxis().SetLabelSize(0.04)
+    multiplot.GetYaxis().SetTitleOffset(1.2)
+
+    multiplot.Add(theory,"c")
+    multiplot.Add(xsec_5TeV,"AP")
+    multiplot.Add(xsec_plot,"AP")
+    multiplot.Draw("AP")
+    #xsec_5TeV.Draw("AP")
+    #xsec_plot.Draw("AP") 
+    #theory.Draw("c")
+
+    legend = ROOT.TLegend(0.1,0.74,0.57,0.9)
+    legend.AddEntry(xsec_5TeV, "Measured 5 TeV#sigma_{" + label + "}", "ep")
+    legend.AddEntry(xsec_plot, "Published LHCb#sigma_{" + label + "}", "ep")
+    legend.AddEntry(theory, "DYNNLO+MSTW08 Predictions", "l")
     legend.SetTextSize(0.04)
     legend.Draw()
 
@@ -50,73 +102,65 @@ def make_xsec_plot(boson, label, n, x, ex, y, ey, theory):
 
 
 
-#def all_xsec_plot(nz, xz, exz, yz, eyz, nw, xw, exw, ywp, eywp, ywm, eywm, Z_theory, Wp_theory, Wm_theory):
-def all_xsec_plot(Z_plot, Z_theory, Wp_plot, Wp_theory, Wm_plot, Wm_theory):
+def make_ratio_plot(ratio, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, theory):
     canv = ROOT.TCanvas()
-    canv.SetLogy()
+    ratio_5TeV = ROOT.TGraphErrors(1)
+    ratio_5TeV.SetPoint(0,5,point_5TeV);
+    ratio_5TeV.SetPointError(0,0,point_5TeV_err);
+    ratio_5TeV.SetMarkerStyle(8)
+    ratio_5TeV.SetMarkerColor(8)
+    ratio_5TeV.SetLineColor(1)
+    ratio_5TeV.GetXaxis().SetLimits(3.9,14.1)
+    if ratio == "WZ":
+        ratio_5TeV.GetYaxis().SetRangeUser(18.5,30.5)
+    elif ratio == "WW":
+        ratio_5TeV.GetYaxis().SetRangeUser(1.11,1.61)
 
-    #Z_plot.SetMarkerStyle(20)
-    #Z_plot.SetMarkerSize(0.75)
-    #Wp_plot.SetMarkerStyle(22)
-    #Wp_plot.SetMarkerSize(0.75)
-    #Wm_plot.SetMarkerStyle(23)
-    #Wm_plot.SetMarkerSize(0.75)
-
-    multiplot = ROOT.TMultiGraph()
-    multiplot.GetXaxis().SetLimits(2.0,15.0)
-    multiplot.SetMinimum(30.)
-    multiplot.SetMaximum(2500.)
-
-    multiplot.SetTitle("")
-    multiplot.GetXaxis().SetTitle("#sqrt{s} (TeV)")
-    multiplot.GetXaxis().CenterTitle(1)
-    multiplot.GetXaxis().SetTitleSize(0.04)
-    multiplot.GetXaxis().SetLabelSize(0.04)
-    multiplot.GetYaxis().SetTitle("#sigma (Pb)")
-    multiplot.GetYaxis().CenterTitle(1)
-    multiplot.GetYaxis().SetTitleSize(0.04)
-    multiplot.GetYaxis().SetLabelSize(0.04)
-    multiplot.GetYaxis().SetTitleOffset(1)
-   
-    multiplot.Add(Z_theory,"c")
-    multiplot.Add(Wp_theory,"c")
-    multiplot.Add(Wm_theory,"c")
-    multiplot.Add(Z_plot,"P")
-    multiplot.Add(Wp_plot,"P")
-    multiplot.Add(Wm_plot,"P")
-    multiplot.Draw("AP")
-
-    legend = ROOT.TLegend(0.6,0.1,0.9,0.3)
-    legend.AddEntry(Z_theory, "DYNNLO+MSTW08", "l")
-    legend.AddEntry(Wp_plot, "W^{+} #rightarrow #mu^{+} #nu_{#mu}", "ep")
-    legend.AddEntry(Wm_plot, "W^{-} #rightarrow #mu^{-} #bar#nu_{#mu}", "ep")
-    legend.AddEntry(Z_plot, "Z #rightarrow #mu^{+} #mu^{-}", "ep")
-    legend.SetTextSize(0.04)
-    legend.Draw()
-
-    canv.Modified()
-    canv.SaveAs("plots/all_xsecs_plot.png")
-    canv.Close()
-
-
-def make_ratio_plot(ratio, label, n, x, ex, y, ey, theory):
-    canv = ROOT.TCanvas()
     ratio_plot = ROOT.TGraphErrors(n,x,y,ex,ey)
-    ratio_plot.GetXaxis().SetLimits(4.1,13.9)
+    ratio_plot.GetXaxis().SetLimits(3.9,14.1)
     if ratio == "WZ":
         ratio_plot.GetYaxis().SetRangeUser(18.5,30.5)
+    elif ratio == "WW":
+        ratio_plot.GetYaxis().SetRangeUser(1.11,1.61)
+
     ratio_plot.SetMarkerStyle(8)
     ratio_plot.SetTitle("")
     ratio_plot.GetXaxis().SetTitle("#sqrt{s} (TeV)")
     ratio_plot.GetXaxis().CenterTitle(1)
     ratio_plot.GetYaxis().SetTitle(label)
     ratio_plot.GetYaxis().CenterTitle(1)
-    ratio_plot.Draw("AP")
-    theory.Draw("c")
 
-    legend = ROOT.TLegend(0.58,0.78,0.9,0.9)
-    legend.AddEntry(ratio_plot, "LHCb "+ label, "ep")
-    legend.AddEntry(theory, "DYNNLO+MSTW08", "l")
+    theory.GetXaxis().SetLimits(3.9,14.1)
+    multiplot_ratio = ROOT.TMultiGraph()
+    multiplot_ratio.GetXaxis().SetLimits(3.9,14.1)
+    if ratio == "WZ":
+        theory.GetYaxis().SetRangeUser(18.5,30.5)
+        multiplot_ratio.GetYaxis().SetRangeUser(18.5,30.5)
+    elif ratio == "WW":
+        theory.GetYaxis().SetRangeUser(1.11,1.61)
+        multiplot_ratio.GetYaxis().SetRangeUser(1.11,1.61)
+ 
+    multiplot_ratio.SetTitle("")
+    multiplot_ratio.GetXaxis().SetTitle("#sqrt{s} (TeV)")
+    multiplot_ratio.GetXaxis().CenterTitle(1)
+    multiplot_ratio.GetXaxis().SetTitleSize(0.04)
+    multiplot_ratio.GetXaxis().SetLabelSize(0.04)
+    multiplot_ratio.GetYaxis().SetTitle(label)
+    multiplot_ratio.GetYaxis().CenterTitle(1)
+    multiplot_ratio.GetYaxis().SetTitleSize(0.04)
+    multiplot_ratio.GetYaxis().SetLabelSize(0.04)
+    if ratio == "WW":
+        multiplot_ratio.GetYaxis().SetTitleOffset(1.2)
+
+    multiplot_ratio.Add(theory,"c")
+    multiplot_ratio.Add(ratio_5TeV,"AP")
+    multiplot_ratio.Add(ratio_plot,"AP")
+    multiplot_ratio.Draw("AP")
+
+    legend = ROOT.TLegend(0.41,0.74,0.9,0.9)
+    legend.AddEntry(ratio_5TeV, "Measured 5 TeV " + label, "ep")
+    legend.AddEntry(ratio_plot, "Published LHCb "+ label, "ep")
+    legend.AddEntry(theory, "DYNNLO+MSTW08 Predictions", "l")
     legend.SetTextSize(0.04)
     legend.Draw()
 
@@ -361,7 +405,7 @@ def WW_ratio_theory():
     gre.SetName("Graph0");
     gre.SetTitle("Graph");
     gre.SetFillColor(2);
-    gre.SetFillStyle(3005);
+    gre.SetFillStyle(3001);
    
     ci = ROOT.TColor.GetColor("#ff0000");
     gre.SetLineColor(ci);
@@ -476,7 +520,7 @@ def WZ_ratio_theory():
     gre.SetName("Graph0");
     gre.SetTitle("Graph");
     gre.SetFillColor(2);
-    gre.SetFillStyle(3005);
+    gre.SetFillStyle(3001);
    
     ci = ROOT.TColor.GetColor("#ff0000");
     gre.SetLineColor(ci);
@@ -591,24 +635,24 @@ def WZ_ratio_theory():
 with open('results_json/Z_xsec.json') as json_file:
     Z_input = json.load(json_file)
 
-n_Z = 4
-x_Z = array('d',[5.0,7.0,8.0,13.0])
-ex_Z = array('d',[0,0,0,0])
+n_Z = 3
+x_Z = array('d',[7.0,8.0,13.0])
+ex_Z = array('d',[0,0,0])
 
 Z_5 = Z_input["xsec"]
 Z_5_err = Z_input["xsec_err"]
 
-y_Z = array('d',[Z_5, 76.0, 95.0, 198.0])
-ey_Z = array('d',[Z_5_err, math.sqrt(0.3**2+0.5**2+1**2+1.3**2), math.sqrt(0.3**2+0.7**2+1.1**2+1.1**2), math.sqrt(0.9**2+4.7**2+7.7**2)])
+y_Z = array('d',[76.0, 95.0, 198.0])
+ey_Z = array('d',[math.sqrt(0.3**2+0.5**2+1**2+1.3**2), math.sqrt(0.3**2+0.7**2+1.1**2+1.1**2), math.sqrt(0.9**2+4.7**2+7.7**2)])
 # 7 = 2015, 8 = 2016, 13 = 2016
 
 Z_theory_trend = Z_theory() 
-Z_plot = make_xsec_plot("Z", "Z", n_Z, x_Z, ex_Z, y_Z, ey_Z, Z_theory_trend)
+Z_plot = make_xsec_plot("Z", "Z", Z_5, Z_5_err, n_Z, x_Z, ex_Z, y_Z, ey_Z, Z_theory_trend)
 
 # W bosons
-n_W = 3
-x_W = array('d',[5,7,8])
-ex_W = array('d',[0,0,0])
+n_W = 2
+x_W = array('d',[7,8])
+ex_W = array('d',[0,0])
 
 # Wp boson
 with open('results_json/Wp_xsec.json') as json_file:
@@ -616,12 +660,12 @@ with open('results_json/Wp_xsec.json') as json_file:
 Wp_5 = Wp_input["xsec"]
 Wp_5_err = Wp_input["xsec_err"]
 
-y_Wp = array('d',[Wp_5, 878.0, 1093.6])
-ey_Wp = array('d',[Wp_5_err, math.sqrt(2.1**2+6.7**2+9.3**2+15.0**2), math.sqrt(2.1**2+7.2**2+10.9**2+12.7**2)])
+y_Wp = array('d',[878.0, 1093.6])
+ey_Wp = array('d',[math.sqrt(2.1**2+6.7**2+9.3**2+15.0**2), math.sqrt(2.1**2+7.2**2+10.9**2+12.7**2)])
 # 7 = 2014, 8 = 2016
 
 Wp_theory_trend = Wp_theory()
-Wp_plot = make_xsec_plot("Wp", "W^{+}", n_W, x_W, ex_W, y_Wp, ey_Wp, Wp_theory_trend)
+Wp_plot = make_xsec_plot("Wp", "W^{+}", Wp_5, Wp_5_err, n_W, x_W, ex_W, y_Wp, ey_Wp, Wp_theory_trend)
 
 # Wm boson
 with open('results_json/Wm_xsec.json') as json_file:
@@ -629,16 +673,12 @@ with open('results_json/Wm_xsec.json') as json_file:
 Wm_5 = Wm_input["xsec"]
 Wm_5_err = Wm_input["xsec_err"]
 
-y_Wm = array('d',[Wm_5, 689.5, 818.4])
-ey_Wm = array('d',[Wm_5_err, math.sqrt(2.0**2+5.3**2+6.3**2+11.8**2), math.sqrt(1.9**2+5**2+7**2+9.5**2)])
+y_Wm = array('d',[689.5, 818.4])
+ey_Wm = array('d',[math.sqrt(2.0**2+5.3**2+6.3**2+11.8**2), math.sqrt(1.9**2+5**2+7**2+9.5**2)])
 # 7 = 2014, 8 = 2016
 
 Wm_theory_trend = Wm_theory()
-Wm_plot = make_xsec_plot("Wm", "W^{-}", n_W, x_W, ex_W, y_Wm, ey_Wm, Wm_theory_trend)
-
-# plot all xsec
-all_xsec_plot(Z_plot, Z_theory_trend, Wp_plot, Wp_theory_trend, Wm_plot, Wm_theory_trend)
-#all_xsec_plot(n_Z, x_Z, ex_Z, y_Z, ey_Z, n_W, x_W, ex_W, y_Wp, ey_Wp, y_Wm, ey_Wm, Z_theory_trend, Wp_theory_trend, Wm_theory_trend)
+Wm_plot = make_xsec_plot("Wm", "W^{-}", Wm_5, Wm_5_err, n_W, x_W, ex_W, y_Wm, ey_Wm, Wm_theory_trend)
 
 
 # Ratios
@@ -649,14 +689,15 @@ WW_ratio_5_err = ratios_input["WW_error"]
 WZ_ratio_5 = ratios_input["WZ_ratio"]
 WZ_ratio_5_err = ratios_input["WZ_error"]
 
-y_WW_ratio = array('d',[WW_ratio_5, 1.274, 1.336])
-ey_WW_ratio = array('d',[WW_ratio_5_err, math.sqrt(0.005**2+0.009**2+0.002**2), math.sqrt(0.004**2+0.005**2+0.002**2)])
+y_WW_ratio = array('d',[1.274, 1.336])
+ey_WW_ratio = array('d',[math.sqrt(0.005**2+0.009**2+0.002**2), math.sqrt(0.004**2+0.005**2+0.002**2)])
 # 7 = 2014, 8 = 2016
 WW_ratio_theory_plot = WW_ratio_theory()
-make_ratio_plot("WW", "#sigma_{W+}#scale[1.2]{/}#sigma_{W-}", n_W, x_W, ex_W, y_WW_ratio, ey_WW_ratio, WW_ratio_theory_plot)
+make_ratio_plot("WW", "#sigma_{W+}#scale[1.2]{/}#sigma_{W-}", WW_ratio_5, WW_ratio_5_err, n_W, x_W, ex_W, y_WW_ratio, ey_WW_ratio, WW_ratio_theory_plot)
 
-y_WZ_ratio = array('d', [WZ_ratio_5, 20.63, 20.13])
-ey_WZ_ratio = array('d', [WZ_ratio_5_err, math.sqrt(0.09**2+0.12**2+0.05**2), math.sqrt(0.06**2+0.11**2+0.04**2)])
+y_WZ_ratio = array('d', [20.63, 20.13])
+ey_WZ_ratio = array('d', [math.sqrt(0.09**2+0.12**2+0.05**2), math.sqrt(0.06**2+0.11**2+0.04**2)])
 # 7 = 2014, 8 = 2016
 WZ_ratio_theory_plot = WZ_ratio_theory()
-make_ratio_plot("WZ", "(#sigma_{W+}+#sigma_{W-}) #scale[1.2]{/}#sigma_{Z}", n_W, x_W, ex_W, y_WZ_ratio, ey_WZ_ratio, WZ_ratio_theory_plot)
+make_ratio_plot("WZ", "(#sigma_{W+}+#sigma_{W-}) #scale[1.2]{/}#sigma_{Z}", WZ_ratio_5, WZ_ratio_5_err, n_W, x_W, ex_W, y_WZ_ratio, ey_WZ_ratio, WZ_ratio_theory_plot)
+
