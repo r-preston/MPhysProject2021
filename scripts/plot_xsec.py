@@ -5,6 +5,7 @@ import ROOT
 import json
 from array import array
 import math
+import os
 
 def make_xsec_plot(boson, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, theory):
     canv = ROOT.TCanvas()
@@ -701,3 +702,18 @@ ey_WZ_ratio = array('d', [math.sqrt(0.09**2+0.12**2+0.05**2), math.sqrt(0.06**2+
 WZ_ratio_theory_plot = WZ_ratio_theory()
 make_ratio_plot("WZ", "(#sigma_{W+}+#sigma_{W-}) #scale[1.2]{/}#sigma_{Z}", WZ_ratio_5, WZ_ratio_5_err, n_W, x_W, ex_W, y_WZ_ratio, ey_WZ_ratio, WZ_ratio_theory_plot)
 
+Z_fact = Z_5 / 36.20083
+Z_fact_err = Z_fact * math.sqrt((Z_5_err/Z_5)**2 + (0.09373648/36.20083)**2)
+
+Wp_fact = Wp_5 / 510.098
+Wp_fact_err = Wp_fact * math.sqrt((Wp_5_err/Wp_5)**2 + (1.344652/510.098)**2)
+
+Wm_fact = Wm_5 / 430.9132
+Wm_fact_err = Wm_fact * math.sqrt((Wm_5_err/Wm_5)**2 + (1.017377/430.9132)**2)
+
+current_dir = os.getcwd()
+save_path = os.path.join(current_dir, 'doc/measurement_doc/results/')
+with open(save_path+'theory_exp_factor_difference.tex','w') as texfile:
+    texfile.write("$\sigma_{{Z}} ({{\\rm experimental}})/\sigma_{{Z}} ({{\\rm theoretical}})$ = ${:.{prec}f} \pm {:.{prec}f}$\\\\\n".format(Z_fact,Z_fact_err, prec=2))
+    texfile.write("$\sigma_{{Wp}} ({{\\rm experimental}})/\sigma_{{Wp}} ({{\\rm theoretical}})$ = ${:.{prec}f} \pm {:.{prec}f}$\\\\\n".format(Wp_fact,Wp_fact_err, prec=2))
+    texfile.write("$\sigma_{{Wm}} ({{\\rm experimental}})/\sigma_{{Wm}} ({{\\rm theoretical}})$ = ${:.{prec}f} \pm {:.{prec}f}$\\\\\n".format(Wm_fact,Wm_fact_err, prec=2))
