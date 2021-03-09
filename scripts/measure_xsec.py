@@ -49,7 +49,7 @@ with open('results_json/Z_xsec.json', 'w') as outfile:
     json.dump(data_output,outfile)
 
 stat_txt = "{"+"\\"+"rm stat}"
-eff_txt = "{"+"\\"+"rm eff}"
+eff_txt = "{"+"\\"+"rm sys}"
 lumi_txt = "{"+"\\"+"rm lumi}"
 xsec_unit = "\\"+"rm pb"
 
