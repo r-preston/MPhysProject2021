@@ -90,8 +90,8 @@ def make_xsec_plot(boson, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, th
     #theory.Draw("c")
 
     legend = ROOT.TLegend(0.1,0.74,0.57,0.9)
-    legend.AddEntry(xsec_5TeV, "Measured 5 TeV#sigma_{" + label + "}", "ep")
-    legend.AddEntry(xsec_plot, "Published LHCb#sigma_{" + label + "}", "ep")
+    legend.AddEntry(xsec_5TeV, "New 5 TeV Measurement", "ep") #"Measured 5 TeV#sigma_{" + label + "}", "ep")
+    legend.AddEntry(xsec_plot, "Published LHCb Measurements", "ep") #sigma_{" + label + "}", "ep")
     legend.AddEntry(theory, "DYNNLO+MSTW08 Predictions", "l")
     legend.SetTextSize(0.04)
     legend.Draw()
@@ -115,14 +115,14 @@ def make_ratio_plot(ratio, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, t
     if ratio == "WZ":
         ratio_5TeV.GetYaxis().SetRangeUser(18.5,30.5)
     elif ratio == "WW":
-        ratio_5TeV.GetYaxis().SetRangeUser(1.11,1.61)
+        ratio_5TeV.GetYaxis().SetRangeUser(0.69,2.11)
 
     ratio_plot = ROOT.TGraphErrors(n,x,y,ex,ey)
     ratio_plot.GetXaxis().SetLimits(3.9,14.1)
     if ratio == "WZ":
         ratio_plot.GetYaxis().SetRangeUser(18.5,30.5)
     elif ratio == "WW":
-        ratio_plot.GetYaxis().SetRangeUser(1.11,1.61)
+        ratio_plot.GetYaxis().SetRangeUser(0.69,2.11)
 
     ratio_plot.SetMarkerStyle(8)
     ratio_plot.SetTitle("")
@@ -138,8 +138,8 @@ def make_ratio_plot(ratio, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, t
         theory.GetYaxis().SetRangeUser(18.5,30.5)
         multiplot_ratio.GetYaxis().SetRangeUser(18.5,30.5)
     elif ratio == "WW":
-        theory.GetYaxis().SetRangeUser(1.11,1.61)
-        multiplot_ratio.GetYaxis().SetRangeUser(1.11,1.61)
+        theory.GetYaxis().SetRangeUser(0.69,2.11)
+        multiplot_ratio.GetYaxis().SetRangeUser(0.69,2.11)
  
     multiplot_ratio.SetTitle("")
     multiplot_ratio.GetXaxis().SetTitle("#sqrt{s} (TeV)")
@@ -159,8 +159,8 @@ def make_ratio_plot(ratio, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, t
     multiplot_ratio.Draw("AP")
 
     legend = ROOT.TLegend(0.41,0.74,0.9,0.9)
-    legend.AddEntry(ratio_5TeV, "Measured 5 TeV " + label, "ep")
-    legend.AddEntry(ratio_plot, "Published LHCb "+ label, "ep")
+    legend.AddEntry(ratio_5TeV, "New 5 TeV Measurement", "ep")
+    legend.AddEntry(ratio_plot, "Published LHCb Measurements", "ep")
     legend.AddEntry(theory, "DYNNLO+MSTW08 Predictions", "l")
     legend.SetTextSize(0.04)
     legend.Draw()
