@@ -10,6 +10,7 @@ make
 ./scripts/make_W_latex.py
 
 ./scripts/plot_xsec.py
+./scripts/plot_all_xsecs.py
 
 cd doc/measurement_doc/
 pdflatex measurement_report.tex

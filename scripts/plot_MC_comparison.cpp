@@ -73,10 +73,10 @@ void plot_data_sim(struct path_data mnt_in, struct path_data sim_in, struct plot
 	  ymax_mnt = hist_mnt->GetMaximum(),
 	  ymax_sim = hist_sim->GetMaximum();
 	if (ymax_mnt > ymax_sim) {
-	  ymax = 1.15*ymax_mnt;
+	  ymax = 1.1*ymax_mnt;
 	}
 	else {
-	  ymax = 1.15*ymax_sim;
+	  ymax = 1.1*ymax_sim;
 	}
 
 	TCanvas canv;
@@ -84,6 +84,7 @@ void plot_data_sim(struct path_data mnt_in, struct path_data sim_in, struct plot
 	hist_mnt->Draw("E");
 	hist_sim->Draw("SAME HIST");
      	hist_mnt->GetYaxis()->SetRangeUser(0,ymax);
+     	hist_sim->GetYaxis()->SetRangeUser(0,ymax);
 	hist_sim->SetLineColor(kAzure);
 
 	hist_mnt->GetXaxis()->CenterTitle(true);
@@ -94,16 +95,47 @@ void plot_data_sim(struct path_data mnt_in, struct path_data sim_in, struct plot
 	hist_mnt->GetYaxis()->SetTitleSize(0.04);
 	hist_mnt->GetYaxis()->SetLabelSize(0.04);
 	hist_mnt->GetYaxis()->SetTitleOffset(1);
+	if (hist_input.expression == "m_{Z}") {hist_mnt->GetYaxis()->SetTitleOffset(1.1);}
 
-	//TLegend *legend = new TLegend(0.2,0.1,0.62,0.25); PHI
-	/*
-	TLegend *legend = new TLegend(0.48,0.75,0.9,0.9);
-	legend->AddEntry(hist_mnt, mnt_name.c_str(),"lep");
-	legend->AddEntry(hist_sim, sim_name.c_str(),"l");
-	legend->SetTextSize(0.04);
-	legend->Draw();
-	*/
-	canv.BuildLegend();
+	if ((hist_input.expression == "mup_ETA") || (hist_input.expression == "mum_ETA")) {
+	  hist_mnt->GetXaxis()->SetLimits(1.4,5.0);
+	  hist_sim->GetXaxis()->SetLimits(1.4,5.0);
+	  TLegend *legend = new TLegend(0.48,0.75,0.9,0.9);
+	  legend->AddEntry(hist_mnt, mnt_name.c_str(),"lep");
+	  legend->AddEntry(hist_sim, sim_name.c_str(),"l");
+	  legend->SetTextSize(0.04);
+	  legend->Draw();
+	}
+	else if ((hist_input.expression == "mup_PHI") || (hist_input.expression == "mum_PHI")) {
+	  hist_mnt->GetXaxis()->SetLimits(-3.5,3.5);
+	  hist_sim->GetXaxis()->SetLimits(-3.5,3.5);
+	  TLegend *legend = new TLegend(0.2,0.1,0.62,0.25);
+	  legend->AddEntry(hist_mnt, mnt_name.c_str(),"lep");
+	  legend->AddEntry(hist_sim, sim_name.c_str(),"l");
+	  legend->SetTextSize(0.04);
+	  legend->Draw();
+	}
+	else {
+	  TLegend *legend = new TLegend(0.1,0.75,0.52,0.9);
+	  legend->AddEntry(hist_mnt, mnt_name.c_str(),"lep");
+	  legend->AddEntry(hist_sim, sim_name.c_str(),"l");
+	  legend->SetTextSize(0.04);
+	  legend->Draw();
+	}
+	if ((hist_input.expression == "1.e-3*mup_PT") || (hist_input.expression == "1.e-3*mum_PT")) {
+	  hist_mnt->GetXaxis()->SetLimits(13,62);
+	  hist_sim->GetXaxis()->SetLimits(13,62);
+	}
+	if (hist_input.expression == "1.e-3*Z_M") {
+	  hist_mnt->GetYaxis()->SetRangeUser(0,705);
+	  hist_sim->GetYaxis()->SetRangeUser(0,705);
+	}
+	if (hist_input.expression == "mup_PHI") {
+	  hist_mnt->GetYaxis()->SetRangeUser(0,117);
+	  hist_sim->GetYaxis()->SetRangeUser(0,117);
+	}
+	
+	//canv.BuildLegend();
 	std::string const filename = plots_dir + "Measurement_" + hist_input.expression + ".pdf";
 	canv.SaveAs(filename.c_str());
 }
@@ -128,7 +160,7 @@ int main() {
 	plot_configurations.emplace_back("mum_ETA", 100, 1.5, 5., "#eta^{}(#mu^{-})", "");
 	plot_configurations.emplace_back("mum_PHI", 100, -4., 4., "#phi^{}(#mu^{-})", "");
 	//dimuon
-	plot_configurations.emplace_back("1.e-3*Z_M", 100, 35, 120, "m_Z", "(GeV)");
+	plot_configurations.emplace_back("1.e-3*Z_M", 100, 35, 120, "M_{#mu#mu}", "(GeV)");
 
 	for (auto const & plot_configuration : plot_configurations) {
 	  plot_data_sim(measurement_in, simulation_in, plot_configuration);

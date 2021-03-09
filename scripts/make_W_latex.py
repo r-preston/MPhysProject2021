@@ -10,7 +10,7 @@ def Z_fraction_output(save_path, boson, json_in):
 def fit_fraction_output(save_path, boson, json_in):
     with open(save_path+boson+'_fit_fracs_output.tex', 'w') as texfile:
         texfile.write("{} $\pi/K$ background fraction = ${:.{prec}f} \pm {:.{prec}f}$\\\\\n".format(boson, json_in["K_frac"], json_in["K_frac_err"], prec=3))
-        texfile.write("{} Signal fraction = ${:.{prec}f} \pm {:.{prec}f}$\\\\\n".format(boson, json_in["signal_frac"], json_in["signal_frac_err"], prec=3))
+        texfile.write("{} Signal fraction = ${:.{prec}f} \pm {:.{prec}f}_{{\\rm stat}} \pm {:.{prec}f}_{{\\rm sys}}$\\\\\n".format(boson, json_in["signal_frac"], json_in["signal_frac_err_stat"], json_in["signal_frac_err_sys"], prec=3))
         texfile.write("{} $Z$ background fraction = ${:.{prec}f} \pm {:.{prec}f}$\\\\\n".format(boson, json_in["Z_frac"], json_in["Z_frac_err"], prec=3))
         texfile.write("{} TFractionFitter fit $\chi^2/$ndf = {:.{prec}f}/{}\\\\\n".format(boson, json_in["chi_squared"], json_in["ndf"], prec=1))
 
@@ -45,15 +45,54 @@ def xsec_output (save_path, boson, label, json_in):
     xsec = json_in["xsec"]
     xsec_err_stat = json_in["xsec_err_stat"]
     xsec_err_lumi = json_in["xsec_err_lumi"]
-    xsec_err_eff = json_in["xsec_err_eff"]
+    xsec_err_sys = json_in["xsec_err_sys"]    
 
     with open(save_path+boson+'_xsec_output.tex', 'w') as texfile:
         texfile.write("\\"+"begin{equation}\n")
-        texfile.write("\sigma_{} = {:.{prec}f} \pm {:.{prec}f}_{{\\rm stat}} \pm {:.{prec}f}_{{\\rm eff}} \pm {:.{prec}f}_{{\\rm lumi}} \; {{\\rm pb}},\n".format(label, xsec, xsec_err_stat, xsec_err_eff, xsec_err_lumi, prec=2))
+        texfile.write("\sigma_{} = {:.{prec}f} \pm {:.{prec}f}_{{\\rm stat}} \pm {:.{prec}f}_{{\\rm sys}} \pm {:.{prec}f}_{{\\rm lumi}} \; {{\\rm pb}},\n".format(label, xsec, xsec_err_stat, xsec_err_sys, xsec_err_lumi, prec=0))
         texfile.write("\\"+"end{equation}\n")
     
     with open(save_path+boson+'_xsec_value.tex', 'w') as texfile:
-        texfile.write("${:.{prec}f} \pm {:.{prec}f} \pm {:.{prec}f} \pm {:.{prec}f}$".format(xsec, xsec_err_stat, xsec_err_eff, xsec_err_lumi, prec=2))
+        texfile.write("${:.{prec}f} \pm {:.{prec}f} \pm {:.{prec}f} \pm {:.{prec}f}$".format(xsec, xsec_err_stat, xsec_err_sys, xsec_err_lumi, prec=0))
+
+
+def systematic_table(save_path, Wp_xsec_json, Wm_xsec_json, ratios_json):
+    with open(save_path+'sys_unc_table_output.tex','w') as texfile:
+        Wp_xsec = Wp_xsec_json["xsec"]
+        Wp_xsec_err_eff = Wp_xsec_json["xsec_err_eff"]
+        Wp_xsec_err_track = Wp_xsec_json["xsec_err_track"]
+        Wp_xsec_err_lumi = Wp_xsec_json["xsec_err_lumi"]
+        Wm_xsec = Wm_xsec_json["xsec"]
+        Wm_xsec_err_eff = Wm_xsec_json["xsec_err_eff"]
+        Wm_xsec_err_track = Wm_xsec_json["xsec_err_track"]
+        Wm_xsec_err_lumi = Wm_xsec_json["xsec_err_lumi"]
+        WW_ratio = ratios_json["WW_ratio"]
+        WW_ratio_eff = ratios_json["WW_eff"]
+        WW_ratio_track = ratios_json["WW_track"]
+        WZ_ratio = ratios_json["WZ_ratio"]
+        WZ_ratio_eff = ratios_json["WZ_eff"]
+        WZ_ratio_track = ratios_json["WZ_track"]
+        with open('results_json/Z_xsec.json') as json_file:
+            Z_xsec_json = json.load(json_file)
+        Z_xsec = Z_xsec_json["xsec"]
+        Z_xsec_err_eff = Z_xsec_json["xsec_err_eff"]
+        Z_xsec_err_lumi = Z_xsec_json["xsec_err_lumi"]
+
+        texfile.write("\\begin{table}[h]\n")
+        texfile.write("\\centering\n")
+        texfile.write("\\begin{tabular}{lccccc}\n")
+
+        texfile.write("\\hline\n Source & $\sigma_{Z}$ ($\%$) & $\sigma_{W+}$ ($\%$) & $\sigma_{W-}$ ($\%$) & $R_{WW}$ ($\%$) & $R_{WZ}$ ($\%$) \\\\\n\\hline\n")
+
+        texfile.write("Trigger Efficiency & {:.{prec}f} &{:.{prec}f} & {:.{prec}f} & {:.{prec}f} & {:.{prec}f}\\\\\n".format(100*Z_xsec_err_eff/Z_xsec, 100*Wp_xsec_err_eff/Wp_xsec, 100*Wm_xsec_err_eff/Wm_xsec, 100*WW_ratio_eff/WW_ratio, 100*WZ_ratio_eff/WZ_ratio, prec=1))
+        texfile.write("Track Cut on $\pi/K$ Background & - & {:.{prec}f} & {:.{prec}f} & {:.{prec}f} & {:.{prec}f}\\\\\n".format(100*Wp_xsec_err_track/Wp_xsec, 100*Wm_xsec_err_track/Wm_xsec, 100*WW_ratio_track/WW_ratio, 100*WZ_ratio_track/WZ_ratio,prec=0))
+        texfile.write("Luminosity & {:.{prec}f} & {:.{prec}f} & {:.{prec}f} & - & -\\\\\n".format(100*Z_xsec_err_lumi/Z_xsec, 100*Wp_xsec_err_lumi/Wp_xsec, 100*Wm_xsec_err_lumi/Wm_xsec, prec=0))
+
+        texfile.write("\\hline\n")
+        texfile.write("\\end{tabular}\n")
+        texfile.write("\\caption{\small Sources of systematic uncertainties in $W$ boson cross sections, and both cross section ratios $R_{WW}$ and $R_{WZ}$.}\n")
+        texfile.write("\\label{tab: W events}\n")
+        texfile.write("\\end{table}\n")
 
 
 with open('results_json/Wp_back_output.json') as json_file:
@@ -90,27 +129,31 @@ Z_decay = "{Z\\xrightarrow{}\mu^+\mu^-}"
 xsec_output(save_path, "Wp", Wp_decay, Wp_xsec_input)
 xsec_output(save_path, "Wm", Wm_decay, Wm_xsec_input)
 
+
 # ratios
 WW_ratio = Ratios["WW_ratio"]
 WW_ratio_err = Ratios["WW_error"]
 WW_ratio_stat = Ratios["WW_stat"]
-WW_ratio_eff = Ratios["WW_eff"]
+WW_ratio_sys = Ratios["WW_sys"]
 with open(save_path+'WW_ratio_output.tex','w') as texfile:
     texfile.write("\\"+"begin{equation}\n")
-    texfile.write("\\frac{{\sigma_{}}}{{\sigma_{}}} = {:.{prec}f} \pm {:.{prec}f}_{{\\rm stat}} \pm {:.{prec}f}_{{\\rm eff}},\n".format(Wp_decay, Wm_decay, WW_ratio, WW_ratio_stat, WW_ratio_eff, prec=4))
+    texfile.write("\\frac{{\sigma_{}}}{{\sigma_{}}} = {:.{prec}f} \pm {:.{prec}f}_{{\\rm stat}} \pm {:.{prec}f}_{{\\rm sys}},\n".format(Wp_decay, Wm_decay, WW_ratio, WW_ratio_stat, WW_ratio_sys, prec=2))
     texfile.write("\\"+"end{equation}\n")
 
 with open(save_path+'WW_value.tex','w') as texfile:
-    texfile.write("${:.{prec}f} \pm {:.{prec}f} \pm {:.{prec}f}$".format(WW_ratio, WW_ratio_stat, WW_ratio_eff, prec=4))
+    texfile.write("${:.{prec}f} \pm {:.{prec}f} \pm {:.{prec}f}$".format(WW_ratio, WW_ratio_stat, WW_ratio_sys, prec=2))
 
 WZ_ratio = Ratios["WZ_ratio"]
 WZ_ratio_err = Ratios["WZ_error"]
 WZ_ratio_stat = Ratios["WZ_stat"]
-WZ_ratio_eff = Ratios["WZ_eff"]
+WZ_ratio_sys = Ratios["WZ_sys"]
 with open(save_path+'WZ_ratio_output.tex','w') as texfile:
     texfile.write("\\"+"begin{equation}\n")
-    texfile.write("\\frac{{\sigma_{}+\sigma_{}}}{{\sigma_{}}} = {:.{prec}f} \pm {:.{prec}f}_{{\\rm stat}} \pm {:.{prec}f}_{{\\rm eff}}.\n".format(Wp_decay, Wm_decay, Z_decay, WZ_ratio, WZ_ratio_stat, WZ_ratio_eff, prec=3))
+    texfile.write("\\frac{{\sigma_{}+\sigma_{}}}{{\sigma_{}}} = {:.{prec}f} \pm {:.{prec}f}_{{\\rm stat}} \pm {:.{prec}f}_{{\\rm sys}}.\n".format(Wp_decay, Wm_decay, Z_decay, WZ_ratio, WZ_ratio_stat, WZ_ratio_sys, prec=1))
     texfile.write("\\"+"end{equation}\n")
 
 with open(save_path+'WZ_value.tex','w') as texfile:
-    texfile.write("${:.{prec}f} \pm {:.{prec}f} \pm {:.{prec}f}$".format(WZ_ratio, WZ_ratio_stat, WZ_ratio_eff, prec=3))
+    texfile.write("${:.{prec}f} \pm {:.{prec}f} \pm {:.{prec}f}$".format(WZ_ratio, WZ_ratio_stat, WZ_ratio_sys, prec=1))
+
+# systematic uncertainty table
+systematic_table(save_path, Wp_xsec_input, Wm_xsec_input, Ratios)
