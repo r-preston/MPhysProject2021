@@ -91,7 +91,7 @@ def systematic_table(save_path, Wp_xsec_json, Wm_xsec_json, ratios_json):
         texfile.write("\\hline\n")
         texfile.write("\\end{tabular}\n")
         texfile.write("\\caption{\small Sources of systematic uncertainties in $W$ boson cross sections, and both cross section ratios $R_{WW}$ and $R_{WZ}$.}\n")
-        texfile.write("\\label{tab: W events}\n")
+        texfile.write("\\label{tab: systematic uncertainties}\n")
         texfile.write("\\end{table}\n")
 
 
