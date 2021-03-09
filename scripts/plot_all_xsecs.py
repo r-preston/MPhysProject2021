@@ -389,7 +389,7 @@ multiplot.Draw("AP")
 
 legend = ROOT.TLegend(0.6,0.1,0.9,0.35)
 legend.AddEntry(Z_theory_trend, "DYNNLO+MSTW08", "l")
-legend.AddEntry(Wp_xsec_5TeV, "Measured 5 TeV#sigma", "ep")
+legend.AddEntry(Wp_xsec_5TeV, "New Measurement", "ep")
 legend.AddEntry(Wp_xsec_plot, "W^{+} #rightarrow #mu^{+} #nu_{#mu}", "ep")
 legend.AddEntry(Wm_xsec_plot, "W^{-} #rightarrow #mu^{-} #bar#nu_{#mu}", "ep")
 legend.AddEntry(Z_xsec_plot, "Z #rightarrow #mu^{+} #mu^{-}", "ep")
