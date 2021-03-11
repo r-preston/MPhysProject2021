@@ -7,7 +7,7 @@ from array import array
 import math
 import os
 
-def make_xsec_plot(boson, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, theory):
+def make_xsec_plot(boson, label, point_5TeV, point_5TeV_err, point_5TeV_stat, n, x, ex, y, ey, theory):
     canv = ROOT.TCanvas()
     xsec_5TeV = ROOT.TGraphErrors(1)
     xsec_5TeV.SetPoint(0,5,point_5TeV);
@@ -25,6 +25,25 @@ def make_xsec_plot(boson, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, th
     elif boson == "Wm":
         xsec_5TeV.GetYaxis().SetRangeUser(350,1690)
         xsec_5TeV.SetMarkerStyle(24)
+
+    xsec_5TeV_stat = ROOT.TGraphErrors(1)
+    xsec_5TeV_stat.SetPoint(0,5,point_5TeV);
+    xsec_5TeV_stat.SetPointError(0,0,point_5TeV_stat);
+    xsec_5TeV_stat.SetMarkerSize(0.75)
+    xsec_5TeV_stat.SetMarkerColor(8)
+    #xsec_5TeV_stat.SetFillColor(3)
+    #xsec_5TeV_stat.SetFillStyle(3001)
+    xsec_5TeV_stat.SetLineColor(1)
+    xsec_5TeV_stat.GetXaxis().SetLimits(3.9,14.1)
+    if boson == "Z":
+        xsec_5TeV_stat.GetYaxis().SetRangeUser(25,225)
+        xsec_5TeV_stat.SetMarkerStyle(25)
+    elif boson == "Wp":
+        xsec_5TeV_stat.GetYaxis().SetRangeUser(410,2450)
+        xsec_5TeV_stat.SetMarkerStyle(20)
+    elif boson == "Wm":
+        xsec_5TeV_stat.GetYaxis().SetRangeUser(350,1690)
+        xsec_5TeV_stat.SetMarkerStyle(24)
 
     xsec_plot = ROOT.TGraphErrors(n,x,y,ex,ey)
     xsec_plot.GetXaxis().SetLimits(3.9,14.1)
@@ -83,6 +102,7 @@ def make_xsec_plot(boson, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, th
 
     multiplot.Add(theory,"c")
     multiplot.Add(xsec_5TeV,"AP")
+    multiplot.Add(xsec_5TeV_stat,"AP")
     multiplot.Add(xsec_plot,"AP")
     multiplot.Draw("AP")
     #xsec_5TeV.Draw("AP")
@@ -103,7 +123,7 @@ def make_xsec_plot(boson, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, th
 
 
 
-def make_ratio_plot(ratio, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, theory):
+def make_ratio_plot(ratio, label, point_5TeV, point_5TeV_err, point_5TeV_stat, n, x, ex, y, ey, theory):
     canv = ROOT.TCanvas()
     ratio_5TeV = ROOT.TGraphErrors(1)
     ratio_5TeV.SetPoint(0,5,point_5TeV);
@@ -116,6 +136,20 @@ def make_ratio_plot(ratio, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, t
         ratio_5TeV.GetYaxis().SetRangeUser(18.5,30.5)
     elif ratio == "WW":
         ratio_5TeV.GetYaxis().SetRangeUser(0.69,2.11)
+
+    ratio_5TeV_stat = ROOT.TGraphErrors(1)
+    ratio_5TeV_stat.SetPoint(0,5,point_5TeV);
+    ratio_5TeV_stat.SetPointError(0,0,point_5TeV_stat);
+    ratio_5TeV_stat.SetMarkerStyle(8)
+    ratio_5TeV_stat.SetMarkerColor(8)
+    #ratio_5TeV_stat.SetFillColor(3)
+    #ratio_5TeV_stat.SetFillStyle(3001)
+    ratio_5TeV_stat.SetLineColor(1)
+    ratio_5TeV_stat.GetXaxis().SetLimits(3.9,14.1)
+    if ratio == "WZ":
+        ratio_5TeV_stat.GetYaxis().SetRangeUser(18.5,30.5)
+    elif ratio == "WW":
+        ratio_5TeV_stat.GetYaxis().SetRangeUser(0.69,2.11)
 
     ratio_plot = ROOT.TGraphErrors(n,x,y,ex,ey)
     ratio_plot.GetXaxis().SetLimits(3.9,14.1)
@@ -155,6 +189,7 @@ def make_ratio_plot(ratio, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, t
 
     multiplot_ratio.Add(theory,"c")
     multiplot_ratio.Add(ratio_5TeV,"AP")
+    multiplot_ratio.Add(ratio_5TeV_stat,"AP")
     multiplot_ratio.Add(ratio_plot,"AP")
     multiplot_ratio.Draw("AP")
 
@@ -642,13 +677,14 @@ ex_Z = array('d',[0,0,0])
 
 Z_5 = Z_input["xsec"]
 Z_5_err = Z_input["xsec_err"]
+Z_5_stat = Z_input["xsec_err_stat"]
 
 y_Z = array('d',[76.0, 95.0, 198.0])
 ey_Z = array('d',[math.sqrt(0.3**2+0.5**2+1**2+1.3**2), math.sqrt(0.3**2+0.7**2+1.1**2+1.1**2), math.sqrt(0.9**2+4.7**2+7.7**2)])
 # 7 = 2015, 8 = 2016, 13 = 2016
 
 Z_theory_trend = Z_theory() 
-Z_plot = make_xsec_plot("Z", "Z", Z_5, Z_5_err, n_Z, x_Z, ex_Z, y_Z, ey_Z, Z_theory_trend)
+Z_plot = make_xsec_plot("Z", "Z", Z_5, Z_5_err, Z_5_stat, n_Z, x_Z, ex_Z, y_Z, ey_Z, Z_theory_trend)
 
 # W bosons
 n_W = 2
@@ -660,26 +696,28 @@ with open('results_json/Wp_xsec.json') as json_file:
     Wp_input = json.load(json_file)
 Wp_5 = Wp_input["xsec"]
 Wp_5_err = Wp_input["xsec_err"]
+Wp_5_stat = Wp_input["xsec_err_stat"]
 
 y_Wp = array('d',[878.0, 1093.6])
 ey_Wp = array('d',[math.sqrt(2.1**2+6.7**2+9.3**2+15.0**2), math.sqrt(2.1**2+7.2**2+10.9**2+12.7**2)])
 # 7 = 2014, 8 = 2016
 
 Wp_theory_trend = Wp_theory()
-Wp_plot = make_xsec_plot("Wp", "W^{+}", Wp_5, Wp_5_err, n_W, x_W, ex_W, y_Wp, ey_Wp, Wp_theory_trend)
+Wp_plot = make_xsec_plot("Wp", "W^{+}", Wp_5, Wp_5_err, Wp_5_stat, n_W, x_W, ex_W, y_Wp, ey_Wp, Wp_theory_trend)
 
 # Wm boson
 with open('results_json/Wm_xsec.json') as json_file:
     Wm_input = json.load(json_file)
 Wm_5 = Wm_input["xsec"]
 Wm_5_err = Wm_input["xsec_err"]
+Wm_5_stat = Wm_input["xsec_err_stat"]
 
 y_Wm = array('d',[689.5, 818.4])
 ey_Wm = array('d',[math.sqrt(2.0**2+5.3**2+6.3**2+11.8**2), math.sqrt(1.9**2+5**2+7**2+9.5**2)])
 # 7 = 2014, 8 = 2016
 
 Wm_theory_trend = Wm_theory()
-Wm_plot = make_xsec_plot("Wm", "W^{-}", Wm_5, Wm_5_err, n_W, x_W, ex_W, y_Wm, ey_Wm, Wm_theory_trend)
+Wm_plot = make_xsec_plot("Wm", "W^{-}", Wm_5, Wm_5_err, Wm_5_stat, n_W, x_W, ex_W, y_Wm, ey_Wm, Wm_theory_trend)
 
 
 # Ratios
@@ -687,20 +725,22 @@ with open('results_json/Ratios.json') as json_file:
     ratios_input = json.load(json_file)
 WW_ratio_5 = ratios_input["WW_ratio"]
 WW_ratio_5_err = ratios_input["WW_error"]
+WW_ratio_5_stat = ratios_input["WW_stat"]
 WZ_ratio_5 = ratios_input["WZ_ratio"]
 WZ_ratio_5_err = ratios_input["WZ_error"]
+WZ_ratio_5_stat = ratios_input["WZ_stat"]
 
 y_WW_ratio = array('d',[1.274, 1.336])
 ey_WW_ratio = array('d',[math.sqrt(0.005**2+0.009**2+0.002**2), math.sqrt(0.004**2+0.005**2+0.002**2)])
 # 7 = 2014, 8 = 2016
 WW_ratio_theory_plot = WW_ratio_theory()
-make_ratio_plot("WW", "#sigma_{W+}#scale[1.2]{/}#sigma_{W-}", WW_ratio_5, WW_ratio_5_err, n_W, x_W, ex_W, y_WW_ratio, ey_WW_ratio, WW_ratio_theory_plot)
+make_ratio_plot("WW", "#sigma_{W+}#scale[1.2]{/}#sigma_{W-}", WW_ratio_5, WW_ratio_5_err, WW_ratio_5_stat, n_W, x_W, ex_W, y_WW_ratio, ey_WW_ratio, WW_ratio_theory_plot)
 
 y_WZ_ratio = array('d', [20.63, 20.13])
 ey_WZ_ratio = array('d', [math.sqrt(0.09**2+0.12**2+0.05**2), math.sqrt(0.06**2+0.11**2+0.04**2)])
 # 7 = 2014, 8 = 2016
 WZ_ratio_theory_plot = WZ_ratio_theory()
-make_ratio_plot("WZ", "(#sigma_{W+}+#sigma_{W-}) #scale[1.2]{/}#sigma_{Z}", WZ_ratio_5, WZ_ratio_5_err, n_W, x_W, ex_W, y_WZ_ratio, ey_WZ_ratio, WZ_ratio_theory_plot)
+make_ratio_plot("WZ", "(#sigma_{W+}+#sigma_{W-}) #scale[1.2]{/}#sigma_{Z}", WZ_ratio_5, WZ_ratio_5_err, WZ_ratio_5_stat, n_W, x_W, ex_W, y_WZ_ratio, ey_WZ_ratio, WZ_ratio_theory_plot)
 
 Z_fact = Z_5 / 36.20083
 Z_fact_err = Z_fact * math.sqrt((Z_5_err/Z_5)**2 + (0.09373648/36.20083)**2)
