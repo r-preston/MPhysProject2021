@@ -256,6 +256,7 @@ ex_Z = array('d',[0,0,0])
 
 Z_5 = Z_input["xsec"]
 Z_5_err = Z_input["xsec_err"]
+Z_5_stat = Z_input["xsec_err_stat"]
 
 y_Z = array('d',[76.0, 95.0, 198.0])
 ey_Z = array('d',[math.sqrt(0.3**2+0.5**2+1**2+1.3**2), math.sqrt(0.3**2+0.7**2+1.1**2+1.1**2), math.sqrt(0.9**2+4.7**2+7.7**2)])
@@ -270,6 +271,14 @@ Z_xsec_5TeV.SetMarkerSize(0.75)
 Z_xsec_5TeV.SetMarkerColor(8)
 Z_xsec_5TeV.SetLineColor(1)
 Z_xsec_5TeV.SetMarkerStyle(25)
+
+Z_xsec_5TeV_stat = ROOT.TGraphErrors(1)
+Z_xsec_5TeV_stat.SetPoint(0,5,Z_5);
+Z_xsec_5TeV_stat.SetPointError(0,0,Z_5_stat);
+Z_xsec_5TeV_stat.SetMarkerSize(0.75)
+Z_xsec_5TeV_stat.SetMarkerColor(8)
+Z_xsec_5TeV_stat.SetLineColor(1)
+Z_xsec_5TeV_stat.SetMarkerStyle(25)
 
 Z_xsec_plot = ROOT.TGraphErrors(n_Z,x_Z,y_Z,ex_Z,ey_Z)
 Z_xsec_plot.SetMarkerSize(0.75)
@@ -295,6 +304,7 @@ with open('results_json/Wp_xsec.json') as json_file:
     Wp_input = json.load(json_file)
 Wp_5 = Wp_input["xsec"]
 Wp_5_err = Wp_input["xsec_err"]
+Wp_5_stat = Wp_input["xsec_err_stat"]
 
 y_Wp = array('d',[878.0, 1093.6])
 ey_Wp = array('d',[math.sqrt(2.1**2+6.7**2+9.3**2+15.0**2), math.sqrt(2.1**2+7.2**2+10.9**2+12.7**2)])
@@ -309,6 +319,14 @@ Wp_xsec_5TeV.SetMarkerSize(0.75)
 Wp_xsec_5TeV.SetMarkerColor(8)
 Wp_xsec_5TeV.SetLineColor(1)
 Wp_xsec_5TeV.SetMarkerStyle(20)
+
+Wp_xsec_5TeV_stat = ROOT.TGraphErrors(1)
+Wp_xsec_5TeV_stat.SetPoint(0,5,Wp_5);
+Wp_xsec_5TeV_stat.SetPointError(0,0,Wp_5_stat);
+Wp_xsec_5TeV_stat.SetMarkerSize(0.75)
+Wp_xsec_5TeV_stat.SetMarkerColor(8)
+Wp_xsec_5TeV_stat.SetLineColor(1)
+Wp_xsec_5TeV_stat.SetMarkerStyle(20)
 
 Wp_xsec_plot = ROOT.TGraphErrors(n_W,x_W,y_Wp,ex_W,ey_Wp)
 Wp_xsec_plot.SetMarkerSize(0.75)
@@ -330,6 +348,7 @@ with open('results_json/Wm_xsec.json') as json_file:
     Wm_input = json.load(json_file)
 Wm_5 = Wm_input["xsec"]
 Wm_5_err = Wm_input["xsec_err"]
+Wm_5_stat = Wm_input["xsec_err_stat"]
 
 y_Wm = array('d',[689.5, 818.4])
 ey_Wm = array('d',[math.sqrt(2.0**2+5.3**2+6.3**2+11.8**2), math.sqrt(1.9**2+5**2+7**2+9.5**2)])
@@ -344,6 +363,14 @@ Wm_xsec_5TeV.SetMarkerSize(0.75)
 Wm_xsec_5TeV.SetMarkerColor(8)
 Wm_xsec_5TeV.SetLineColor(1)
 Wm_xsec_5TeV.SetMarkerStyle(24)
+
+Wm_xsec_5TeV_stat = ROOT.TGraphErrors(1)
+Wm_xsec_5TeV_stat.SetPoint(0,5,Wm_5);
+Wm_xsec_5TeV_stat.SetPointError(0,0,Wm_5_stat);
+Wm_xsec_5TeV_stat.SetMarkerSize(0.75)
+Wm_xsec_5TeV_stat.SetMarkerColor(8)
+Wm_xsec_5TeV_stat.SetLineColor(1)
+Wm_xsec_5TeV_stat.SetMarkerStyle(24)
 
 Wm_xsec_plot = ROOT.TGraphErrors(n_W,x_W,y_Wm,ex_W,ey_Wm)
 Wm_xsec_plot.SetMarkerSize(0.75)
@@ -382,6 +409,9 @@ multiplot.Add(Wm_theory_trend,"c")
 multiplot.Add(Z_xsec_plot,"AP")
 multiplot.Add(Wp_xsec_plot,"AP")
 multiplot.Add(Wm_xsec_plot,"AP")
+multiplot.Add(Z_xsec_5TeV_stat,"AP")
+multiplot.Add(Wp_xsec_5TeV_stat,"AP")
+multiplot.Add(Wm_xsec_5TeV_stat,"AP")
 multiplot.Add(Z_xsec_5TeV,"AP")
 multiplot.Add(Wp_xsec_5TeV,"AP")
 multiplot.Add(Wm_xsec_5TeV,"AP")
