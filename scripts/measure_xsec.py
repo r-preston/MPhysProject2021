@@ -6,11 +6,43 @@ import json
 import math
 import os
 
+# measure Z boson xsec only.
+
+
+def dimuon_plot(chain): 
+    #Output Invariant mass distribution of dimuon system in fiducial region
+    hist = ROOT.TH1F("dimuon_hist",";M_{#mu#mu} (GeV);Candidates",100,60.,120.)
+    expression = "1.e-3*Z_M>>" + hist.GetName() 
+    ch.Draw(expression,"Z_M > 60.e3 && Z_M < 120.e3 && mup_PT > 20.e3 && mum_PT > 20.e3 && mup_ETA > 2 && mup_ETA < 4.5 && mum_ETA > 2 && mum_ETA < 4.5")
+    canv = ROOT.TCanvas()
+    hist.Draw()
+    hist.SetStats(0)
+    hist.GetXaxis().CenterTitle(1)
+    hist.GetXaxis().SetTitleSize(0.04)
+    hist.GetXaxis().SetLabelSize(0.04)
+    hist.GetYaxis().CenterTitle(1)
+    hist.GetYaxis().SetTitleSize(0.04)
+    hist.GetYaxis().SetLabelSize(0.04)
+    hist.GetYaxis().SetTitleOffset(1.05)
+
+    legend = ROOT.TLegend(0.55,0.8,0.9,0.9)
+    legend.AddEntry(hist, "Invariant dimuon mass of Z candidates","l")
+    #legend.SetTextSize(0.04)
+    legend.Draw()
+
+    canv.SaveAs("plots/Z_dimuon_plot.pdf")
+    canv.Close()
+   
+
 file_path = "/storage/epp2/phshgg/DVTuples__v23/5TeV_2017_32_Down_EW.root"
 
 ch = ROOT.TChain('Z/DecayTree')
 ch.Add(file_path)
 
+#Output Invariant mass distribution of dimuon system in fiducial region
+#dimuon_plot(ch)
+
+#Calculate Z xsec
 count = ch.GetEntries("Z_M > 60.e3 && Z_M < 120.e3 && mup_PT > 20.e3 && mum_PT > 20.e3 && mup_ETA > 2 && mup_ETA < 4.5 && mum_ETA > 2 && mum_ETA < 4.5")
 
 count_rel_unc = math.sqrt(count)/count
