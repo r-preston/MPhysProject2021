@@ -16,13 +16,13 @@ def fit_fraction_output(save_path, boson, json_in):
 
 def event_table_output(save_path, Wp, Wm):
     Wp_Z_predicted = Wp["W_in_Z_sim_events"]*Wp["Z_data_events"]/Wp["Z_in_Z_sim_events"]
-    Wp_Z_predicted_err = Wp_Z_predicted*(Wp["W_in_Z_sim_events"]**(-0.5) + Wp["Z_data_events"]**(-0.5) + Wp["Z_in_Z_sim_events"]**(-0.5))
+    Wp_Z_predicted_err = Wp_Z_predicted*(Wp["W_in_Z_sim_events"]**(-1) + Wp["Z_data_events"]**(-1) + Wp["Z_in_Z_sim_events"]**(-1))
 
     Wm_Z_predicted = Wm["W_in_Z_sim_events"]*Wm["Z_data_events"]/Wm["Z_in_Z_sim_events"]
-    Wm_Z_predicted_err = Wm_Z_predicted*(Wm["W_in_Z_sim_events"]**(-0.5) + Wm["Z_data_events"]**(-0.5) + Wm["Z_in_Z_sim_events"]**(-0.5))
+    Wm_Z_predicted_err = Wm_Z_predicted*(Wm["W_in_Z_sim_events"]**(-1) + Wm["Z_data_events"]**(-1) + Wm["Z_in_Z_sim_events"]**(-1))
 
     with open(save_path+'W_event_table_output.tex','w') as texfile:
-        texfile.write("\\begin{table}[h]\n")
+        texfile.write("\\begin{table}[ht]\n")
         texfile.write("\\centering\n")
         texfile.write("\\begin{tabular}{lcc}\n")
 
@@ -78,20 +78,54 @@ def systematic_table(save_path, Wp_xsec_json, Wm_xsec_json, ratios_json):
         Z_xsec_err_eff = Z_xsec_json["xsec_err_eff"]
         Z_xsec_err_lumi = Z_xsec_json["xsec_err_lumi"]
 
-        texfile.write("\\begin{table}[h]\n")
+        texfile.write("\\begin{table}[t]\n")
         texfile.write("\\centering\n")
         texfile.write("\\begin{tabular}{lccccc}\n")
 
-        texfile.write("\\hline\n Source & $\sigma_{Z}$ ($\%$) & $\sigma_{W+}$ ($\%$) & $\sigma_{W-}$ ($\%$) & $R_{WW}$ ($\%$) & $R_{WZ}$ ($\%$) \\\\\n\\hline\n")
+        texfile.write("\\hline\n Source & $\sigma_{Z}$ ($\%$) & $\sigma_{W+}$ ($\%$) & $\sigma_{W-}$ ($\%$) & $R_{W^\pm}$ ($\%$) & $R_{WZ}$ ($\%$) \\\\\n\\hline\n")
 
         texfile.write("Trigger Efficiency & {:.{prec}f} &{:.{prec}f} & {:.{prec}f} & {:.{prec}f} & {:.{prec}f}\\\\\n".format(100*Z_xsec_err_eff/Z_xsec, 100*Wp_xsec_err_eff/Wp_xsec, 100*Wm_xsec_err_eff/Wm_xsec, 100*WW_ratio_eff/WW_ratio, 100*WZ_ratio_eff/WZ_ratio, prec=1))
-        texfile.write("Track Cut on $\pi/K$ Background & - & {:.{prec}f} & {:.{prec}f} & {:.{prec}f} & {:.{prec}f}\\\\\n".format(100*Wp_xsec_err_track/Wp_xsec, 100*Wm_xsec_err_track/Wm_xsec, 100*WW_ratio_track/WW_ratio, 100*WZ_ratio_track/WZ_ratio,prec=0))
-        texfile.write("Luminosity & {:.{prec}f} & {:.{prec}f} & {:.{prec}f} & - & -\\\\\n".format(100*Z_xsec_err_lumi/Z_xsec, 100*Wp_xsec_err_lumi/Wp_xsec, 100*Wm_xsec_err_lumi/Wm_xsec, prec=0))
+        texfile.write("$K/\pi$ Background Selection & - & {:.{prec}f} & {:.{prec}f} & {:.{prec}f} & {:.{prec}f}\\\\\n".format(100*Wp_xsec_err_track/Wp_xsec, 100*Wm_xsec_err_track/Wm_xsec, 100*WW_ratio_track/WW_ratio, 100*WZ_ratio_track/WZ_ratio,prec=1))
+        texfile.write("Luminosity & {:.{prec}f} & {:.{prec}f} & {:.{prec}f} & - & -\\\\\n".format(100*Z_xsec_err_lumi/Z_xsec, 100*Wp_xsec_err_lumi/Wp_xsec, 100*Wm_xsec_err_lumi/Wm_xsec, prec=1))
 
         texfile.write("\\hline\n")
         texfile.write("\\end{tabular}\n")
-        texfile.write("\\caption{\small Sources of systematic uncertainties in $W$ boson cross sections, and both cross section ratios $R_{WW}$ and $R_{WZ}$.}\n")
+        texfile.write("\\caption{\small Sources of systematic uncertainties in electroweak boson cross sections and both cross section ratios $R_{W^\pm}$ and $R_{WZ}$, given as percentage uncertainties.}\n")
         texfile.write("\\label{tab: systematic uncertainties}\n")
+        texfile.write("\\end{table}\n")
+
+def statistical_table(save_path, Wp_xsec_json, Wm_xsec_json, ratios_json):
+    with open(save_path+'stat_unc_table_output.tex','w') as texfile:
+        Wp_xsec = Wp_xsec_json["xsec"]
+        Wp_xsec_err_events = Wp_xsec_json["xsec_err_events"]
+        Wp_xsec_err_signal = Wp_xsec_json["xsec_err_signal"]
+        Wm_xsec = Wm_xsec_json["xsec"]
+        Wm_xsec_err_events = Wm_xsec_json["xsec_err_events"]
+        Wm_xsec_err_signal = Wm_xsec_json["xsec_err_signal"]
+        WW_ratio = ratios_json["WW_ratio"]
+        WW_ratio_events = ratios_json["WW_events"]
+        WW_ratio_signal = ratios_json["WW_signal"]
+        WZ_ratio = ratios_json["WZ_ratio"]
+        WZ_ratio_events = ratios_json["WZ_events"]
+        WZ_ratio_signal = ratios_json["WZ_signal"]
+        with open('results_json/Z_xsec.json') as json_file:
+            Z_xsec_json = json.load(json_file)
+        Z_xsec = Z_xsec_json["xsec"]
+        Z_xsec_err_events = Z_xsec_json["xsec_err_stat"]
+
+        texfile.write("\\begin{table}[t]\n")
+        texfile.write("\\centering\n")
+        texfile.write("\\begin{tabular}{lccccc}\n")
+
+        texfile.write("\\hline\n Source & $\sigma_{Z}$ ($\%$) & $\sigma_{W+}$ ($\%$) & $\sigma_{W-}$ ($\%$) & $R_{W^\pm}$ ($\%$) & $R_{WZ}$ ($\%$) \\\\\n\\hline\n")
+
+        texfile.write("Number of Events & {:.{prec}f} &{:.{prec}f} & {:.{prec}f} & {:.{prec}f} & {:.{prec}f}\\\\\n".format(100*Z_xsec_err_events/Z_xsec, 100*Wp_xsec_err_events/Wp_xsec, 100*Wm_xsec_err_events/Wm_xsec, 100*WW_ratio_events/WW_ratio, 100*WZ_ratio_events/WZ_ratio, prec=1))
+        texfile.write("$W$ Signal Fraction Fitting & - & {:.{prec}f} & {:.{prec}f} & {:.{prec}f} & {:.{prec}f}\\\\\n".format(100*Wp_xsec_err_signal/Wp_xsec, 100*Wm_xsec_err_signal/Wm_xsec, 100*WW_ratio_signal/WW_ratio, 100*WZ_ratio_signal/WZ_ratio,prec=1))
+
+        texfile.write("\\hline\n")
+        texfile.write("\\end{tabular}\n")
+        texfile.write("\\caption{\small Sources of statistical uncertainties in electroweak boson cross sections and both cross section ratios $R_{W^\pm}$ and $R_{WZ}$, given as percentage uncertainties.}\n")
+        texfile.write("\\label{tab: statistical uncertainties}\n")
         texfile.write("\\end{table}\n")
 
 
@@ -157,3 +191,5 @@ with open(save_path+'WZ_value.tex','w') as texfile:
 
 # systematic uncertainty table
 systematic_table(save_path, Wp_xsec_input, Wm_xsec_input, Ratios)
+# statistical uncertainty table
+statistical_table(save_path, Wp_xsec_input, Wm_xsec_input, Ratios)
