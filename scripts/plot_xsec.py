@@ -85,18 +85,16 @@ def make_xsec_plot(boson, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, th
     multiplot.Add(xsec_5TeV,"AP")
     multiplot.Add(xsec_plot,"AP")
     multiplot.Draw("AP")
-    #xsec_5TeV.Draw("AP")
-    #xsec_plot.Draw("AP") 
-    #theory.Draw("c")
 
-    legend = ROOT.TLegend(0.1,0.74,0.57,0.9)
+    legend = ROOT.TLegend(0.1,0.74,0.6,0.9)
+    #legend.AddEntry(xsec_plot, "Z #rightarrow #mu^{+} #mu^{-}", "ep") #for final report if using plot_W_xsec.py W_both comparison
     legend.AddEntry(xsec_5TeV, "New 5 TeV Measurement", "ep") #"Measured 5 TeV#sigma_{" + label + "}", "ep")
     legend.AddEntry(xsec_plot, "Published LHCb Measurements", "ep") #sigma_{" + label + "}", "ep")
     legend.AddEntry(theory, "DYNNLO+MSTW08 Predictions", "l")
     legend.SetTextSize(0.04)
     legend.Draw()
 
-    filename = "plots/"+boson+"_xsec_plot.png"
+    filename = "plots/"+boson+"_xsec_plot.pdf"
     canv.SaveAs(filename)
     canv.Close()
     return xsec_plot
@@ -150,22 +148,23 @@ def make_ratio_plot(ratio, label, point_5TeV, point_5TeV_err, n, x, ex, y, ey, t
     multiplot_ratio.GetYaxis().CenterTitle(1)
     multiplot_ratio.GetYaxis().SetTitleSize(0.04)
     multiplot_ratio.GetYaxis().SetLabelSize(0.04)
-    if ratio == "WW":
-        multiplot_ratio.GetYaxis().SetTitleOffset(1.2)
+    multiplot_ratio.GetYaxis().SetTitleOffset(0.9)
+    #if ratio == "WW":
+    #    multiplot_ratio.GetYaxis().SetTitleOffset(1.2)
 
     multiplot_ratio.Add(theory,"c")
     multiplot_ratio.Add(ratio_5TeV,"AP")
     multiplot_ratio.Add(ratio_plot,"AP")
     multiplot_ratio.Draw("AP")
 
-    legend = ROOT.TLegend(0.41,0.74,0.9,0.9)
+    legend = ROOT.TLegend(0.39,0.74,0.9,0.9)
     legend.AddEntry(ratio_5TeV, "New 5 TeV Measurement", "ep")
     legend.AddEntry(ratio_plot, "Published LHCb Measurements", "ep")
     legend.AddEntry(theory, "DYNNLO+MSTW08 Predictions", "l")
     legend.SetTextSize(0.04)
     legend.Draw()
 
-    filename = "plots/"+ratio+"_ratio_plot.png"
+    filename = "plots/"+ratio+"_ratio_plot.pdf"
     canv.SaveAs(filename)
     canv.Close()
 
@@ -694,13 +693,21 @@ y_WW_ratio = array('d',[1.274, 1.336])
 ey_WW_ratio = array('d',[math.sqrt(0.005**2+0.009**2+0.002**2), math.sqrt(0.004**2+0.005**2+0.002**2)])
 # 7 = 2014, 8 = 2016
 WW_ratio_theory_plot = WW_ratio_theory()
+<<<<<<< Updated upstream
 make_ratio_plot("WW", "#sigma_{W+}#scale[1.2]{/}#sigma_{W-}", WW_ratio_5, WW_ratio_5_err, n_W, x_W, ex_W, y_WW_ratio, ey_WW_ratio, WW_ratio_theory_plot)
+=======
+make_ratio_plot("WW", "R_{W^{\pm}}", WW_ratio_5, WW_ratio_5_err, WW_ratio_5_stat, n_W, x_W, ex_W, y_WW_ratio, ey_WW_ratio, WW_ratio_theory_plot) #"#sigma_{W+}#scale[1.2]{/}#sigma_{W-}"
+>>>>>>> Stashed changes
 
 y_WZ_ratio = array('d', [20.63, 20.13])
 ey_WZ_ratio = array('d', [math.sqrt(0.09**2+0.12**2+0.05**2), math.sqrt(0.06**2+0.11**2+0.04**2)])
 # 7 = 2014, 8 = 2016
 WZ_ratio_theory_plot = WZ_ratio_theory()
+<<<<<<< Updated upstream
 make_ratio_plot("WZ", "(#sigma_{W+}+#sigma_{W-}) #scale[1.2]{/}#sigma_{Z}", WZ_ratio_5, WZ_ratio_5_err, n_W, x_W, ex_W, y_WZ_ratio, ey_WZ_ratio, WZ_ratio_theory_plot)
+=======
+make_ratio_plot("WZ", "R_{WZ}", WZ_ratio_5, WZ_ratio_5_err, WZ_ratio_5_stat, n_W, x_W, ex_W, y_WZ_ratio, ey_WZ_ratio, WZ_ratio_theory_plot) #"(#sigma_{W+}+#sigma_{W-}) #scale[1.2]{/}#sigma_{Z}"
+>>>>>>> Stashed changes
 
 Z_fact = Z_5 / 36.20083
 Z_fact_err = Z_fact * math.sqrt((Z_5_err/Z_5)**2 + (0.09373648/36.20083)**2)
@@ -714,6 +721,8 @@ Wm_fact_err = Wm_fact * math.sqrt((Wm_5_err/Wm_5)**2 + (1.017377/430.9132)**2)
 current_dir = os.getcwd()
 save_path = os.path.join(current_dir, 'doc/measurement_doc/results/')
 with open(save_path+'theory_exp_factor_difference.tex','w') as texfile:
-    texfile.write("$\sigma_{{Z}} ({{\\rm experimental}})/\sigma_{{Z}} ({{\\rm theoretical}})$ = ${:.{prec}f} \pm {:.{prec}f}$\\\\\n".format(Z_fact,Z_fact_err, prec=2))
-    texfile.write("$\sigma_{{Wp}} ({{\\rm experimental}})/\sigma_{{Wp}} ({{\\rm theoretical}})$ = ${:.{prec}f} \pm {:.{prec}f}$\\\\\n".format(Wp_fact,Wp_fact_err, prec=2))
-    texfile.write("$\sigma_{{Wm}} ({{\\rm experimental}})/\sigma_{{Wm}} ({{\\rm theoretical}})$ = ${:.{prec}f} \pm {:.{prec}f}$\\\\\n".format(Wm_fact,Wm_fact_err, prec=2))
+    texfile.write("\\begin{align*}\n")
+    texfile.write("\sigma_{{Z}} ({{\\rm experimental}})/\sigma_{{Z}} ({{\\rm theoretical}}) = {:.{prec}f} \pm {:.{prec}f},\\\\\n".format(Z_fact,Z_fact_err, prec=2))
+    texfile.write("\sigma_{{W^+}} ({{\\rm experimental}})/\sigma_{{W^+}} ({{\\rm theoretical}}) = {:.{prec}f} \pm {:.{prec}f},\\\\\n".format(Wp_fact,Wp_fact_err, prec=2))
+    texfile.write("\sigma_{{W^-}} ({{\\rm experimental}})/\sigma_{{W^-}} ({{\\rm theoretical}}) = {:.{prec}f} \pm {:.{prec}f},\n".format(Wm_fact,Wm_fact_err, prec=2))
+    texfile.write("\\end{align*}")
