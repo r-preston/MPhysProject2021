@@ -57,7 +57,7 @@ void plot_data_sim(struct path_data mnt_in, struct path_data sim_in, struct plot
 
         std::string x_axis = hist_input.label + " " + hist_input.unit,
 	  sim_name = hist_input.label + " Simulation Data",
-	  hist_text = ";" + x_axis + ";Events",
+	  hist_text = ";" + x_axis + ";Candidates per 1 GeV",
 	  mnt_name = hist_input.label + " Experimental Data";
 	//std::string hist_title = "Measurement vs Simulation for " + hist_input.label;
 
@@ -68,6 +68,9 @@ void plot_data_sim(struct path_data mnt_in, struct path_data sim_in, struct plot
 	hist_sim->SetName(sim_name.c_str());
 
 	hist_sim->Scale(hist_mnt->Integral()/hist_sim->Integral());
+
+	hist_mnt->Scale(1.,"width");
+	hist_sim->Scale(1.,"width");
 	
 	float ymax,
 	  ymax_mnt = hist_mnt->GetMaximum(),
@@ -95,11 +98,19 @@ void plot_data_sim(struct path_data mnt_in, struct path_data sim_in, struct plot
 	hist_mnt->GetYaxis()->SetTitleSize(0.04);
 	hist_mnt->GetYaxis()->SetLabelSize(0.04);
 	hist_mnt->GetYaxis()->SetTitleOffset(1);
+	
+	if ((hist_input.expression == "mup_ETA") || (hist_input.expression == "mum_ETA") || (hist_input.expression == "1.e-3*mup_PT") || (hist_input.expression == "1.e-3*mum_PT")) {
+	  hist_mnt->GetXaxis()->SetLabelOffset(0.016);
+	  hist_mnt->GetXaxis()->SetTitleOffset(1.15);
+	}
+
 	if (hist_input.expression == "m_{Z}") {hist_mnt->GetYaxis()->SetTitleOffset(1.1);}
 
 	if ((hist_input.expression == "mup_ETA") || (hist_input.expression == "mum_ETA")) {
-	  hist_mnt->GetXaxis()->SetLimits(1.4,5.0);
-	  hist_sim->GetXaxis()->SetLimits(1.4,5.0);
+	  /*	  
+		  hist_mnt->GetXaxis()->SetRangeUser(1.4,5.0);
+		  hist_sim->GetXaxis()->SetRangeUser(1.4,5.0);
+	  */
 	  TLegend *legend = new TLegend(0.48,0.75,0.9,0.9);
 	  legend->AddEntry(hist_mnt, mnt_name.c_str(),"lep");
 	  legend->AddEntry(hist_sim, sim_name.c_str(),"l");
@@ -107,8 +118,10 @@ void plot_data_sim(struct path_data mnt_in, struct path_data sim_in, struct plot
 	  legend->Draw();
 	}
 	else if ((hist_input.expression == "mup_PHI") || (hist_input.expression == "mum_PHI")) {
-	  hist_mnt->GetXaxis()->SetLimits(-3.5,3.5);
-	  hist_sim->GetXaxis()->SetLimits(-3.5,3.5);
+	  /*	  
+		  hist_mnt->GetXaxis()->SetRangeUser(-3.5,3.5);
+		  hist_sim->GetXaxis()->SetRangeUser(-3.5,3.5);
+	  */
 	  TLegend *legend = new TLegend(0.2,0.1,0.62,0.25);
 	  legend->AddEntry(hist_mnt, mnt_name.c_str(),"lep");
 	  legend->AddEntry(hist_sim, sim_name.c_str(),"l");
@@ -116,25 +129,29 @@ void plot_data_sim(struct path_data mnt_in, struct path_data sim_in, struct plot
 	  legend->Draw();
 	}
 	else {
-	  TLegend *legend = new TLegend(0.1,0.75,0.52,0.9);
+	  TLegend *legend = new TLegend(0.1,0.73,0.52,0.9);
 	  legend->AddEntry(hist_mnt, mnt_name.c_str(),"lep");
 	  legend->AddEntry(hist_sim, sim_name.c_str(),"l");
 	  legend->SetTextSize(0.04);
 	  legend->Draw();
 	}
+	/*
 	if ((hist_input.expression == "1.e-3*mup_PT") || (hist_input.expression == "1.e-3*mum_PT")) {
-	  hist_mnt->GetXaxis()->SetLimits(13,62);
-	  hist_sim->GetXaxis()->SetLimits(13,62);
+	  hist_mnt->GetXaxis()->SetRangeUser(13,62);
+	  hist_sim->GetXaxis()->SetRangeUser(13,62);
 	}
+	*/
+	
 	if (hist_input.expression == "1.e-3*Z_M") {
-	  hist_mnt->GetYaxis()->SetRangeUser(0,705);
-	  hist_sim->GetYaxis()->SetRangeUser(0,705);
+	  hist_mnt->GetYaxis()->SetRangeUser(0,840);
+	  hist_sim->GetYaxis()->SetRangeUser(0,840);
 	}
+	/*
 	if (hist_input.expression == "mup_PHI") {
 	  hist_mnt->GetYaxis()->SetRangeUser(0,117);
 	  hist_sim->GetYaxis()->SetRangeUser(0,117);
 	}
-	
+	*/
 	//canv.BuildLegend();
 	std::string const filename = plots_dir + "Measurement_" + hist_input.expression + ".pdf";
 	canv.SaveAs(filename.c_str());
@@ -145,22 +162,26 @@ int main() {
 	/*Measurement Chain*/
 	path_data const measurement_in = {DATADIR, "5", "32", "2017", "Down", "EW"};
 
-	/*Simulation Chain*/ // 13 Te
+	/*Simulation Chain*/ // 13 TeV
 	//path_data const simulation_in = {DATADIR, "13", "28r1", "2016", "Down", "Z_Sim09h"};
 
 	// 5 TeV Simulation Chain
 	path_data const simulation_in = {DATADIR, "5", "24r1", "2015", "Down", "Z_Sim09d"};
 
-	//mup
-	plot_configurations.emplace_back("1.e-3*mup_PT", 100, 15., 60., "p_{T}(#mu^{+})", "(GeV)");
-	plot_configurations.emplace_back("mup_ETA", 100, 1.5, 5., "#eta^{}(#mu^{+})", "");
-	plot_configurations.emplace_back("mup_PHI", 100, -4., 4., "#phi^{}(#mu^{+})", "");
+	//mup	
+        plot_configurations.emplace_back("1.e-3*mup_PT", 80, 15., 60., "p_{T}(#mu^{+})", "(GeV)");
+	plot_configurations.emplace_back("mup_ETA", 80, 1.5, 5., "#eta^{}(#mu^{+})", "");
+	plot_configurations.emplace_back("mup_PHI", 80, -3.5, 3.5, "#phi^{}(#mu^{+})", "");
 	//mum
-	plot_configurations.emplace_back("1.e-3*mum_PT", 100, 15., 60., "p_{T}(#mu^{-})", "(GeV)");
-	plot_configurations.emplace_back("mum_ETA", 100, 1.5, 5., "#eta^{}(#mu^{-})", "");
-	plot_configurations.emplace_back("mum_PHI", 100, -4., 4., "#phi^{}(#mu^{-})", "");
+	plot_configurations.emplace_back("1.e-3*mum_PT", 80, 15., 60., "p_{T}(#mu^{-})", "(GeV)");
+	plot_configurations.emplace_back("mum_ETA", 80, 1.5, 5., "#eta^{}(#mu^{-})", "");
+	plot_configurations.emplace_back("mum_PHI", 80, -3.5, 3.5, "#phi^{}(#mu^{-})", "");
 	//dimuon
-	plot_configurations.emplace_back("1.e-3*Z_M", 100, 35, 120, "M_{#mu#mu}", "(GeV)");
+	plot_configurations.emplace_back("1.e-3*Z_M", 80, 38, 120, "M_{#mu#mu}", "(GeV)");
+	
+	// dimuon plot in kinematic region
+	//plot_configurations.emplace_back("1.e-3*Z_M", 80, 60, 120, "M_{#mu#mu}", "(GeV)");
+	//,"Z_M > 60.e3 && Z_M < 120.e3 && mup_PT > 20.e3 && mum_PT > 20.e3 && mup_ETA > 2 && mup_ETA < 4.5 && mum_ETA > 2 && mum_ETA < 4.5");
 
 	for (auto const & plot_configuration : plot_configurations) {
 	  plot_data_sim(measurement_in, simulation_in, plot_configuration);
