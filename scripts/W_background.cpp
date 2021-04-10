@@ -41,7 +41,7 @@ void output_histogram(TH1F* histogram, std::string name) {
   histogram->GetXaxis()->CenterTitle(true);
   histogram->GetYaxis()->CenterTitle(true);
   //canv.BuildLegend();
-  std::string filename = plots_dir + name + ".png";
+  std::string filename = plots_dir + name + ".pdf";
   canv.SaveAs(filename.c_str());
   canv.Close();
   return;
@@ -53,7 +53,7 @@ TH1F* make_histogram(std::string input_path, std::string chain, std::string hist
   TChain ch(full_chain.c_str());
   ch.Add(input_path.c_str());
 
-  TH1F *hist = new TH1F(hist_name.c_str(),";p_{T} (GeV);Events",100,x_low,x_high);
+  TH1F *hist = new TH1F(hist_name.c_str(),";p_{T} (GeV);Candidates",50,x_low,x_high);
   std::string expression = in_expression + ">>" + hist_name;
   ch.Draw(expression.c_str(), cuts.c_str());
   return hist;
@@ -68,13 +68,13 @@ TH1F* background_fit(std::string chain, std::string boson, double momentum) {
   ch.Add(data_file_path.c_str());
 
   std::string hist_name = "W" + boson + "hist_back_" + momentum_str + "_GeV";
-  TH1F *hist_back = new TH1F(hist_name.c_str(),";p_{T} (GeV);Events",100,15.,momentum);
+  TH1F *hist_back = new TH1F(hist_name.c_str(),";p_{T} (GeV);Candidates per 1 GeV",50,15.,momentum);
   std::string expression = "mu_PT*1.e-3>>" + hist_name;
   std::string eta_cut = "mu_ETA > 2 && mu_ETA < 4.5",
     track_cut = "mu_TRCHI2DOF < 2",
     pT_cut = "mu_PT*1.e-3 < " + momentum_str,
-    cuts_all = eta_cut + " && " + pT_cut + " && "+ track_cut;
-
+    cuts_all = eta_cut + " && " + pT_cut + " && " + track_cut;
+  
   ch.Draw(expression.c_str(),cuts_all.c_str());
   
   std::string fnc_name = "expo_fit";
@@ -87,7 +87,16 @@ TH1F* background_fit(std::string chain, std::string boson, double momentum) {
   if (momentum == 30) {
     // output plot with fit
     TCanvas canv1;
-    hist_back->Draw();
+    hist_back->Scale(1.,"width"); //Scale width of bins to give Candidates per 1 GeV
+    hist_back->Draw("HIST");
+
+    TF1 *function_plot = new TF1("output_fit","[0]*TMath::Exp(-[1]*x)",15.,60.);
+    function_plot->SetParameter(0,1000.);
+    function_plot->SetParameter(1,1.);
+    hist_back->Fit(function_plot->GetName());
+    function_plot->SetLineColor(2);
+    function_plot->Draw("SAME");
+
     hist_back->SetTitle("");
     hist_back->GetXaxis()->CenterTitle(true);
     hist_back->GetYaxis()->CenterTitle(true);
@@ -114,14 +123,14 @@ TH1F* background_fit(std::string chain, std::string boson, double momentum) {
     legend->SetTextSize(0.04);
     legend->Draw();
 
-    std::string const filename = plots_dir + "W" + boson + "_expo_back_plot.png";
+    std::string const filename = plots_dir + "W" + boson + "_expo_back_plot.pdf";
     canv1.SaveAs(filename.c_str());
     canv1.Close();
   }
   // make background template from fit
   //function->SetParameter(1,0.2);
   std::string template_name = "W^{" + boson + "} Background Template from Exp Fit " + momentum_str; 
-  TH1F *background_template = new TH1F(template_name.c_str(),";p_{T} (GeV);Events",100,20.,60.);
+  TH1F *background_template = new TH1F(template_name.c_str(),";p_{T} (GeV);Candidates",50,20.,60.);
   for (int i=0; i<100000; i++) {background_template->Fill(function->GetRandom());}
 
   return background_template;
@@ -133,7 +142,13 @@ void produce_fit_model(std::string boson, fit_fractions fractions, double sim_fr
   background_template->Scale(fractions.K_frac*hist_iso->Integral()/background_template->Integral()); //data_integral/background_integral
   Z_background->Scale(fractions.Z_frac*hist_iso->Integral()/Z_background->Integral());
 
-  TH1F *fit_model = new TH1F(name.c_str(),";p_{T} (GeV); Events",100,20.,60.);
+  //Scale width of bins to give Candidates per 1 GeV
+  hist_sim->Scale(1.,"width");
+  background_template->Scale(1.,"width");
+  Z_background->Scale(1.,"width");
+  hist_iso->Scale(1.,"width");
+
+  TH1F *fit_model = new TH1F(name.c_str(),";p_{T} (GeV); Candidates per 1 GeV",50,20.,60.);
   fit_model->Add(hist_sim, background_template);
   fit_model->Add(Z_background);
 
@@ -151,34 +166,35 @@ void produce_fit_model(std::string boson, fit_fractions fractions, double sim_fr
   
   fit_model->SetStats(false);
   fit_model->GetXaxis()->CenterTitle(true);
-  fit_model->GetXaxis()->SetTitleOffset(1.1);
+  fit_model->GetXaxis()->SetTitleOffset(1.15);
   fit_model->GetXaxis()->SetTitleSize(0.04);
   fit_model->GetXaxis()->SetLabelSize(0.04);
+  fit_model->GetXaxis()->SetLabelOffset(0.016);
   fit_model->GetYaxis()->CenterTitle(true);
   fit_model->GetYaxis()->SetTitleSize(0.04);
   fit_model->GetYaxis()->SetLabelSize(0.04);
   fit_model->GetYaxis()->SetTitleOffset(1.3);
 
-  TLegend *fit_legend = new TLegend(0.56,0.42,0.9,0.68);
+  TLegend *fit_legend = new TLegend(0.55,0.4,0.9,0.66);
   std::string boson_label = "W^{" + boson + "} ",
     fit_label = boson_label + "Fit Model",
     signal_label = boson_label + "Signal Simulation",
     data_label = boson_label + "Experimental Data";
-  fit_legend->AddEntry(fit_model, fit_label.c_str(), "l");
-  fit_legend->AddEntry(background_template, "K/#pi #rightarrow #mu#nu", "l");
-  fit_legend->AddEntry(hist_sim, signal_label.c_str(), "l");
-  fit_legend->AddEntry(Z_background, "Z Background", "l");
   fit_legend->AddEntry(hist_iso, data_label.c_str(), "lep"); //"Isolated W^{+} Signal", "lep");
+  fit_legend->AddEntry(fit_model, fit_label.c_str(), "l");
+  fit_legend->AddEntry(hist_sim, signal_label.c_str(), "l");
+  fit_legend->AddEntry(background_template, "K/#pi#rightarrow#mu#nu Background", "l");
+  fit_legend->AddEntry(Z_background, "Z#rightarrow#mu#mu Background", "l");
   fit_legend->SetTextSize(0.04);
   fit_legend->Draw();
 
   std::string sim_sys_str = std::to_string(round(sim_frac_sys*1000)/1000); sim_sys_str.resize(5);
-  std::string sim_label = fractions.sim_label + "_{stat}#pm" + sim_sys_str + "_{sys}";
-  TPaveText *statBox = new TPaveText(0.37,0.68,0.9,0.9, "NDC");
+  std::string sim_label = fractions.sim_label + "_{stat} #pm " + sim_sys_str + "_{sys}";
+  TPaveText *statBox = new TPaveText(0.43,0.66,0.9,0.9, "NDC");
   statBox->SetFillStyle(0);
   statBox->SetTextAlign(12);
-  statBox->AddText(fractions.K_label.c_str());
   statBox->AddText(sim_label.c_str());
+  statBox->AddText(fractions.K_label.c_str());
   statBox->AddText(fractions.Z_label.c_str());
   statBox->AddText(fractions.chi_squared_ndf.c_str());
   statBox->SetBorderSize(1); //removes shadow
@@ -187,7 +203,7 @@ void produce_fit_model(std::string boson, fit_fractions fractions, double sim_fr
   statBox->Draw();    
 
 
-  std::string const fit_filename = plots_dir + "W" + boson + "_fit_model.png";
+  std::string const fit_filename = plots_dir + "W" + boson + "_fit_model.pdf";
   fit_canv.SaveAs(fit_filename.c_str());
   fit_canv.Close();
 }
@@ -214,29 +230,37 @@ fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_err
     std::string sim_err_str = std::to_string(round(output.sim_err*1000)/1000); sim_err_str.resize(5);
     std::string Z_frac_str = std::to_string(round(output.Z_frac*1000)/1000); Z_frac_str.resize(5);
     std::string Z_err_str = std::to_string(round(output.Z_err*1000)/1000); Z_err_str.resize(5);
-    output.K_label = "K/#pi #rightarrow #mu#nu: " + K_frac_str + "#pm" + K_err_str;
-    output.sim_label = "Signal Simulation: " + sim_frac_str + "#pm" + sim_err_str;
-    output.Z_label = "Z background: " + Z_frac_str + "#pm" + Z_err_str;
+    output.K_label = "K/#pi#rightarrow#mu#nu: " + K_frac_str + " #pm " + K_err_str;
+    output.sim_label = "W^{" + boson + "} Signal: " + sim_frac_str + " #pm " + sim_err_str;
+    output.Z_label = "Z#rightarrow#mu#mu: " + Z_frac_str + " #pm " + Z_err_str;
 
     output.chi_squared = fit->GetChisquare();
     output.ndf = fit->GetNDF();
     std::string chi_squared_str = std::to_string(round(output.chi_squared*10)/10); chi_squared_str.resize(5);
+
     output.chi_squared_ndf = "#chi^{2}/ndf: " + chi_squared_str + "/" + std::to_string(output.ndf); 
 
 
     if (momentum == "30") {
       TH1F *result = (TH1F*) fit->GetPlot();
+      //Scale width of bins to give Candidates per 1 GeV
+      hist_iso->Scale(1.,"width"); 
+      result->Scale(1.,"width"); 
+
       hist_iso->Draw("E");
-      result->Draw("SAME");
-      
+      result->Draw("SAME HIST");
+  
       hist_iso->SetStats(false);
       hist_iso->GetXaxis()->CenterTitle(true);
       hist_iso->GetXaxis()->SetTitleSize(0.04);
       hist_iso->GetXaxis()->SetLabelSize(0.04);
+      hist_iso->GetXaxis()->SetTitleOffset(1.15);
+      hist_iso->GetXaxis()->SetLabelOffset(0.016);
       hist_iso->GetYaxis()->CenterTitle(true);
+      hist_iso->GetYaxis()->SetTitle("Candidates per 1 GeV");
       hist_iso->GetYaxis()->SetTitleSize(0.04);
       hist_iso->GetYaxis()->SetLabelSize(0.04);
-      hist_iso->GetYaxis()->SetTitleOffset(1.3);
+      hist_iso->GetYaxis()->SetTitleOffset(1.25);
     
       TLegend *fraction_legend = new TLegend(0.5,0.76,0.9,0.9);
       std::string data_label = "Isolated W^{" + boson + "} Data";
@@ -248,8 +272,8 @@ fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_err
       TPaveText *statBox = new TPaveText(0.5,0.5,0.9,0.76, "NDC");
       statBox->SetFillStyle(0);
       statBox->SetTextAlign(12);
-      statBox->AddText(output.K_label.c_str());
       statBox->AddText(output.sim_label.c_str());
+      statBox->AddText(output.K_label.c_str());
       statBox->AddText(output.Z_label.c_str());
       statBox->AddText(output.chi_squared_ndf.c_str());
       statBox->SetBorderSize(1); //removes shadow
@@ -259,7 +283,7 @@ fit_fractions fraction_fitter(std::string boson, double Z_fraction, double Z_err
     }
   }
   if (momentum == "30") {
-    std::string const fraction_filename = plots_dir + "W" + boson + "_fraction_fit.png";
+    std::string const fraction_filename = plots_dir + "W" + boson + "_fraction_fit.pdf";
     fraction_canv.SaveAs(fraction_filename.c_str());
   }
   fraction_canv.Close();
@@ -281,7 +305,7 @@ void output_values(std::string boson, double Z_frac, double Z_err, fit_fractions
     output_file << ", \"Z_frac\": " + std::to_string(fractions.Z_frac) + ", \"Z_frac_err\": " + std::to_string(fractions.Z_err);
     output_file << ", \"chi_squared\": " + std::to_string(fractions.chi_squared) + ", \"ndf\": " + std::to_string(fractions.ndf);
     // output numbers of events
-    output_file << ", \"pi_K_events\": 10000";
+    output_file << ", \"pi_K_events\": 100000";
     output_file << ", \"signal_events\": " + std::to_string(signal_events);
     output_file << ", \"W_in_Z_sim_events\": " + std::to_string(W_in_Z_sim_events);
     output_file << ", \"W_data_events\": " + std::to_string(W_data_events);
@@ -308,10 +332,10 @@ int main() {
   TH1F *Wm_background_template_35 = background_fit("WmSingleTrackNoBias","-",35);
 
   // initialise W cuts
-  std::string isolation_cut = "TMath::Log10(TMath::Max(0.1,1.e-3*mu_PTSUMCONE040)) < 3", 
-    pT_cut = "mu_PT*1.e-3 > 20",
+  //std::string isolation_cut = "TMath::Log10(TMath::Max(0.1,1.e-3*mu_PTSUMCONE040)) < 3", // "TMath::Max(0.1,1.e-3*mu_PTSUMCONE040) < 2",
+  std::string pT_cut = "mu_PT*1.e-3 > 20",
     eta_cut = "mu_ETA > 2 && mu_ETA < 4.5",
-    W_cuts = isolation_cut + " && " + pT_cut + " && " + eta_cut;
+    W_cuts = pT_cut + " && " + eta_cut;
   std::string W_expression = "mu_PT*1e-3";
   // get isolated data
   TH1F *Wp_hist_iso = make_histogram(data_file_path, "WpIso", "Wp_hist_iso", 20., 60., W_expression, W_cuts);
