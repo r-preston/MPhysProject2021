@@ -26,15 +26,26 @@ def xsec_calc(W_data, lumi, lumi_err, trig_eff, trig_eff_rel_unc):
     xsec_err_sys = math.sqrt(xsec_err_eff**2 + xsec_err_track**2)
     xsec_err = math.sqrt(xsec_err_stat**2 + xsec_err_lumi**2 + xsec_err_sys**2)
 
+    xsec_err_events = xsec*W_events_rel_unc
+    xsec_err_signal = xsec*(signal_frac_err_stat/signal_frac)
+
+    # statistical breakdown
+    events_err = xsec*W_events_rel_unc
+    signal_err = xsec*(signal_frac_err_stat/signal_frac)
+    #print("Count err = {}, {}%".format(events_err,W_events_rel_unc*100))
+    #print("Signal frac stat err = {}, {}%".format(signal_err,(signal_frac_err_stat/signal_frac)*100))
+    #print("Original = {}, separate = {}".format(xsec_err_stat, math.sqrt(events_err**2 + signal_err**2)))
+
     # testing 
     #signal_test_err = math.sqrt(signal_frac_err_stat**2 + signal_frac_err_sys**2)
     #test_err = xsec * math.sqrt(W_events_rel_unc**2 + (lumi_err/lumi)**2 + trig_eff_rel_unc**2 + (signal_test_err/signal_frac)**2)
     #print("Propagated = {}, derived = {}".format(xsec_err, test_err))
 
-    return xsec, xsec_err, xsec_err_stat, xsec_err_lumi, xsec_err_eff, xsec_err_track, xsec_err_sys, counts, counts_err_stat, counts_err_sys
+    return xsec, xsec_err, xsec_err_stat, xsec_err_lumi, xsec_err_eff, xsec_err_track, xsec_err_sys, xsec_err_events, xsec_err_signal, counts, counts_err_stat, counts_err_sys
 
 
 def Z_xsec_calc(lumi, lumi_err, trig_eff, trig_eff_rel_unc):
+    # included to avoid floating point errors due to read in from other code
     file_path = "/storage/epp2/phshgg/DVTuples__v23/5TeV_2017_32_Down_EW.root"
     ch = ROOT.TChain('Z/DecayTree')
     ch.Add(file_path)
@@ -48,6 +59,7 @@ def Z_xsec_calc(lumi, lumi_err, trig_eff, trig_eff_rel_unc):
     xsec_err_eff = xsec * (trig_eff_rel_unc)
     xsec_err = math.sqrt(xsec_err_stat**2 + xsec_err_eff**2 + xsec_err_lumi**2)
     #print("Z_xsec = {} + {} + {}".format(xsec,xsec_err_stat,xsec_err_eff))
+    #print("statistical % = {}".format(count_rel_unc*100)) #statistical breakdown
     return xsec, xsec_err_stat, xsec_err_eff
 
 
@@ -76,15 +88,15 @@ with open('results_json/Wm_back_output.json') as json_file:
     Wm_back = json.load(json_file)
 
 # calculate cross sections
-Wp_xsec, Wp_xsec_err, Wp_xsec_err_stat, Wp_xsec_err_lumi, Wp_xsec_err_eff, Wp_xsec_err_track, Wp_xsec_err_sys, Wp_events, Wp_events_err_stat, Wp_events_err_sys = xsec_calc(Wp_back, lumi, lumi_err, mup_eff, mup_eff_rel_unc)
-Wm_xsec, Wm_xsec_err, Wm_xsec_err_stat, Wm_xsec_err_lumi, Wm_xsec_err_eff, Wm_xsec_err_track, Wm_xsec_err_sys, Wm_events, Wm_events_err_stat, Wm_events_err_sys = xsec_calc(Wm_back, lumi, lumi_err, mum_eff, mum_eff_rel_unc)
+Wp_xsec, Wp_xsec_err, Wp_xsec_err_stat, Wp_xsec_err_lumi, Wp_xsec_err_eff, Wp_xsec_err_track, Wp_xsec_err_sys, Wp_xsec_err_events, Wp_xsec_err_signal, Wp_events, Wp_events_err_stat, Wp_events_err_sys = xsec_calc(Wp_back, lumi, lumi_err, mup_eff, mup_eff_rel_unc)
+Wm_xsec, Wm_xsec_err, Wm_xsec_err_stat, Wm_xsec_err_lumi, Wm_xsec_err_eff, Wm_xsec_err_track, Wm_xsec_err_sys, Wm_xsec_err_events, Wm_xsec_err_signal, Wm_events, Wm_events_err_stat, Wm_events_err_sys = xsec_calc(Wm_back, lumi, lumi_err, mum_eff, mum_eff_rel_unc)
 
 # output cross sections
-Wp_xsec_output = {"count":Wp_events, "count_error_stat":Wp_events_err_stat, "count_error_sys":Wp_events_err_sys, "xsec":Wp_xsec, "xsec_err":Wp_xsec_err, "xsec_err_stat":Wp_xsec_err_stat, "xsec_err_lumi":Wp_xsec_err_lumi, "xsec_err_eff":Wp_xsec_err_eff, "xsec_err_track":Wp_xsec_err_track, "xsec_err_sys":Wp_xsec_err_sys}
+Wp_xsec_output = {"count":Wp_events, "count_error_stat":Wp_events_err_stat, "count_error_sys":Wp_events_err_sys, "xsec":Wp_xsec, "xsec_err":Wp_xsec_err, "xsec_err_events":Wp_xsec_err_events, "xsec_err_signal":Wp_xsec_err_signal, "xsec_err_stat":Wp_xsec_err_stat, "xsec_err_lumi":Wp_xsec_err_lumi, "xsec_err_eff":Wp_xsec_err_eff, "xsec_err_track":Wp_xsec_err_track, "xsec_err_sys":Wp_xsec_err_sys}
 with open('results_json/Wp_xsec.json', 'w') as outfile:
     json.dump(Wp_xsec_output,outfile)
 
-Wm_xsec_output = {"count":Wm_events, "count_error_stat":Wm_events_err_stat, "count_error_sys":Wm_events_err_sys, "xsec":Wm_xsec, "xsec_err":Wm_xsec_err, "xsec_err_stat":Wm_xsec_err_stat, "xsec_err_lumi":Wm_xsec_err_lumi, "xsec_err_eff":Wm_xsec_err_eff, "xsec_err_track":Wm_xsec_err_track, "xsec_err_sys":Wm_xsec_err_sys}
+Wm_xsec_output = {"count":Wm_events, "count_error_stat":Wm_events_err_stat, "count_error_sys":Wm_events_err_sys, "xsec":Wm_xsec, "xsec_err":Wm_xsec_err, "xsec_err_events":Wm_xsec_err_events, "xsec_err_signal":Wm_xsec_err_signal, "xsec_err_stat":Wm_xsec_err_stat, "xsec_err_lumi":Wm_xsec_err_lumi, "xsec_err_eff":Wm_xsec_err_eff, "xsec_err_track":Wm_xsec_err_track, "xsec_err_sys":Wm_xsec_err_sys}
 with open('results_json/Wm_xsec.json', 'w') as outfile:
     json.dump(Wm_xsec_output,outfile)
 
@@ -102,9 +114,13 @@ Wp_Wm_ratio = Wp_xsec/Wm_xsec
 Wp_Wm_ratio_stat = Wp_Wm_ratio * math.sqrt((Wp_xsec_err_stat/Wp_xsec)**2 + (Wm_xsec_err_stat/Wm_xsec)**2)
 Wp_Wm_ratio_sys = Wp_Wm_ratio * math.sqrt((Wp_xsec_err_sys/Wp_xsec)**2 + (Wm_xsec_err_sys/Wm_xsec)**2)
 Wp_Wm_ratio_err = math.sqrt(Wp_Wm_ratio_stat**2 + Wp_Wm_ratio_sys**2)
+
 Wp_Wm_ratio_eff = Wp_Wm_ratio * math.sqrt((Wp_xsec_err_eff/Wp_xsec)**2 + (Wm_xsec_err_eff/Wm_xsec)**2)
 Wp_Wm_ratio_track = Wp_Wm_ratio * math.sqrt((Wp_xsec_err_track/Wp_xsec)**2 + (Wm_xsec_err_track/Wm_xsec)**2)
+Wp_Wm_ratio_events = Wp_Wm_ratio * math.sqrt((Wp_xsec_err_events/Wp_xsec)**2 + (Wm_xsec_err_events/Wm_xsec)**2)
+Wp_Wm_ratio_signal = Wp_Wm_ratio * math.sqrt((Wp_xsec_err_signal/Wp_xsec)**2 + (Wm_xsec_err_signal/Wm_xsec)**2)
 
+#print("WW events = {}, {}%; WW signal = {}, {}%".format(Wp_Wm_ratio_events,Wp_Wm_ratio_events/Wp_Wm_ratio*100,Wp_Wm_ratio_signal,Wp_Wm_ratio_signal/Wp_Wm_ratio*100))
 
 # testing and output
 #r = Wp_events/Wm_events * mum_eff/mup_eff
@@ -123,14 +139,18 @@ Wm_coeff = ((Wm_events/mum_eff)**2)/((Wp_events/mup_eff + Wm_events/mum_eff)**2)
 W_Z_ratio_stat = W_Z_ratio * math.sqrt(Wp_coeff*((Wp_xsec_err_stat/Wp_xsec)**2) + Wm_coeff*((Wm_xsec_err_stat/Wm_xsec)**2) + (Z_xsec_err_stat/Z_xsec)**2)
 W_Z_ratio_sys = W_Z_ratio * math.sqrt(Wp_coeff*((Wp_xsec_err_sys/Wp_xsec)**2) + Wm_coeff*((Wm_xsec_err_sys/Wm_xsec)**2) + (Z_xsec_err_eff/Z_xsec)**2)
 W_Z_ratio_err = math.sqrt(W_Z_ratio_stat**2 + W_Z_ratio_sys**2)
+
 W_Z_ratio_eff = W_Z_ratio * math.sqrt(Wp_coeff*((Wp_xsec_err_eff/Wp_xsec)**2) + Wm_coeff*((Wm_xsec_err_eff/Wm_xsec)**2) + (Z_xsec_err_eff/Z_xsec)**2)
 W_Z_ratio_track = W_Z_ratio * math.sqrt(Wp_coeff*((Wp_xsec_err_track/Wp_xsec)**2) + Wm_coeff*((Wm_xsec_err_track/Wm_xsec)**2))
+W_Z_ratio_events = W_Z_ratio * math.sqrt(Wp_coeff*((Wp_xsec_err_events/Wp_xsec)**2) + Wm_coeff*((Wm_xsec_err_events/Wm_xsec)**2) + (Z_xsec_err_stat/Z_xsec)**2)
+W_Z_ratio_signal = W_Z_ratio * math.sqrt(Wp_coeff*((Wp_xsec_err_signal/Wp_xsec)**2) + Wm_coeff*((Wm_xsec_err_signal/Wm_xsec)**2))
 
 #print("{}, {}".format(W_Z_ratio_sys, math.sqrt(W_Z_ratio_eff**2 + W_Z_ratio_track**2)))
 #print('W/Z = {} + {} + {}'.format(W_Z_ratio, W_Z_ratio_stat, W_Z_ratio_eff))
+#print("WZ events = {}, {}%; WZ signal = {}, {}%".format(W_Z_ratio_events,W_Z_ratio_events/W_Z_ratio*100,W_Z_ratio_signal,W_Z_ratio_signal/W_Z_ratio*100))
 
 # output ratios
-ratio_output = {"WW_ratio":Wp_Wm_ratio, "WW_error":Wp_Wm_ratio_err, "WW_stat":Wp_Wm_ratio_stat, "WW_sys": Wp_Wm_ratio_sys, "WW_eff":Wp_Wm_ratio_eff, "WW_track":Wp_Wm_ratio_track, "WZ_ratio":W_Z_ratio, "WZ_error":W_Z_ratio_err, "WZ_stat":W_Z_ratio_stat, "WZ_sys": W_Z_ratio_sys, "WZ_eff":W_Z_ratio_eff, "WZ_track":W_Z_ratio_track}
+ratio_output = {"WW_ratio":Wp_Wm_ratio, "WW_error":Wp_Wm_ratio_err, "WW_stat":Wp_Wm_ratio_stat, "WW_sys": Wp_Wm_ratio_sys, "WW_eff":Wp_Wm_ratio_eff, "WW_track":Wp_Wm_ratio_track, "WW_events":Wp_Wm_ratio_events, "WW_signal":Wp_Wm_ratio_signal, "WZ_ratio":W_Z_ratio, "WZ_error":W_Z_ratio_err, "WZ_stat":W_Z_ratio_stat, "WZ_sys": W_Z_ratio_sys, "WZ_eff":W_Z_ratio_eff, "WZ_track":W_Z_ratio_track, "WZ_events":W_Z_ratio_events, "WZ_signal":W_Z_ratio_signal}
 with open('results_json/Ratios.json','w') as outfile:
     json.dump(ratio_output,outfile)
 
